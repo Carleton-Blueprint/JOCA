@@ -17,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Link from "next/link";
 
 
 const loginSchema = z.object({
@@ -95,7 +96,9 @@ export default function Home() {
               <span className="text-sm text-muted-foreground">
                 Don't have an account?
               </span>
-              <Button className="hover:cursor-pointer" variant="link" size="sm">Register</Button>
+              <Link href="/signup">
+                <Button className="hover:cursor-pointer" variant="link" size="sm">Register</Button>
+              </Link>
             </div>
           </CardHeader>
         </Card>
