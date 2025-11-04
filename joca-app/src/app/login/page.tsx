@@ -2,7 +2,12 @@
 
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 import { useForm } from "react-hook-form";
@@ -19,14 +24,12 @@ import {
 } from "@/components/ui/form";
 import Link from "next/link";
 
-
 const loginSchema = z.object({
   email: z.email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
 
 export default function Home() {
   const form = useForm<LoginFormValues>({
@@ -43,13 +46,15 @@ export default function Home() {
   }
 
   return (
-    <div className="font-sans flex flex-col items-center justify-items-center min-h-screen gap-16">
+    <div className="font-sans flex flex-col items-center  justify-items-center min-h-screen gap-16">
       <Header />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-md">
         <Card className="w-full">
           <CardHeader className="w-full">
             <CardTitle className="text-2xl">Sign In</CardTitle>
-            <CardDescription className="mb-4">Enter your email and password to access your account</CardDescription>
+            <CardDescription className="mb-4">
+              Enter your email and password to access your account
+            </CardDescription>
 
             <Form {...form}>
               <form
@@ -79,7 +84,11 @@ export default function Home() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -97,7 +106,13 @@ export default function Home() {
                 Don't have an account?
               </span>
               <Link href="/signup">
-                <Button className="hover:cursor-pointer" variant="link" size="sm">Register</Button>
+                <Button
+                  className="hover:cursor-pointer"
+                  variant="link"
+                  size="sm"
+                >
+                  Register
+                </Button>
               </Link>
             </div>
           </CardHeader>

@@ -11,21 +11,23 @@ import { Label } from "@radix-ui/react-label";
 import Link from "next/link";
 
 type FooterLinkProps = {
-  href: string
-  children: React.ReactNode
-}
+  href: string;
+  children: React.ReactNode;
+};
 const FooterLink = ({ href, children }: FooterLinkProps) => (
   <NavigationMenuLink
     asChild
     className={navigationMenuTriggerStyle() + " bg-transparent"}
   >
-    <Link className="text-gray-500" href={href}>{children}</Link>
+    <Link className="text-gray-500" href={href}>
+      {children}
+    </Link>
   </NavigationMenuLink>
-)
+);
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-200 w-full py-8 px-4 h-fit">
+    <footer className="flex justify-center items-center bg-gray-200 w-full py-8 px-4 h-fit w-full">
       <NavigationMenu>
         <NavigationMenuList className="flex gap-8">
           <NavigationMenuItem className="flex flex-col items-start justify-start gap-4">
@@ -48,12 +50,13 @@ const Footer = () => {
           </NavigationMenuItem>
 
           <NavigationMenuItem className="flex flex-col gap-2">
-            <Label className="font-bold py-2 px-4">Follow on Social Media</Label>
+            <Label className="font-bold py-2 px-4">
+              Follow on Social Media
+            </Label>
             <FooterLink href="/"> Facebook</FooterLink>
             <FooterLink href="/"> Twitter</FooterLink>
             <FooterLink href="/"> Instagram</FooterLink>
           </NavigationMenuItem>
-
         </NavigationMenuList>
       </NavigationMenu>
     </footer>
