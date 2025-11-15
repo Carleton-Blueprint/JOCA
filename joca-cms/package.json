@@ -1,5 +1,5 @@
 {
-  "name": "cms",
+  "name": "joca-cms",
   "version": "0.1.0",
   "private": true,
   "description": "A Strapi application",
@@ -15,10 +15,10 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.30.0",
-    "@strapi/plugin-users-permissions": "5.30.0",
-    "@strapi/strapi": "5.30.0",
-    "better-sqlite3": "11.3.0",
+    "@strapi/plugin-cloud": "5.31.0",
+    "@strapi/plugin-users-permissions": "5.31.0",
+    "@strapi/strapi": "5.31.0",
+    "better-sqlite3": "12.4.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
@@ -31,11 +31,11 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=18.0.0 <=22.x.x",
+    "node": ">=20.0.0 <=24.x.x",
     "npm": ">=6.0.0"
   },
   "strapi": {
-    "uuid": "c1028823-d685-48f2-a558-5620daf9994c",
-    "installId": "f4f37e83f451d0d5e2fcc2d7224c0e0aa9f657051f825ab1917245b0f50df6bf"
+    "uuid": "42a1b413-e0ea-4cbd-a0af-4f7c9a4ad304",
+    "installId": "1ead6ea5d8e7d23bd64715f10f687546dc2aedfd01f1c2ad5ccd4f9de6031646"
   }
 }
