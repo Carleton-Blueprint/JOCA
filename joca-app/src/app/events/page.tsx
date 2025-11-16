@@ -93,7 +93,8 @@ type CategoryFilter = (typeof categories)[number];
 
 export default function EventsPage() {
   const [query, setQuery] = React.useState("");
-  const [activeCategory, setActiveCategory] = React.useState<CategoryFilter>("All");
+  const [activeCategory, setActiveCategory] =
+    React.useState<CategoryFilter>("All");
 
   const filteredEvents = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -110,10 +111,10 @@ export default function EventsPage() {
   }, [query, activeCategory]);
 
   return (
-    <div className="font-sans flex flex-col items-center min-h-screen p-8 pb-20 gap-10 sm:p-20">
+    <div className="flex justify-center items-center min-h-screen flex-col">
       <Header />
 
-      <main className="w-full max-w-5xl flex flex-col gap-6">
+      <main className="w-full  flex flex-col gap-6 p-8">
         <section className="flex flex-col gap-3 items-center text-center">
           <h1 className="text-4xl sm:text-5xl font-bold">Events</h1>
           <p className="text-gray-500 max-w-2xl">
@@ -145,7 +146,8 @@ export default function EventsPage() {
             </div>
             <div className="flex-1" />
             <span className="text-sm text-muted-foreground">
-              {filteredEvents.length} event{filteredEvents.length === 1 ? "" : "s"}
+              {filteredEvents.length} event
+              {filteredEvents.length === 1 ? "" : "s"}
             </span>
           </div>
         </section>
