@@ -1,7 +1,13 @@
+"use client"
+
 import Image from "next/image";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import { useQuery } from "@apollo/client/react";
+import { GET_EVENTS } from "./utils";
+import { Event, GetEventsData } from "@/types/graphql";
+
 import {
   Card,
   CardAction,
@@ -12,7 +18,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar, FolderTree, Users, Vote } from "lucide-react";
+
+
 export default function Home() {
+
+  const { loading, error, data } = useQuery<GetEventsData>(GET_EVENTS);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error : {error.message}</p>;
+  if (data === undefined) return <p>Error : Data undefined</p>;
+
   return (
     <div className="font-sans flex flex-col items-center justify-items-center min-h-screen gap-42">
       <Header />
@@ -61,7 +76,28 @@ export default function Home() {
           </CardHeader>
         </Card>
       </section>
+      <div>
+        <div className="flex flex-col gap-8">
+          {data.events.map((event: Event, index: number) => (
+            <EventCard event={event} key={index} />
+          ))}
+        </div>
+      </div>
       <Footer />
     </div>
+
   );
+}
+
+// Simple component to display event details
+const EventCard = ({ event }: { event: Event }) => {
+  return (
+    <div className="grid grid-cols-[100px_400px] gap-2 w-96">
+      <p>Title</p> <p>{event.title}</p>
+      <p>Description</p> <p>{event.description}</p>
+      <p>Date</p> <p>{event.date.toString()}</p>
+      <p>isPublic</p> <p>{event.isPublic ? "True" : "False"}</p>
+      <p>location</p> <p>{event.location}</p>
+    </div>
+  )
 }
