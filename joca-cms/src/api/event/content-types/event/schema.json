@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Events"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "date": {
+      "type": "datetime"
+    },
+    "location": {
+      "type": "string"
+    },
+    "isPublic": {
+      "type": "boolean"
+    }
+  }
+}
