@@ -14,17 +14,28 @@
     "title": {
       "type": "string"
     },
-    "description": {
-      "type": "richtext"
-    },
     "date": {
-      "type": "datetime"
+      "type": "date"
     },
     "location": {
       "type": "string"
     },
     "isPublic": {
       "type": "boolean"
+    },
+    "time": {
+      "type": "time"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "Culture",
+        "Community ",
+        "Education"
+      ]
+    },
+    "description": {
+      "type": "text"
     }
   }
 }
