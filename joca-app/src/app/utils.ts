@@ -8,6 +8,8 @@ export const GET_EVENTS = gql`
         isPublic
         location
         title
+        category
+        time
     }
 }`;
 
