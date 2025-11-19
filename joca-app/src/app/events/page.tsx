@@ -51,8 +51,6 @@ export default function EventsPage() {
   }, [query, activeCategory, data]);
 
 
-  if (error) return <p>Error : {error.message}</p>;
-
   return (
     <div className="flex justify-center items-center min-h-screen flex-col">
       <Header />
@@ -91,7 +89,7 @@ export default function EventsPage() {
         </section>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-64">
-          {loading ? (<p>Loading...</p>) :
+          {error ? <p>Error : {error.message}</p> : loading ? (<p>Loading...</p>) :
             (
               filteredEvents?.map((event, index) => (
                 <EventCard event={event} key={index} />
