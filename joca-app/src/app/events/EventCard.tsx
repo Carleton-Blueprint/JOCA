@@ -10,7 +10,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Bell, CalendarDays, Camera, Check, Clock, MapPin, Reply } from "lucide-react";
+import { Bell, CalendarDays, Camera, Clock, MapPin } from "lucide-react";
 import { ClientDate } from "@/app/events/clientDate";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { EventItem } from "./page";
@@ -73,9 +73,12 @@ export default function EventCard({ event }: { event: EventItem }) {
                 {/* Footer stays at bottom */}
                 <CardFooter className="mt-auto">
                     <div className="flex justify-between w-full">
-                        <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
-                            {event.category}
-                        </span>
+                        {event.category ? (
+                            <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
+                                {event.category}
+                            </span>
+                        ) : <span />
+                        }
 
                         <div className="flex gap-2">
                             <Button className="hover:cursor-pointer" size="sm" onClick={handleViewDetails}>View details</Button>
