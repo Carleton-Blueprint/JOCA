@@ -17,11 +17,18 @@ import { EventItem } from "./page";
 
 
 function formatTime(timeStr: string) {
-    timeStr = timeStr.split(":").slice(0, 2).join(":")
-    timeStr = timeStr.startsWith("0") ? timeStr.slice(1) : timeStr
-    const hour = Number(timeStr.split(":")[0])
-    const AM_PM = hour < 12 ? " a.m" : " p.m";
-    return timeStr.startsWith("0") ? timeStr.slice(1) + AM_PM : timeStr + AM_PM;
+    if (!timeStr) return "N/A";
+
+    const [h, m] = timeStr.split(":");
+    let hour = Number(h);
+
+    const suffix = hour < 12 ? " a.m" : " p.m";
+
+    // Convert to 12-hour format:
+    if (hour === 0) hour = 12;
+    else if (hour > 12) hour -= 12;
+
+    return `${hour}:${m} ${suffix}`;
 }
 
 export default function EventCard({ event }: { event: EventItem }) {
