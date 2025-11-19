@@ -60,7 +60,7 @@ export default function EventCard({ event }: { event: EventItem }) {
                         </span>
                         <span className="inline-flex items-center gap-2">
                             <MapPin className="opacity-70" />
-                            {event.location}
+                            {event.location ?? "N/A"}
                         </span>
                     </CardDescription>
                 </CardHeader>
