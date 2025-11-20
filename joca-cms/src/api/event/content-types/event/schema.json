@@ -12,19 +12,23 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "date": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "location": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "isPublic": {
       "type": "boolean"
     },
     "time": {
-      "type": "time"
+      "type": "time",
+      "required": true
     },
     "category": {
       "type": "enumeration",
