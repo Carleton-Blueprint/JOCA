@@ -10,18 +10,25 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Bell, CalendarDays, Camera, Check, Clock, MapPin, Reply } from "lucide-react";
+import { Bell, CalendarDays, Camera, Clock, MapPin } from "lucide-react";
 import { ClientDate } from "@/app/events/clientDate";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { EventItem } from "./page";
 
 
 function formatTime(timeStr: string) {
-    timeStr = timeStr.split(":").slice(0, 2).join(":")
-    timeStr = timeStr.startsWith("0") ? timeStr.slice(1) : timeStr
-    const hour = Number(timeStr.split(":")[0])
-    const AM_PM = hour < 12 ? " a.m" : " p.m";
-    return timeStr.startsWith("0") ? timeStr.slice(1) + AM_PM : timeStr + AM_PM;
+    if (!timeStr) return "N/A";
+
+    const [h, m] = timeStr.split(":");
+    let hour = Number(h);
+
+    const suffix = hour < 12 ? " a.m" : " p.m";
+
+    // Convert to 12-hour format:
+    if (hour === 0) hour = 12;
+    else if (hour > 12) hour -= 12;
+
+    return `${hour}:${m} ${suffix}`;
 }
 
 export default function EventCard({ event }: { event: EventItem }) {
@@ -53,7 +60,7 @@ export default function EventCard({ event }: { event: EventItem }) {
                         </span>
                         <span className="inline-flex items-center gap-2">
                             <MapPin className="opacity-70" />
-                            {event.location}
+                            {event.location ?? "N/A"}
                         </span>
                     </CardDescription>
                 </CardHeader>
@@ -66,9 +73,12 @@ export default function EventCard({ event }: { event: EventItem }) {
                 {/* Footer stays at bottom */}
                 <CardFooter className="mt-auto">
                     <div className="flex justify-between w-full">
-                        <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
-                            {event.category}
-                        </span>
+                        {event.category ? (
+                            <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
+                                {event.category}
+                            </span>
+                        ) : <span />
+                        }
 
                         <div className="flex gap-2">
                             <Button className="hover:cursor-pointer" size="sm" onClick={handleViewDetails}>View details</Button>
