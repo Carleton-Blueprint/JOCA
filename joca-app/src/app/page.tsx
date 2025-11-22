@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar, FolderTree, Users, Vote } from "lucide-react";
+import Link from "next/link";
 
 
 export default function Home() {
@@ -35,8 +36,12 @@ export default function Home() {
             culture, connection, and celebration
           </p>
           <nav className="flex gap-8 items-center justify-center">
-            <Button>Become a Member</Button>
-            <Button variant="outline">View Events</Button>
+            <Link href="signup">
+              <Button>Become a Member</Button>
+            </Link>
+            <Link href="events">
+              <Button variant="outline">View Events</Button>
+            </Link>
           </nav>
         </section>
       </section>
