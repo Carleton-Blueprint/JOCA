@@ -1,20 +1,20 @@
-import React from "react"
+import React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface FlippingCardProps {
-  className?: string
-  height?: number
-  width?: number
-  frontContent?: React.ReactNode
-  backContent?: React.ReactNode
+  className?: string;
+  height?: number;
+  width?: number;
+  frontContent?: React.ReactNode;
+  backContent?: React.ReactNode;
 }
 
 export function FlippingCard({
   className,
   frontContent,
   backContent,
-  height = 300,
+  height = 250,
   width = 350,
 }: FlippingCardProps) {
   return (
@@ -48,5 +48,5 @@ export function FlippingCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
