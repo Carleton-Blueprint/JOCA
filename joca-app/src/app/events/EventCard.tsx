@@ -54,7 +54,7 @@ export default function EventCard({ event }: { event: EventItem }) {
         <CardHeader>
           <CardTitle className="text-2xl pb-2">{event.title}</CardTitle>
           <CardDescription className="flex flex-col gap-1 text-lg">
-            <span className="inline-flex items-center gap-2 text-white">
+            <span className="inline-flex items-center gap-2 dark:text-white">
               <CalendarDays className="opacity-70" />
               <ClientDate date={event.date} />
               <span className="text-muted-foreground">•</span>
@@ -63,7 +63,7 @@ export default function EventCard({ event }: { event: EventItem }) {
                 {formatTime(event.time)}
               </span>
             </span>
-            <span className="inline-flex text-white items-center gap-2">
+            <span className="inline-flex dark:text-white items-center gap-2">
               <MapPin className="opacity-70" />
               {event.location ?? "N/A"}
             </span>
@@ -72,7 +72,7 @@ export default function EventCard({ event }: { event: EventItem }) {
 
         {/* Content grows but does NOT push footer inconsistently */}
         <CardContent className="flex-grow">
-          <p className="text-md text-white">{event.description}</p>
+          <p className="text-md dark:text-white">{event.description}</p>
         </CardContent>
 
         {/* Footer stays at bottom */}
