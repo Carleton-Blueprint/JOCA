@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar, FolderTree, Users, Vote } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { HeroParallax } from "@/components/ui/hero-parallax";
@@ -26,6 +25,9 @@ export function HomePage() {
     <>
       <HeroParallax products={products} />
       <nav className="flex gap-8 items-center justify-center">
+        <Link href="about">
+          <InteractiveHoverButton>About Us</InteractiveHoverButton>
+        </Link>
         <Link href="signup">
           <InteractiveHoverButton>Become a Member</InteractiveHoverButton>
         </Link>
