@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 const Header = () => {
   return (
@@ -8,6 +9,7 @@ const Header = () => {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold">JOCA</span>
           </Link>
+
           <nav className="flex items-center gap-6">
             <Link
               href="/"
@@ -35,6 +37,7 @@ const Header = () => {
             </Link>
           </nav>
         </div>
+        <AnimatedThemeToggler />
       </div>
     </header>
   );
