@@ -29,10 +29,11 @@ export default function RootLayout({
     <html lang="en">
       <ApolloWrapper>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col justify-between min-h-screen`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased dark flex flex-col justify-between min-h-screen`}
         >
           <Header />
           {children}
+
           <Footer />
         </body>
       </ApolloWrapper>
