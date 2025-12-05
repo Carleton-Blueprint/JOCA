@@ -14,7 +14,7 @@ export function FlippingCard({
   className,
   frontContent,
   backContent,
-  height = 250,
+  height = 350,
   width = 350,
 }: FlippingCardProps) {
   return (

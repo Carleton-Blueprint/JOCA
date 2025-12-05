@@ -36,56 +36,70 @@ export function HomePage() {
       <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6 mb-16">
         <FlippingCard
           frontContent={
-            <div className="flex flex-col items-center justify-center gap-4 mt-4">
-              <CardTitle className="text-2xl font-bold">
+            <div className="flex flex-col items-center justify-start  gap-4 mt-4 h-full overflow-hidden">
+              <CardTitle className="text-3xl font-bold">
                 Cultural Events
               </CardTitle>
-              <Calendar />
+
+              <img
+                src={"/joca1.jpg"}
+                alt={"joca1"}
+                className="w-full h-full max-h-[250px]  rounded-md object-cover flex-shrink"
+              />
             </div>
           }
           backContent={
-            <div>
+            <div className="flex flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
               {" "}
-              <CardDescription>
+              <p className="text-2xl mt-2 text-center ">
                 Join us for festivals, workshops and gatherings celbrating
                 Jamaican culture
-              </CardDescription>
+              </p>
             </div>
           }
         />
         <FlippingCard
           frontContent={
-            <div className="flex flex-col items-center justify-center gap-4 mt-4">
-              <CardTitle className="text-2xl font-bold">Community</CardTitle>
+            <div className="flex flex-col items-center justify-start gap-4 mt-4 h-full overflow-hidden">
+              <CardTitle className="text-3xl font-bold">Community</CardTitle>
 
-              <Users className="mb-2" />
+              <img
+                src={"/joca2.jpg"}
+                alt={"joca2"}
+                className="w-full h-full  max-h-[250px]  rounded-md object-cover flex-shrink"
+              />
             </div>
           }
           backContent={
-            <div>
+            <div className="flex flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
               {" "}
-              <CardDescription>
-                Join us for festivals, workshops and gatherings celbrating
-                Jamaican culture
-              </CardDescription>
+              <p className="text-2xl mt-2 text-center ">
+                Join us in a vibrant and inclusive community that celebrates
+                Jamaican culture and heritage
+              </p>
             </div>
           }
         />
 
         <FlippingCard
           frontContent={
-            <div className="flex flex-col items-center justify-center gap-4 mt-4">
-              <CardTitle className="text-2xl font-bold">
+            <div className="flex flex-col items-center justify-start gap-4 mt-4 h-full overflow-hidden">
+              <CardTitle className="text-3xl font-bold">
                 Member Benefits
               </CardTitle>
-              <Vote className="mb-2" />
+              <img
+                src={"/joca3.jpg"}
+                alt={"joca3"}
+                className="w-full h-full max-h-[250px] rounded-md object-cover flex-shrink"
+              />{" "}
             </div>
           }
           backContent={
-            <div>
-              <CardDescription>
+            <div className="flex flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
+              {" "}
+              <p className="text-2xl mt-2 text-center ">
                 Voting rights, exclusing events, and more for active members
-              </CardDescription>
+              </p>
             </div>
           }
         />
