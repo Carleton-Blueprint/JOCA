@@ -7,7 +7,9 @@ const Header = () => {
       <div className="container flex h-24 items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold">JOCA</span>
+            <span className="text-xl font-bold">
+              <img src="/logo.png" alt="JOCA Logo" className="w-15 h-10" />
+            </span>
           </Link>
 
           <nav className="flex items-center gap-6">

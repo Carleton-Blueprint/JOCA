@@ -27,29 +27,26 @@ const FooterLink = ({ href, children }: FooterLinkProps) => (
 
 const Footer = () => {
   return (
-    <footer className="flex justify-center items-center bg-gray-200 dark:bg-gray-800 w-full py-8 px-4 h-fit w-full">
-      <NavigationMenu>
-        <NavigationMenuList className="flex flex-wrap gap-8">
-          <NavigationMenuItem className="flex flex-col items-start justify-start gap-4">
-            <h2 className="font-bold h2b-1">JOCA</h2>
-            <p>Jamaican Ottawa Community Association</p>
-          </NavigationMenuItem>
+    <footer className="flex justify-around items-center bg-gray-200 dark:bg-gray-800 w-full py-8 px-4 h-fit w-full">
+      <img src="/logo.png" alt="JOCA Logo" className="w-20 h-15" />
 
-          <NavigationMenuItem className="flex flex-col gap-2">
+      <NavigationMenu>
+        <NavigationMenuList className="flex flex-wrap gap-6">
+          <NavigationMenuItem className="flex flex-col justify-center items-center  gap-2">
             <Label className="font-bold py-2 px-4">Quick Links</Label>
             <FooterLink href="/events"> Events</FooterLink>
             <FooterLink href="/about"> About Us</FooterLink>
             <FooterLink href="/members"> Membership</FooterLink>
           </NavigationMenuItem>
 
-          <NavigationMenuItem className="flex flex-col gap-2">
+          <NavigationMenuItem className="flex flex-col items-center gap-2 ">
             <Label className="font-bold py-2 px-4">Contact</Label>
             <FooterLink href="/"> joca@email.com</FooterLink>
             <FooterLink href="/"> (123)-456-7890</FooterLink>
             <FooterLink href="/"> 123 Bank Street, Ottawa</FooterLink>
           </NavigationMenuItem>
 
-          <NavigationMenuItem className="flex flex-col gap-2">
+          <NavigationMenuItem className="flex flex-col gap-2 items-center">
             <Label className="font-bold py-2 px-4">
               Follow on Social Media
             </Label>
