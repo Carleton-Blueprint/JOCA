@@ -56,7 +56,7 @@ const Description = () => {
               </ul>
 
               <h2 className="text-2xl font-bold mt-8 mb-4">
-                <Highlighter color="#FFD700" action="circle" padding={10}>
+                <Highlighter color="#FFD700" action="circle" padding={12}>
                   Join Us
                 </Highlighter>
               </h2>
