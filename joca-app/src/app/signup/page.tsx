@@ -1,10 +1,13 @@
 "use client";
 
-import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,17 +22,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-const signupSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const signupSchema = z
+  .object({
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    phone: z.string().min(10, "Phone number must be at least 10 digits"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
@@ -52,8 +57,7 @@ export default function Signup() {
   }
 
   return (
-    <div className="font-sans flex flex-col items-center justify-items-center min-h-screen gap-16">
-      <Header />
+    <div className="font-sans flex flex-col items-center justify-items-center h-full gap-16">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-2xl">
         <Card className="w-full">
           <CardHeader className="w-full">
@@ -106,7 +110,11 @@ export default function Signup() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} />
+                          <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -120,7 +128,11 @@ export default function Signup() {
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="613-555-0123" {...field} />
+                          <Input
+                            type="tel"
+                            placeholder="613-555-0123"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -135,7 +147,11 @@ export default function Signup() {
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -149,7 +165,11 @@ export default function Signup() {
                         <FormItem>
                           <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -164,13 +184,17 @@ export default function Signup() {
                 </Button>
               </form>
             </Form>
-            
+
             <div className="flex justify-center items-center mt-6">
               <span className="text-sm text-muted-foreground">
                 Already have an account?
               </span>
               <Link href="/login">
-                <Button className="hover:cursor-pointer" variant="link" size="sm">
+                <Button
+                  className="hover:cursor-pointer"
+                  variant="link"
+                  size="sm"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -178,7 +202,6 @@ export default function Signup() {
           </CardHeader>
         </Card>
       </main>
-      <Footer />
     </div>
   );
 }

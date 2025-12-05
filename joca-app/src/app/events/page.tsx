@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
@@ -17,7 +15,7 @@ export type EventItem = {
   location: string;
   description: string;
   category: "Culture" | "Community" | "Education";
-  isPublic: boolean
+  isPublic: boolean;
 };
 
 export interface GetEventsData {
@@ -28,13 +26,12 @@ const categories = ["All", "Culture", "Community", "Education"] as const;
 type CategoryFilter = (typeof categories)[number];
 
 export default function EventsPage() {
-
   const [query, setQuery] = React.useState("");
   const [activeCategory, setActiveCategory] =
     React.useState<CategoryFilter>("All");
 
   const { loading, error, data } = useQuery<GetEventsData>(GET_EVENTS);
-  console.log(data)
+  console.log(data);
 
   const filteredEvents = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -50,12 +47,9 @@ export default function EventsPage() {
     });
   }, [query, activeCategory, data]);
 
-
   return (
-    <div className="flex justify-center items-center min-h-screen flex-col">
-      <Header />
-
-      <main className="w-full  flex flex-col gap-6 p-8">
+    <>
+      <main className="w-full h-full flex flex-col gap-6 p-8">
         <section className="flex flex-col gap-3 items-center text-center">
           <h1 className="text-4xl sm:text-5xl font-bold">Events</h1>
           <p className="text-gray-500 max-w-2xl">
@@ -89,16 +83,17 @@ export default function EventsPage() {
         </section>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-64">
-          {error ? <p>Error : {error.message}</p> : loading ? (<p>Loading...</p>) :
-            (
-              filteredEvents?.map((event, index) => (
-                <EventCard event={event} key={index} />
-              ))
-            )}
-
+          {error ? (
+            <p>Error : {error.message}</p>
+          ) : loading ? (
+            <p>Loading...</p>
+          ) : (
+            filteredEvents?.map((event, index) => (
+              <EventCard event={event} key={index} />
+            ))
+          )}
         </section>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 }

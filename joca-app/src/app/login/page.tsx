@@ -1,6 +1,5 @@
 "use client";
 
-import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -9,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,7 +45,6 @@ export default function Home() {
 
   return (
     <div className="font-sans flex flex-col items-center  justify-items-center min-h-screen gap-16">
-      <Header />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-md">
         <Card className="w-full">
           <CardHeader className="w-full">
@@ -118,7 +115,6 @@ export default function Home() {
           </CardHeader>
         </Card>
       </main>
-      <Footer />
     </div>
   );
 }

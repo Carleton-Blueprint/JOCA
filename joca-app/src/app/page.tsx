@@ -1,12 +1,4 @@
-"use client"
-
-import Image from "next/image";
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
-import { useQuery } from "@apollo/client/react";
-import { GET_EVENTS } from "./utils";
-import { Event, GetEventsData } from "@/types/graphql";
 
 import {
   Card,
@@ -20,14 +12,11 @@ import {
 import { Calendar, FolderTree, Users, Vote } from "lucide-react";
 import Link from "next/link";
 
-
 export default function Home() {
-
   return (
-    <div className="font-sans flex flex-col items-center justify-items-center min-h-screen gap-42">
-      <Header />
-      <section className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <section className="flex flex-col gap-6 justify-center mb-10">
+    <div className="font-sans flex flex-col items-center justify-items-center h-full gap-16">
+      <section className="flex flex-col gap-16 row-start-2 items-center sm:items-start">
+        <section className="flex flex-col gap-6 justify-center my-10">
           <h1 className="text-5xl font-bold max-w-xl text-center">
             Welcome To JOCA
           </h1>
@@ -75,8 +64,6 @@ export default function Home() {
           </CardHeader>
         </Card>
       </section>
-      <Footer />
     </div>
-
   );
 }
