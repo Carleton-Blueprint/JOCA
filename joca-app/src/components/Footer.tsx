@@ -27,7 +27,7 @@ const FooterLink = ({ href, children }: FooterLinkProps) => (
 
 const Footer = () => {
   return (
-    <footer className="flex justify-center items-center bg-gray-200 w-full py-8 px-4 h-fit w-full">
+    <footer className="flex justify-center items-center bg-gray-200 dark:bg-gray-800 w-full py-8 px-4 h-fit w-full">
       <NavigationMenu>
         <NavigationMenuList className="flex flex-wrap gap-8">
           <NavigationMenuItem className="flex flex-col items-start justify-start gap-4">

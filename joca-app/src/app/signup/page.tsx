@@ -57,7 +57,7 @@ export default function Signup() {
   }
 
   return (
-    <div className="font-sans flex flex-col items-center justify-items-center h-full gap-16">
+    <div className="font-sans my-12 flex flex-col items-center justify-items-center h-full gap-16">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-2xl">
         <Card className="w-full">
           <CardHeader className="w-full">
