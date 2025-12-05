@@ -40,9 +40,9 @@ export default function EventsPage() {
         activeCategory === "All" || event.category === activeCategory;
       const matchesQuery =
         normalizedQuery.length === 0 ||
-        event.title.toLowerCase().includes(normalizedQuery) ||
-        event.location.toLowerCase().includes(normalizedQuery) ||
-        event.description.toLowerCase().includes(normalizedQuery);
+        event.title?.toLowerCase().includes(normalizedQuery) ||
+        event.location?.toLowerCase().includes(normalizedQuery) ||
+        event.description?.toLowerCase().includes(normalizedQuery);
       return matchesCategory && matchesQuery;
     });
   }, [query, activeCategory, data]);
@@ -85,8 +85,6 @@ export default function EventsPage() {
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-64">
           {error ? (
             <p>Error : {error.message}</p>
-          ) : loading ? (
-            <p>Loading...</p>
           ) : (
             filteredEvents?.map((event, index) => (
               <EventCard event={event} key={index} />
