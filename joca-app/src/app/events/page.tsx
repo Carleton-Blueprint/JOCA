@@ -4,7 +4,7 @@ import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
-import { GET_EVENTS } from "../utils";
+import { GET_EVENTS } from "@/lib/utils";
 import EventCard from "./EventCard";
 
 export type EventItem = {
