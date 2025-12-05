@@ -29,7 +29,7 @@ const Footer = () => {
   return (
     <footer className="flex justify-center items-center bg-gray-200 w-full py-8 px-4 h-fit w-full">
       <NavigationMenu>
-        <NavigationMenuList className="flex gap-8">
+        <NavigationMenuList className="flex flex-wrap gap-8">
           <NavigationMenuItem className="flex flex-col items-start justify-start gap-4">
             <h2 className="font-bold h2b-1">JOCA</h2>
             <p>Jamaican Ottawa Community Association</p>

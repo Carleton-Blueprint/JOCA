@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 
 import {
   Card,
@@ -34,35 +33,62 @@ export function HomePage() {
           <InteractiveHoverButton>View Events</InteractiveHoverButton>
         </Link>
       </nav>
-      <section className="w-full flex gap-8 items-center justify-center p-6 mb-16">
-        <Card className="w-xs">
-          <CardHeader>
-            <Calendar className="mb-2" />
-            <CardTitle>Cultural Events</CardTitle>
-            <CardDescription>
-              Join us for festivals, workshops and gatherings celbrating
-              Jamaican culture
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card className="w-xs">
-          <CardHeader>
-            <Users className="mb-2" />
-            <CardTitle>Community</CardTitle>
-            <CardDescription>
-              Connect with fellow members and building lasting friendships
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card className="w-xs">
-          <CardHeader>
-            <Vote className="mb-2" />
-            <CardTitle>Member Benefits</CardTitle>
-            <CardDescription>
-              Voting rights, exclusing events, and more for active members
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6 mb-16">
+        <FlippingCard
+          frontContent={
+            <div className="flex flex-col items-center justify-center gap-4 mt-4">
+              <CardTitle className="text-2xl font-bold">
+                Cultural Events
+              </CardTitle>
+              <Calendar />
+            </div>
+          }
+          backContent={
+            <div>
+              {" "}
+              <CardDescription>
+                Join us for festivals, workshops and gatherings celbrating
+                Jamaican culture
+              </CardDescription>
+            </div>
+          }
+        />
+        <FlippingCard
+          frontContent={
+            <div className="flex flex-col items-center justify-center gap-4 mt-4">
+              <CardTitle className="text-2xl font-bold">Community</CardTitle>
+
+              <Users className="mb-2" />
+            </div>
+          }
+          backContent={
+            <div>
+              {" "}
+              <CardDescription>
+                Join us for festivals, workshops and gatherings celbrating
+                Jamaican culture
+              </CardDescription>
+            </div>
+          }
+        />
+
+        <FlippingCard
+          frontContent={
+            <div className="flex flex-col items-center justify-center gap-4 mt-4">
+              <CardTitle className="text-2xl font-bold">
+                Member Benefits
+              </CardTitle>
+              <Vote className="mb-2" />
+            </div>
+          }
+          backContent={
+            <div>
+              <CardDescription>
+                Voting rights, exclusing events, and more for active members
+              </CardDescription>
+            </div>
+          }
+        />
       </section>
     </>
   );
