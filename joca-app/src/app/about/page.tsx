@@ -1,11 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 const About = () => {
   return (
-    <div className="flex justify-center items-center min-h-screen flex-col">
-      <Header />
+    <div className="flex justify-center items-center h-full flex-col">
       <main className="flex-1">
         <section className="py-12 md:py-20 bg-muted/50">
           <div className="container">
@@ -72,7 +69,6 @@ const About = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
