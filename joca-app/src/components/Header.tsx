@@ -3,7 +3,7 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 const Header = () => {
   return (
-    <header className="sticky p-4 top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky flex justify-between items-center p-4 px-8 top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-24 items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
@@ -37,8 +37,8 @@ const Header = () => {
             </Link>
           </nav>
         </div>
-        <AnimatedThemeToggler />
       </div>
+      <AnimatedThemeToggler />
     </header>
   );
 };
