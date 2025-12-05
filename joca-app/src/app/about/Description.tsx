@@ -30,7 +30,11 @@ const Description = () => {
                 generations.
               </p>
 
-              <h2 className="text-2xl font-bold mt-8 mb-4">What We Do</h2>
+              <h2 className="text-2xl font-bold mt-8 mb-4">
+                <Highlighter color="#008000" action="underline">
+                  What We Do
+                </Highlighter>
+              </h2>
               <ul className="space-y-2 leading-relaxed">
                 <li>Host annual cultural events and community gatherings</li>
                 <li>
@@ -51,7 +55,11 @@ const Description = () => {
                 </li>
               </ul>
 
-              <h2 className="text-2xl font-bold mt-8 mb-4">Join Us</h2>
+              <h2 className="text-2xl font-bold mt-8 mb-4">
+                <Highlighter color="#FFD700" action="circle" padding={10}>
+                  Join Us
+                </Highlighter>
+              </h2>
               <p className="leading-relaxed">
                 Whether you’re of Jamaican descent, part of the Caribbean
                 diaspora, or simply interested in learning more about Jamaica’s
