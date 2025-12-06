@@ -29,16 +29,15 @@ const FooterLink = ({ href, children }: FooterLinkProps) => (
 const Footer = () => {
   return (
     <footer className="flex justify-around items-center bg-gray-200 dark:bg-gray-800 w-full py-8 px-4 h-fit w-full">
-      <Image
-        src="/logo.png"
-        alt="JOCA Logo"
-        width={80}
-        height={60}
-        className="w-20 h-15"
-      />
-
       <NavigationMenu>
-        <NavigationMenuList className="flex flex-wrap gap-6">
+        <NavigationMenuList className="flex flex-wrap flex-col sm:flex-row  gap-6">
+          <Image
+            src="/logo.png"
+            alt="JOCA Logo"
+            width={80}
+            height={60}
+            className="w-20 h-15"
+          />
           <NavigationMenuItem className="flex flex-col justify-center items-center  gap-2">
             <Label className="font-bold py-2 px-4">Quick Links</Label>
             <FooterLink href="/events"> Events</FooterLink>
