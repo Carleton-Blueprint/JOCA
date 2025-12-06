@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Label } from "@radix-ui/react-label";
 import Link from "next/link";
+import Image from "next/image";
 
 type FooterLinkProps = {
   href: string;
@@ -28,7 +29,13 @@ const FooterLink = ({ href, children }: FooterLinkProps) => (
 const Footer = () => {
   return (
     <footer className="flex justify-around items-center bg-gray-200 dark:bg-gray-800 w-full py-8 px-4 h-fit w-full">
-      <img src="/logo.png" alt="JOCA Logo" className="w-20 h-15" />
+      <Image
+        src="/logo.png"
+        alt="JOCA Logo"
+        width={80}
+        height={60}
+        className="w-20 h-15"
+      />
 
       <NavigationMenu>
         <NavigationMenuList className="flex flex-wrap gap-6">

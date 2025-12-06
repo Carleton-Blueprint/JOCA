@@ -1,59 +1,59 @@
-"use client"
+"use client";
 
-import { motion, MotionStyle, Transition } from "motion/react"
+import { motion, MotionStyle, Transition } from "motion/react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface BorderBeamProps {
   /**
    * The size of the border beam.
    */
-  size?: number
+  size?: number;
   /**
    * The duration of the border beam.
    */
-  duration?: number
+  duration?: number;
   /**
    * The delay of the border beam.
    */
-  delay?: number
+  delay?: number;
   /**
    * The color of the border beam from.
    */
-  colorFrom?: string
+  colorFrom?: string;
   /**
    * The color of the border beam to.
    */
-  colorTo?: string
+  colorTo?: string;
   /**
    * The motion transition of the border beam.
    */
-  transition?: Transition
+  transition?: Transition;
   /**
    * The class name of the border beam.
    */
-  className?: string
+  className?: string;
   /**
    * The style of the border beam.
    */
-  style?: React.CSSProperties
+  style?: React.CSSProperties;
   /**
    * Whether to reverse the animation direction.
    */
-  reverse?: boolean
+  reverse?: boolean;
   /**
    * The initial offset position (0-100).
    */
-  initialOffset?: number
+  initialOffset?: number;
   /**
    * The border width of the beam.
    */
-  borderWidth?: number
+  borderWidth?: number;
 }
 
 export const BorderBeam = ({
   className,
-  size = 50,
+  size = 70,
   delay = 0,
   duration = 6,
   colorFrom = "#ffaa40",
@@ -62,7 +62,7 @@ export const BorderBeam = ({
   style,
   reverse = false,
   initialOffset = 0,
-  borderWidth = 1,
+  borderWidth = 5,
 }: BorderBeamProps) => {
   return (
     <div
@@ -103,5 +103,5 @@ export const BorderBeam = ({
         }}
       />
     </div>
-  )
-}
+  );
+};

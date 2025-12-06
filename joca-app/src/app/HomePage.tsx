@@ -3,6 +3,7 @@
 import { CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import React from "react";
+import Image from "next/image";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { FlippingCard } from "@/components/ui/flipping-card";
@@ -35,10 +36,12 @@ export function HomePage() {
                 Cultural Events
               </CardTitle>
 
-              <img
+              <Image
                 src={"/joca1.jpg"}
                 alt={"joca1"}
-                className="w-full h-full max-h-[250px]  rounded-md object-cover flex-shrink"
+                width={350}
+                height={250}
+                className="w-full h-full max-h-[250px] rounded-md object-cover flex-shrink"
               />
             </div>
           }
@@ -57,10 +60,12 @@ export function HomePage() {
             <div className="flex flex-col items-center justify-start gap-4 mt-4 h-full overflow-hidden">
               <CardTitle className="text-3xl font-bold">Community</CardTitle>
 
-              <img
+              <Image
                 src={"/joca2.jpg"}
                 alt={"joca2"}
-                className="w-full h-full  max-h-[250px]  rounded-md object-cover flex-shrink"
+                width={350}
+                height={250}
+                className="w-full h-full max-h-[250px] rounded-md object-cover flex-shrink"
               />
             </div>
           }
@@ -81,11 +86,13 @@ export function HomePage() {
               <CardTitle className="text-3xl font-bold">
                 Member Benefits
               </CardTitle>
-              <img
+              <Image
                 src={"/joca3.jpg"}
                 alt={"joca3"}
+                width={350}
+                height={250}
                 className="w-full h-full max-h-[250px] rounded-md object-cover flex-shrink"
-              />{" "}
+              />
             </div>
           }
           backContent={
