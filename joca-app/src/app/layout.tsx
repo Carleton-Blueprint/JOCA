@@ -27,10 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+    <html lang="en" suppressHydrationWarning>
       <ApolloWrapper>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased flex flex-col justify-between min-h-screen`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col justify-between min-h-screen`}
         >
           <ThemeProvider
             attribute="class"
