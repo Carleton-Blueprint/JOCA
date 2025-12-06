@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 const Header = () => {
@@ -8,7 +9,13 @@ const Header = () => {
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold">
-              <img src="/logo.png" alt="JOCA Logo" className="w-15 h-10" />
+              <Image
+                src="/logo.png"
+                alt="JOCA Logo"
+                width={60}
+                height={40}
+                className="w-15 h-10"
+              />
             </span>
           </Link>
 
