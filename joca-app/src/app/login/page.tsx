@@ -45,7 +45,7 @@ export default function Home() {
 
   return (
     <div className="font-sans flex flex-col items-center  justify-center gap-16">
-      <main className="flex flex-col p-4 gap-[32px] row-start-2 justify-center items-center sm:items-start w-full max-w-md py-6 ">
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-md">
         <Card className="w-full">
           <CardHeader className="w-full">
             <CardTitle className="text-2xl">Sign In</CardTitle>
