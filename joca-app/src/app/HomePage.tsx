@@ -17,7 +17,7 @@ export function HomePage() {
   return (
     <>
       <HeroParallax products={products} />
-      <nav className="flex gap-8 items-center justify-center">
+      <nav className="flex sm:flex-row flex-col mt-8 gap-8 items-center justify-center">
         <Link href="about">
           <InteractiveHoverButton>About Us</InteractiveHoverButton>
         </Link>
@@ -28,7 +28,7 @@ export function HomePage() {
           <InteractiveHoverButton>View Events</InteractiveHoverButton>
         </Link>
       </nav>
-      <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6 mb-16">
+      <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6   mb-16">
         <FlippingCard
           frontContent={
             <div className="flex flex-col items-center justify-start  gap-4 mt-4 h-full overflow-hidden">
