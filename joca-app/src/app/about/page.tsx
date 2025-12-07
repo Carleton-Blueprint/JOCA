@@ -1,6 +1,6 @@
-import Description from "./Description";
+import { Description } from "./Description";
 
-const About = () => {
+export default function AboutPage() {
   return (
     <div className="flex justify-center items-center h-full flex-col">
       <main className="flex-1 p-4">
@@ -15,6 +15,4 @@ const About = () => {
       </main>
     </div>
   );
-};
-
-export default About;
+}
