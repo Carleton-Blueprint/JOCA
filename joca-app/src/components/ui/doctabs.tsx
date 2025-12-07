@@ -6,6 +6,7 @@ import { MdEvent } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
 import { FaWpforms } from "react-icons/fa";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const HomeIcon = () => <IoMdHome size={20} />;
 const EventsIcon = () => <MdEvent size={20} />;
@@ -43,28 +44,19 @@ const spanVariants = {
   },
 };
 
-function ExpandedTabs({ tabs, className, onChange }: ExpandedTabsProps) {
-  const [selected, setSelected] = useState<number | null>(0);
+function ExpandedTabs({ tabs, className }: ExpandedTabsProps) {
+  const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setSelected(null);
-        if (onChange) onChange(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onChange]);
-
-  const handleSelect = (index: number) => {
-    setSelected(index);
-    if (onChange) onChange(index);
-  };
+  // Derive selected index from current pathname
+  const selected = tabs.findIndex((tab) => {
+    if (tab.type === "separator") return false;
+    const href = tab.title === "Home" ? "/" : `/${tab.title.toLowerCase()}`;
+    return pathname === href; /*
+    || (href !== "/" && pathname.startsWith(href));
+    NEED THIS IF WE START USING NESTED PARAMS
+    */
+  });
 
   const SeparatorComponent = () => (
     <div
@@ -94,7 +86,6 @@ function ExpandedTabs({ tabs, className, onChange }: ExpandedTabsProps) {
             key={tab.title}
           >
             <button
-              onClick={() => handleSelect(index)}
               className={`relative z-10 flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none 
               ${
                 isSelected
