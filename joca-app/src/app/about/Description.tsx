@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Highlighter } from "@/components/ui/highlighter";
 
-const Description = () => {
+export function Description() {
   return (
     <section className="py-6">
       <div className="container">
@@ -73,6 +73,4 @@ const Description = () => {
       </div>
     </section>
   );
-};
-
-export default Description;
+}
