@@ -19,7 +19,6 @@ const Header = () => {
               />
             </span>
           </Link>
-
           <Tabs2 />
         </div>
       </div>
