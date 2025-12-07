@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
 import { GET_EVENTS } from "@/lib/utils";
 import { EventCard } from "./EventCard";
+import Loading from "../loading";
 
 export type EventItem = {
   id: string;
@@ -47,6 +48,8 @@ export function EventCards() {
     });
   }, [query, activeCategory, data]);
 
+  if (loading) return <Loading />;
+
   return (
     <>
       <section className="flex flex-col gap-4">
@@ -75,7 +78,7 @@ export function EventCards() {
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-64">
         {error ? (
-          <p>Error : {error.message}</p>
+          <p>Error: {error.message}</p>
         ) : (
           filteredEvents?.map((event, index) => (
             <EventCard event={event} key={index} />
