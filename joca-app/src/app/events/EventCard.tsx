@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { EventItem } from "./page";
+import { EventItem } from "./EventCards";
 
 function formatTime(timeStr: string) {
   if (!timeStr) return "N/A";
@@ -36,7 +36,7 @@ function formatTime(timeStr: string) {
   return `${hour}:${m} ${suffix}`;
 }
 
-export default function EventCard({ event }: { event: EventItem }) {
+export function EventCard({ event }: { event: EventItem }) {
   const [open, setOpen] = React.useState(false);
 
   const handleViewDetails = () => {
