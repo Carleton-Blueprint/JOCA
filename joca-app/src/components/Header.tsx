@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import Tabs2 from "./ui/doctabs";
 
 const Header = () => {
   return (
@@ -19,32 +20,7 @@ const Header = () => {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="/events"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Events
-            </Link>
-            <Link
-              href="/about"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Signup
-            </Link>
-          </nav>
+          <Tabs2 />
         </div>
       </div>
       <AnimatedThemeToggler />
