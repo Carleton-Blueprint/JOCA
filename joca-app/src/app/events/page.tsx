@@ -59,7 +59,7 @@ export default function EventsPage() {
         </section>
 
         <section className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-center">
             <Input
               placeholder="Search events..."
               value={query}
