@@ -6,6 +6,7 @@ import Image from "next/image";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { FlippingCard } from "@/components/ui/flipping-card";
+import { HeroSection } from "@/components/ui/hero-section";
 
 export const products = Array.from({ length: 15 }, (_, index) => ({
   title: `Joca${index + 1}`,
@@ -16,18 +17,9 @@ export function HomePage() {
   return (
     <>
       <HeroParallax products={products} />
-      <nav className="flex sm:flex-row flex-col mt-8 gap-8 items-center justify-center">
-        <Link href="about">
-          <InteractiveHoverButton>About Us</InteractiveHoverButton>
-        </Link>
-        <Link href="signup">
-          <InteractiveHoverButton>Become a Member</InteractiveHoverButton>
-        </Link>
-        <Link href="events">
-          <InteractiveHoverButton>View Events</InteractiveHoverButton>
-        </Link>
-      </nav>
-      <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6   mb-16">
+
+      <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6 mb-4">
+        <HeroSection />
         <FlippingCard
           frontContent={
             <div className="flex flex-col items-center justify-start  gap-4 mt-4 h-full overflow-hidden">
