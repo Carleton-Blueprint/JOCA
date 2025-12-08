@@ -2,7 +2,6 @@
 
 import { CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import React from "react";
 import Image from "next/image";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
@@ -49,7 +48,7 @@ export function HomePage() {
             <div className="flex flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
               {" "}
               <p className="text-2xl mt-2 text-center ">
-                Join us for festivals, workshops and gatherings celbrating
+                Join us for festivals, workshops and gatherings celebrating
                 Jamaican culture
               </p>
             </div>
