@@ -32,6 +32,7 @@ export const HeroSection = () => {
               spirit and pride; and to encourage participation in community
               issues, solutions, projects and events.
             </p>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <nav className="flex sm:flex-row flex-col gap-8 items-center justify-center">
                 <Link href="about">
