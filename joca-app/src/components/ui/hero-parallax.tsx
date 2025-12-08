@@ -9,6 +9,7 @@ import {
   MotionValue,
 } from "motion/react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { TextAnimate } from "@/components/ui/text-animate";
 
 export const HeroParallax = ({
   products,
@@ -56,7 +57,7 @@ export const HeroParallax = ({
   return (
     <div
       ref={ref}
-      className="h-[300vh] py-40 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
+      className="h-[275vh] py-40 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
     >
       <Header />
       <motion.div
@@ -104,10 +105,10 @@ export const Header = () => {
   return (
     <div className="max-w-7xl relative mx-auto py-20 px-4 w-full  left-0 top-0">
       <TextGenerateEffect words={"Jamaican Ottawa Community Association"} />
-      <p className="max-w-2xl text-bold md:text-xl mt-8 dark:text-neutral-200">
+      <TextAnimate className="max-w-2xl text-bold md:text-xl mt-8 dark:text-neutral-200">
         Jamaican Ottawa Community Association - Building community through
         culture, connection, and celebration
-      </p>
+      </TextAnimate>
     </div>
   );
 };

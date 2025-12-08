@@ -10,7 +10,7 @@ export function Description() {
             <CardContent className="prose prose-lg max-w-none pt-6">
               <p className="text-lg leading-relaxed">
                 Welcome to the{" "}
-                <Highlighter color="#FF9800">
+                <Highlighter color="#FF9800" isView={true}>
                   Jamaican Ottawa Community Association
                 </Highlighter>{" "}
                 (JOCA) — a vibrant organization dedicated to celebrating
@@ -21,7 +21,7 @@ export function Description() {
               <h2 className="text-2xl font-bold mt-8 mb-4">Our Mission</h2>
               <p className="leading-relaxed">
                 JOCA’s mission is to promote{" "}
-                <Highlighter color="#008000">
+                <Highlighter color="#008000" isView={true}>
                   unity cultural awareness, and empowerment{" "}
                 </Highlighter>
                 ,within the Jamaican and wider Caribbean community in Ottawa. We
@@ -31,7 +31,7 @@ export function Description() {
               </p>
 
               <h2 className="text-2xl font-bold mt-8 mb-4">
-                <Highlighter color="#008000" action="underline">
+                <Highlighter color="#008000" isView={true} action="underline">
                   What We Do
                 </Highlighter>
               </h2>
@@ -56,7 +56,12 @@ export function Description() {
               </ul>
 
               <h2 className="text-2xl font-bold mt-8 mb-4">
-                <Highlighter color="#FFD700" action="circle" padding={12}>
+                <Highlighter
+                  color="#FFD700"
+                  isView={true}
+                  action="circle"
+                  padding={12}
+                >
                   Join Us
                 </Highlighter>
               </h2>
