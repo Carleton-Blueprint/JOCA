@@ -20,21 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { EventItem } from "./EventCards";
-
-function formatTime(timeStr: string) {
-  if (!timeStr) return "N/A";
-
-  const [h, m] = timeStr.split(":");
-  let hour = Number(h);
-
-  const suffix = hour < 12 ? " a.m" : " p.m";
-
-  // Convert to 12-hour format:
-  if (hour === 0) hour = 12;
-  else if (hour > 12) hour -= 12;
-
-  return `${hour}:${m} ${suffix}`;
-}
+import { formatTime } from "@/lib/utils";
 
 export function EventCard({ event }: { event: EventItem }) {
   const [open, setOpen] = React.useState(false);

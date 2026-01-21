@@ -31,6 +31,12 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
       "mappedBy": "member"
+    },
+    "elections": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::election.election",
+      "mappedBy": "candidates"
     }
   }
 }

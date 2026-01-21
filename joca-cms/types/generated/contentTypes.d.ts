@@ -430,6 +430,46 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiElectionElection extends Struct.CollectionTypeSchema {
+  collectionName: 'elections';
+  info: {
+    displayName: 'Elections';
+    pluralName: 'elections';
+    singularName: 'election';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    ballotUrl: Schema.Attribute.String;
+    candidates: Schema.Attribute.Relation<'manyToMany', 'api::member.member'>;
+    category: Schema.Attribute.Enumeration<
+      ['Executive', 'Committee', 'Referendum']
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.Date & Schema.Attribute.Required;
+    description: Schema.Attribute.Text;
+    isPublic: Schema.Attribute.Boolean;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::election.election'
+    > &
+      Schema.Attribute.Private;
+    location: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    time: Schema.Attribute.Time & Schema.Attribute.Required;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    votingDateEnd: Schema.Attribute.Date & Schema.Attribute.Required;
+    votingDateStart: Schema.Attribute.Date & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiEventEvent extends Struct.CollectionTypeSchema {
   collectionName: 'events';
   info: {
@@ -477,6 +517,10 @@ export interface ApiMemberMember extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    elections: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::election.election'
+    >;
     firstName: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
@@ -1019,6 +1063,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::election.election': ApiElectionElection;
       'api::event.event': ApiEventEvent;
       'api::member.member': ApiMemberMember;
       'plugin::content-releases.release': PluginContentReleasesRelease;

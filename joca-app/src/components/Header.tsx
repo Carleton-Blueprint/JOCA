@@ -19,7 +19,39 @@ const Header = () => {
               />
             </span>
           </Link>
-          <Tabs2 />
+
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Home
+            </Link>
+            <Link
+              href="/events"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Events
+            </Link>
+            <Link
+              href="/elections"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Elections
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              About
+            </Link>
+            <Link
+              href="/signup"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Signup
+            </Link>
+          </nav>
         </div>
       </div>
       <AnimatedThemeToggler />
