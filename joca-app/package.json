@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "setup": "pnpm install && pnpm prisma generate && echo 'Setup complete! Ensure your .env is configured.'"
   },
   "dependencies": {
     "@apollo/client": "^4.1.2",
