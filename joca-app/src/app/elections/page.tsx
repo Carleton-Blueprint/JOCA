@@ -1,6 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
@@ -35,11 +38,20 @@ const categories = ["All", "Executive", "Committee", "Referendum"] as const;
 type CategoryFilter = (typeof categories)[number];
 
 export default function ElectionsPage() {
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+
   const [query, setQuery] = React.useState("");
   const [activeCategory, setActiveCategory] =
     React.useState<CategoryFilter>("All");
 
   const { loading, error, data } = useQuery<GetElectionsData>(GET_ELECTIONS);
+
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.push("/signup");
+    }
+  }, [isPending, session, router]);
 
   const filteredElections = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -54,6 +66,15 @@ export default function ElectionsPage() {
       return matchesCategory && matchesQuery;
     });
   }, [query, activeCategory, data]);
+
+  // Handle loading and auth states AFTER all hooks
+  if (isPending) {
+    return <p className="text-center mt-8 text-white">Loading...</p>;
+  }
+
+  if (!session?.user) {
+    return <p className="text-center mt-8 text-white">Redirecting...</p>;
+  }
 
   return (
     <main className="w-full h-full flex flex-col gap-6 p-8">

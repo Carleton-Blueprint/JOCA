@@ -20,6 +20,10 @@ async function insertTestUser() {
   }
 }
 
+/*
+ * May run into duplicate email error if user already is
+ * registered
+ */
 insertTestUser()
   .then(() => {
     console.log("Seed completed");
