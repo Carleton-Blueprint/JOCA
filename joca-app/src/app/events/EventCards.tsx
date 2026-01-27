@@ -61,7 +61,7 @@ export function EventCards() {
             className="sm:max-w-md"
             aria-label="Search events"
           />
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap justify-center items-center">
             {categories.map((cat) => (
               <Button
                 key={cat}

@@ -142,9 +142,15 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Override Radix UI Dialog scroll-lock margin */
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
 }
 
-::view-transition-old(root), ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

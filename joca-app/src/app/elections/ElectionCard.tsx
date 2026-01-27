@@ -62,7 +62,7 @@ export default function ElectionCard({ election }: { election: ElectionItem }) {
         </CardContent>
 
         <CardFooter className="mt-auto">
-          <div className="flex justify-between w-full items-center gap-2">
+          <div className="flex flex-wrap gap-6 justify-between w-full">
             <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
               {election.category}
             </span>

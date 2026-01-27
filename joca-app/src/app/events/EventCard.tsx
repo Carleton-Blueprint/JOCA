@@ -39,7 +39,7 @@ export function EventCard({ event }: { event: EventItem }) {
       <Card className="h-full flex flex-col relative overflow-hidden">
         <CardHeader>
           <CardTitle className="text-2xl pb-2">{event.title}</CardTitle>
-          <CardDescription className="flex flex-col gap-1 text-lg">
+          <CardDescription className="flex flex-col gap-2 md:text-lg sm:text-sm">
             <span className="inline-flex items-center gap-2 dark:text-white">
               <CalendarDays className="opacity-70" />
               <ClientDate date={event.date} />
@@ -56,14 +56,10 @@ export function EventCard({ event }: { event: EventItem }) {
           </CardDescription>
         </CardHeader>
 
-        {/* Content grows but does NOT push footer inconsistently */}
-        <CardContent className="flex-grow">
-          <p className="text-md dark:text-white">{event.description}</p>
-        </CardContent>
 
         {/* Footer stays at bottom */}
         <CardFooter className="mt-auto">
-          <div className="flex justify-between w-full">
+          <div className="flex flex-wrap gap-6 justify-between w-full">
             {event.category ? (
               <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
                 {event.category}
@@ -77,6 +73,7 @@ export function EventCard({ event }: { event: EventItem }) {
                 className="hover:cursor-pointer"
                 size="sm"
                 onClick={handleViewDetails}
+
               >
                 View details
               </Button>
@@ -105,21 +102,17 @@ export function EventCard({ event }: { event: EventItem }) {
         />
       </Card>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>{event.title}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <p>
-              Maybe more descriptive text section. Lorem ipsum dolor sit, amet
-              consectetur adipisicing elit. Rerum recusandae delectus,
-              repudiandae beatae quod voluptatum culpa quo nobis deserunt
-              excepturi totam hic temporibus, nulla quibusdam officiis
-              distinctio doloremque ad atque!{" "}
+              {event.description}
             </p>
             <section className="flex flex-col">
-              <div className="grid grid-cols-[20%_1fr] items-center">
+              <div className="grid grid-cols-[32%_1fr] items-center">
                 <p>Location:</p>
                 <Button
                   variant="link"
