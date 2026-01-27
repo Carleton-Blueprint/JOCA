@@ -129,7 +129,7 @@ export function EventCard({ event }: { event: EventItem }) {
                 <em>{formatTime(event.time)}</em>
               </div>
             </section>
-            <footer className="flex gap-2 items-center justify-center">
+            <footer className="flex flex-wrap gap-2 items-center justify-center">
               <Button className="flex-1">
                 {" "}
                 <CalendarDays />
