@@ -1,16 +1,23 @@
 "use client"
 import Link from "next/link";
+import { Button } from "@/components/ui/button"
 import Image from "next/image";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { useSession } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 
 const Header = () => {
   const { data: session, isPending } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className="mt-2 sm:mt-0 sticky flex flex-col gap-6 sm:flex-row items-center justify-center sm:justify-between p-4 px-8 top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-24 items-center justify-center sm:justify-between">
-        <div className="flex flex-col sm:flex-row items-center sm:justify-between  gap-8">
+        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-6">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold">
               <Image
@@ -52,16 +59,15 @@ const Header = () => {
             >
               About
             </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Signup
-            </Link>
           </nav>
         </div>
       </div>
-      <AnimatedThemeToggler />
+      <div className="flex items-center gap-4">
+        {isMounted && !session?.user && <Link href="/signup">
+          <Button className="p-2 hover:cursor-pointer">Signup</Button>
+        </Link>}
+        <AnimatedThemeToggler />
+      </div>
     </header>
   );
 };
