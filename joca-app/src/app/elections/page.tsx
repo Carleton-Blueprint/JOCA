@@ -109,7 +109,7 @@ export default function ElectionsPage() {
             className="sm:max-w-md"
             aria-label="Search elections"
           />
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex justify-center items-center gap-2 flex-wrap">
             {categories.map((cat) => (
               <Button
                 key={cat}
