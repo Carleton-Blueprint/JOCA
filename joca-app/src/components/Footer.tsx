@@ -11,7 +11,6 @@ import { Label } from "@radix-ui/react-label";
 import Link from "next/link";
 import Image from "next/image";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 
 type FooterLinkProps = {
   href: string;
@@ -39,7 +38,7 @@ const Footer = () => {
           height={60}
           className="w-20 h-15"
         />
-        <span className="text-center dark:text-gray-400 text-gray-700 max-w-md">
+        <span className="text-center sm:text-left dark:text-gray-400 text-gray-700 max-w-md">
           JOCA - Jamaican Ottawa Community Association
         </span>
         <div className="flex gap-2">
@@ -54,7 +53,7 @@ const Footer = () => {
       <NavigationMenu>
         <NavigationMenuList className="flex flex-col sm:flex-row gap-6 items-center justify-center">
           <NavigationMenuItem className="flex flex-col justify-center items-center  gap-2">
-            <Label className="font-bold py-2 px-4">Quick Links</Label>
+            <Label className="font-bold py-2 px-4 text-center">Quick Links</Label>
             <FooterLink href="/events"> Events</FooterLink>
             <FooterLink href="/about"> About Us</FooterLink>
             <FooterLink href="/signup">Register</FooterLink>
