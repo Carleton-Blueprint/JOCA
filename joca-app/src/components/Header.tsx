@@ -3,16 +3,28 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button"
 import Image from "next/image";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
-import { useSession } from "@/lib/auth-client";
+import { useSession, signOut } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const { data: session, isPending } = useSession();
   const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handleLogout = async () => {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/login");
+        },
+      },
+    });
+  };
 
   return (
     <header className="mt-2 sm:mt-0 sticky flex flex-col gap-6 sm:flex-row items-center justify-center sm:justify-between p-4 px-8 top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,9 +75,20 @@ const Header = () => {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        {isMounted && !session?.user && <Link href="/signup">
-          <Button className="p-2 hover:cursor-pointer">Signup</Button>
-        </Link>}
+        {isMounted && !session?.user && (
+          <Link href="/signup">
+            <Button className="p-2 hover:cursor-pointer">Signup</Button>
+          </Link>
+        )}
+        {isMounted && session?.user && (
+          <Button 
+            onClick={handleLogout}
+            className="p-2 hover:cursor-pointer"
+            variant="outline"
+          >
+            Logout
+          </Button>
+        )}
         <AnimatedThemeToggler />
       </div>
     </header>
