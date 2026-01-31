@@ -17,13 +17,20 @@ const Header = () => {
   }, []);
 
   const handleLogout = async () => {
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/login");
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/login");
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      console.error("Failed to log out:", error);
+      if (typeof window !== "undefined") {
+        window.alert("Logout failed. Please try again.");
+      }
+    }
   };
 
   return (
