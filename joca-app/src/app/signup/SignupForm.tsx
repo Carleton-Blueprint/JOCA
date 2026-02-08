@@ -61,7 +61,7 @@ export function SignupForm() {
   async function onSubmit(values: SignupFormValues) {
 
     console.log("Submitted values:", values);
-    const { data, error } = await signUp.email({
+    await signUp.email({
       email: values.email, // user email address
       password: values.password, // user password -> min 8 characters by default
       name: values.firstName + " " + values.lastName, // user display name
@@ -208,7 +208,6 @@ export function SignupForm() {
                 {/* Submit button */}
                 <Button type="submit" className="w-full hover:cursor-pointer" disabled={isLoading}>
                   {isLoading ? "Signing up..." : "Create Account"}
-                  Create Account
                 </Button>
               </form>
             </Form>
