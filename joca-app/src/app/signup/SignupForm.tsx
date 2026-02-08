@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"
 import { signUp } from "@/lib/auth-client";
+import { useState } from "react";
 
 const signupSchema = z
   .object({
@@ -43,6 +44,7 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -65,15 +67,18 @@ export function SignupForm() {
       name: values.firstName + " " + values.lastName, // user display name
     }, {
       onRequest: () => {
-        toast("Signing up...");
+        setIsLoading(true);
+        toast.loading("Signing up...");
       },
       onSuccess: () => {
+        setIsLoading(false);
         toast.success("Account created!");
 
         // redirect to home page after a short delay
         setTimeout(() => router.push("/"), 500);
       },
       onError: (ctx: any) => {
+        setIsLoading(false);
         toast.error(ctx?.error?.message || "Signup failed");
 
       },
@@ -201,7 +206,8 @@ export function SignupForm() {
                 </div>
 
                 {/* Submit button */}
-                <Button type="submit" className="w-full hover:cursor-pointer">
+                <Button type="submit" className="w-full hover:cursor-pointer" disabled={isLoading}>
+                  {isLoading ? "Signing up..." : "Create Account"}
                   Create Account
                 </Button>
               </form>
@@ -216,6 +222,7 @@ export function SignupForm() {
                   className="hover:cursor-pointer"
                   variant="link"
                   size="sm"
+                  disabled={isLoading}
                 >
                   Sign In
                 </Button>
