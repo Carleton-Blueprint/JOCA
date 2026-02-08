@@ -22,6 +22,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { useRouter } from "next/navigation";
+import { toast } from "sonner"
+import { signUp } from "@/lib/auth-client";
+
 const signupSchema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -51,9 +55,29 @@ export function SignupForm() {
     },
   });
 
-  function onSubmit(values: SignupFormValues) {
+  const router = useRouter();
+  async function onSubmit(values: SignupFormValues) {
+
     console.log("Submitted values:", values);
-    // Handle signup request here
+    const { data, error } = await signUp.email({
+      email: values.email, // user email address
+      password: values.password, // user password -> min 8 characters by default
+      name: values.firstName + " " + values.lastName, // user display name
+    }, {
+      onRequest: () => {
+        toast("Signing up...");
+      },
+      onSuccess: () => {
+        toast.success("Account created!");
+
+        // redirect to home page after a short delay
+        setTimeout(() => router.push("/"), 500);
+      },
+      onError: (ctx: any) => {
+        toast.error(ctx?.error?.message || "Signup failed");
+
+      },
+    });
   }
 
   return (
@@ -149,7 +173,6 @@ export function SignupForm() {
                           <FormControl>
                             <Input
                               type="password"
-                              placeholder="••••••••"
                               {...field}
                             />
                           </FormControl>
@@ -167,7 +190,6 @@ export function SignupForm() {
                           <FormControl>
                             <Input
                               type="password"
-                              placeholder="••••••••"
                               {...field}
                             />
                           </FormControl>
