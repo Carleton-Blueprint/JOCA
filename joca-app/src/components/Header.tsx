@@ -140,7 +140,7 @@ const Header = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+              <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
                 <LogOut className="h-4 w-4" />
                 Sign Out
               </DropdownMenuItem>
