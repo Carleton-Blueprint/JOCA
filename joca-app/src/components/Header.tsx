@@ -3,9 +3,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button"
 import Image from "next/image";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { User, CreditCard, Bell, LogOut } from "lucide-react";
 
 const Header = () => {
   const { data: session, isPending } = useSession();
@@ -88,13 +96,49 @@ const Header = () => {
           </Link>
         )}
         {isMounted && session?.user && (
-          <Button 
-            onClick={handleLogout}
-            className="p-2 hover:cursor-pointer"
-            variant="outline"
-          >
-            Logout
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full"
+              >
+                {(session.user as { image?: string })?.image ? (
+                  <img
+                    src={(session.user as { image: string }).image}
+                    alt=""
+                    className="h-9 w-9 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="h-5 w-5" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuItem asChild>
+                <Link href="/account" className="flex items-center gap-2 cursor-pointer">
+                  <User className="h-4 w-4" />
+                  Account
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/billing" className="flex items-center gap-2 cursor-pointer">
+                  <CreditCard className="h-4 w-4" />
+                  Billing
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/notifications" className="flex items-center gap-2 cursor-pointer">
+                  <Bell className="h-4 w-4" />
+                  Notifications
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
         <AnimatedThemeToggler />
       </div>
