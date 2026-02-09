@@ -90,12 +90,19 @@ const Header = () => {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        {isMounted && !session?.user && (
-          <Link href="/signup">
-            <Button className="p-2 hover:cursor-pointer">Signup</Button>
-          </Link>
+        {isMounted && !isPending && !session?.user && (
+          <>
+            <Link href="/login">
+              <Button variant="ghost" className="p-2 hover:cursor-pointer">
+                Log in
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="p-2 hover:cursor-pointer">Sign up</Button>
+            </Link>
+          </>
         )}
-        {isMounted && session?.user && (
+        {isMounted && !isPending && session?.user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
