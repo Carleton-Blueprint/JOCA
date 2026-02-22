@@ -1,15 +1,28 @@
 "use server";
 
 import { stripe } from "@/lib/stripe";
-import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function createCheckoutSession(userId: string, userEmail: string) {
   try {
+    const betterAuthSession = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    //Server-side check to ensure user is authenticated
+    if (!betterAuthSession) {
+      throw new Error("User not authenticated");
+    }
+
     // Get the membership price from environment variable or use a default
-    const membershipPrice = process.env.STRIPE_PRICE_ID || process.env.STRIPE_MEMBERSHIP_PRICE_ID;
-    
+    const membershipPrice =
+      process.env.STRIPE_PRICE_ID || process.env.STRIPE_MEMBERSHIP_PRICE_ID;
+
     if (!membershipPrice) {
-      throw new Error("STRIPE_PRICE_ID or STRIPE_MEMBERSHIP_PRICE_ID is not set in environment variables");
+      throw new Error(
+        "STRIPE_PRICE_ID or STRIPE_MEMBERSHIP_PRICE_ID is not set in environment variables",
+      );
     }
 
     // Fetch the price to determine if it's recurring or one-time
@@ -42,11 +55,10 @@ export async function createCheckoutSession(userId: string, userEmail: string) {
       throw new Error("Failed to create checkout session URL");
     }
   } catch (error) {
-    console.error("Error creating checkout session:", error);
     // Re-throw redirect errors (Next.js uses these internally)
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
+    if (error instanceof Error) {
+      throw new Error(error.message);
     }
-    throw error;
+    throw new Error("Failed to create checkout session");
   }
 }

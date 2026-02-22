@@ -1,11 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
-import { createCheckoutSession } from "@/app/actions/checkout";
+import { createCheckoutSession } from "@/lib/checkout";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function PaymentPage() {
   const { data: session, isPending } = useSession();
@@ -18,24 +25,34 @@ export default function PaymentPage() {
       return;
     }
 
+    if (!session.user.email) {
+      toast.error(
+        "No email address is associated with your account. Please update your profile before making a payment.",
+      );
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
+
     try {
       const result = await createCheckoutSession(
         session.user.id,
-        session.user.email || ""
+        session.user.email,
       );
-      
       // Redirect to Stripe Checkout
       if (result?.url) {
         window.location.href = result.url;
       } else {
-        throw new Error("No checkout URL returned");
+        toast.error("No checkout URL returned");
       }
     } catch (error) {
-      console.error("Payment error:", error);
       setIsLoading(false);
-      // You can add toast notification here
-      alert("Failed to initiate payment. Please try again.");
+      toast.error("Failed to initiate payment. Please try again.");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to initiate payment. Please try again.");
+      }
     }
   };
 
@@ -56,9 +73,7 @@ export default function PaymentPage() {
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Authentication Required</CardTitle>
-              <CardDescription>
-                Please log in to make a payment
-              </CardDescription>
+              <CardDescription>Please log in to make a payment</CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => router.push("/login")} className="w-full">
@@ -83,10 +98,12 @@ export default function PaymentPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              You will be redirected to Stripe Checkout to securely complete your payment.
+              You will be redirected to Stripe Checkout to securely complete
+              your payment.
             </p>
             <p className="text-sm text-muted-foreground">
-              Payment methods accepted: Credit/Debit cards, Apple Pay, Google Pay
+              Payment methods accepted: Credit/Debit cards, Apple Pay, Google
+              Pay
             </p>
           </div>
           <Button
