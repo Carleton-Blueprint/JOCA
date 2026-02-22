@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { Event } from "@/types/types";
+import { Event } from "@/lib/types";
 import { formatTime } from "@/lib/utils";
 
 export function EventCard({ event }: { event: Event }) {

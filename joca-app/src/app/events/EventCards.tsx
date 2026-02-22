@@ -4,23 +4,13 @@ import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
-import { GET_EVENTS } from "@/lib/utils";
+import { GET_EVENTS } from "@/lib/queries";
 import { EventCard } from "./EventCard";
 import Loading from "../loading";
-
-export type EventItem = {
-  id: string;
-  title: string;
-  date: string; // ISO date (YYYY-MM-DD)
-  time: string; // e.g. 6:00 PM
-  location: string;
-  description: string;
-  category: "Culture" | "Community" | "Education";
-  isPublic: boolean;
-};
+import { Event } from "@/lib/types";
 
 export interface GetEventsData {
-  events: EventItem[];
+  events: Event[];
 }
 
 const categories = ["All", "Culture", "Community", "Education"] as const;

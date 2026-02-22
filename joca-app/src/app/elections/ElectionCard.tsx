@@ -21,8 +21,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { Election, Candidate } from "@/types/types";
-import { VOTE_FOR_CANDIDATE, GET_ELECTIONS } from "@/lib/utils";
+import { Election, Candidate } from "@/lib/types";
+import { VOTE_FOR_CANDIDATE, GET_ELECTIONS } from "@/lib/queries";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Field,
@@ -147,7 +147,8 @@ export default function ElectionCard({ election }: { election: Election }) {
                   onValueChange={(value: string) => {
                     setSelectedCandidate(
                       election.candidates?.find(
-                        (candidate) => candidate.documentId === value,
+                        (candidate: Candidate) =>
+                          candidate.documentId === value,
                       ) ?? null,
                     );
                   }}

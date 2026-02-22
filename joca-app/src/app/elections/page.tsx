@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
-import { GET_ELECTIONS } from "@/lib/utils";
+import { GET_ELECTIONS } from "@/lib/queries";
 import ElectionCard from "./ElectionCard";
-import { Election } from "@/types/types";
+import { Election } from "@/lib/types";
 
 export interface GetElectionsData {
   elections: Election[];
