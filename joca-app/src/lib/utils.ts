@@ -24,18 +24,28 @@ export const GET_ELECTIONS = gql`
     elections {
       documentId
       title
-      date
-      time
       location
       description
       category
       votingDateStart
       votingDateEnd
-      ballotUrl
       candidates {
-        firstName
-        lastName
+        documentId
+        voteCount
+        member {
+          firstName
+          lastName
+        }
       }
+    }
+  }
+`;
+
+export const VOTE_FOR_CANDIDATE = gql`
+  mutation UpdateCandidate($documentId: ID!, $data: CandidateInput!) {
+    updateCandidate(documentId: $documentId, data: $data) {
+      documentId
+      voteCount
     }
   }
 `;

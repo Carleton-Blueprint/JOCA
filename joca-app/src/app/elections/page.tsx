@@ -9,29 +9,10 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
 import { GET_ELECTIONS } from "@/lib/utils";
 import ElectionCard from "./ElectionCard";
-
-export type Candidate = {
-  firstName: string;
-  lastName: string;
-};
-
-export type ElectionItem = {
-  documentId: string;
-  title: string;
-  date: string; // ISO date (YYYY-MM-DD)
-  time: string; // 24h format e.g. "18:00"
-  location: string;
-  description: string;
-  category: "Executive" | "Committee" | "Referendum";
-  isPublic: boolean;
-  votingDateStart: string; // ISO date (YYYY-MM-DD)
-  votingDateEnd: string; // ISO date (YYYY-MM-DD)
-  ballotUrl?: string;
-  candidates?: Candidate[];
-};
+import { Election } from "@/types/types";
 
 export interface GetElectionsData {
-  elections: ElectionItem[];
+  elections: Election[];
 }
 
 const categories = ["All", "Executive", "Committee", "Referendum"] as const;
@@ -140,4 +121,3 @@ export default function ElectionsPage() {
     </main>
   );
 }
-
