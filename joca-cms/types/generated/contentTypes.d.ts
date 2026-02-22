@@ -460,6 +460,7 @@ export interface ApiCandidateCandidate extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
         {
+          max: 100000;
           min: 0;
         },
         number

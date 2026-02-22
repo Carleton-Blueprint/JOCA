@@ -31,6 +31,7 @@ import {
   FieldDescription,
   FieldTitle,
 } from "@/components/ui/field";
+import { toast } from "sonner";
 
 export default function ElectionCard({ election }: { election: Election }) {
   const [selectedCandidate, setSelectedCandidate] =
@@ -44,13 +45,18 @@ export default function ElectionCard({ election }: { election: Election }) {
 
   const handleVote = async () => {
     if (!selectedCandidate) return;
-    await voteForCandidate({
-      variables: {
-        documentId: selectedCandidate.documentId,
-        data: { voteCount: selectedCandidate.voteCount + 1 },
-      },
-    });
-    setOpen(false);
+    try {
+      await voteForCandidate({
+        variables: {
+          documentId: selectedCandidate.documentId,
+          data: { voteCount: selectedCandidate.voteCount + 1 },
+        },
+      });
+      setOpen(false);
+      toast.success("Vote submitted successfully");
+    } catch (error) {
+      toast.error("Failed to submit vote");
+    }
   };
 
   return (
@@ -85,8 +91,8 @@ export default function ElectionCard({ election }: { election: Election }) {
                 onClick={() => setOpen(true)}
                 disabled={
                   (election.candidates?.length ?? 0) < 2 ||
-                  !(new Date(election.votingDateStart) < new Date()) ||
-                  !(new Date(election.votingDateEnd) > new Date())
+                  !(new Date(election.votingDateStart) <= new Date()) ||
+                  !(new Date(election.votingDateEnd) >= new Date())
                 }
               >
                 View details & Vote
@@ -128,14 +134,6 @@ export default function ElectionCard({ election }: { election: Election }) {
                   "See details soon"
                 )}
               </span>
-              <span className="flex flex-col gap-y-2 text-sm">
-                <span className="text-muted-foreground">
-                  Description:{" "}
-                  <span className="text-black dark:text-white ml-2">
-                    {election.description || "No description available"}
-                  </span>
-                </span>
-              </span>
             </div>
 
             {election.candidates && election.candidates.length > 1 && (
@@ -145,8 +143,8 @@ export default function ElectionCard({ election }: { election: Election }) {
                   <span className="text-xl">Candidates</span>
                 </div>
                 <RadioGroup
-                  defaultValue={election.candidates[0].documentId}
-                  onValueChange={(value) => {
+                  defaultValue={election.candidates[0]?.documentId ?? null}
+                  onValueChange={(value: string) => {
                     setSelectedCandidate(
                       election.candidates?.find(
                         (candidate) => candidate.documentId === value,
@@ -154,7 +152,7 @@ export default function ElectionCard({ election }: { election: Election }) {
                     );
                   }}
                 >
-                  {election.candidates.map((candidate: Candidate) => (
+                  {election.candidates?.map((candidate: Candidate) => (
                     <div
                       key={candidate.documentId}
                       className="flex items-center gap-2"
@@ -163,12 +161,10 @@ export default function ElectionCard({ election }: { election: Election }) {
                         <Field orientation="horizontal">
                           <FieldContent>
                             <FieldTitle>
-                              {candidate.member.firstName}{" "}
-                              {candidate.member.lastName}
+                              {candidate.member?.firstName ?? "N/A"}{" "}
+                              {candidate.member?.lastName ?? "N/A"}
                             </FieldTitle>
-                            <FieldDescription>
-                              Number of votes: {candidate?.voteCount ?? 0}
-                            </FieldDescription>
+
                             <RadioGroupItem
                               value={candidate.documentId}
                               id={candidate.documentId}
