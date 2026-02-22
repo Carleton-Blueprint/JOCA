@@ -6,40 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const GET_EVENTS = gql`
-  query {
-    events {
-      date
-      description
-      location
-      title
-      category
-      time
-    }
-  }
-`;
-
-export const GET_ELECTIONS = gql`
-  query {
-    elections {
-      documentId
-      title
-      date
-      time
-      location
-      description
-      category
-      votingDateStart
-      votingDateEnd
-      ballotUrl
-      candidates {
-        firstName
-        lastName
-      }
-    }
-  }
-`;
-
 export const formatTime = (timeStr: string) => {
   if (!timeStr) return "N/A";
 

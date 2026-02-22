@@ -430,6 +430,45 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiCandidateCandidate extends Struct.CollectionTypeSchema {
+  collectionName: 'candidates';
+  info: {
+    displayName: 'Candidate';
+    pluralName: 'candidates';
+    singularName: 'candidate';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    election: Schema.Attribute.Relation<'manyToOne', 'api::election.election'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::candidate.candidate'
+    > &
+      Schema.Attribute.Private;
+    member: Schema.Attribute.Relation<'oneToOne', 'api::member.member'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    voteCount: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100000;
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+  };
+}
+
 export interface ApiElectionElection extends Struct.CollectionTypeSchema {
   collectionName: 'elections';
   info: {
@@ -441,8 +480,10 @@ export interface ApiElectionElection extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    ballotUrl: Schema.Attribute.String;
-    candidates: Schema.Attribute.Relation<'manyToMany', 'api::member.member'>;
+    candidates: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::candidate.candidate'
+    >;
     category: Schema.Attribute.Enumeration<
       ['Executive', 'Committee', 'Referendum']
     > &
@@ -450,7 +491,6 @@ export interface ApiElectionElection extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    date: Schema.Attribute.Date & Schema.Attribute.Required;
     description: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -460,7 +500,6 @@ export interface ApiElectionElection extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     location: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
-    time: Schema.Attribute.Time & Schema.Attribute.Required;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -514,13 +553,13 @@ export interface ApiMemberMember extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    candidate: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::candidate.candidate'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    elections: Schema.Attribute.Relation<
-      'manyToMany',
-      'api::election.election'
-    >;
     firstName: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
@@ -1064,6 +1103,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::candidate.candidate': ApiCandidateCandidate;
       'api::election.election': ApiElectionElection;
       'api::event.event': ApiEventEvent;
       'api::member.member': ApiMemberMember;

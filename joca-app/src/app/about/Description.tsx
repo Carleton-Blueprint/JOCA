@@ -13,7 +13,7 @@ export function Description() {
                 <Highlighter color="#FF9800" isView={true}>
                   Jamaican Ottawa Community Association
                 </Highlighter>{" "}
-                (JOCA) — a vibrant organization dedicated to celebrating
+                (JOCA) - a vibrant organization dedicated to celebrating
                 Jamaican culture, supporting our community, and strengthening
                 the connection between Jamaica and the Ottawa region.
               </p>

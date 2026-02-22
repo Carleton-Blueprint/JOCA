@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "candidates",
+  "info": {
+    "singularName": "candidate",
+    "pluralName": "candidates",
+    "displayName": "Candidate"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "member": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::member.member",
+      "inversedBy": "candidate"
+    },
+    "voteCount": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 0,
+      "max": 100000
+    },
+    "election": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::election.election",
+      "inversedBy": "candidates"
+    }
+  }
+}

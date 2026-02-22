@@ -15,15 +15,6 @@
       "type": "string",
       "required": true
     },
-    "date": {
-      "type": "date",
-      "required": true,
-      "unique": false
-    },
-    "time": {
-      "type": "time",
-      "required": true
-    },
     "location": {
       "type": "string"
     },
@@ -47,14 +38,11 @@
       "type": "date",
       "required": true
     },
-    "ballotUrl": {
-      "type": "string"
-    },
     "candidates": {
       "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::member.member",
-      "inversedBy": "elections"
+      "relation": "oneToMany",
+      "target": "api::candidate.candidate",
+      "mappedBy": "election"
     }
   }
 }

@@ -49,6 +49,10 @@ next-env.d.ts
 # Claude
 CLAUDE.local.md
 .claude
+<<<<<<< stripe
 
 #Playwright
 .playwright-mcp/
+=======
+.playwright-mcp
+>>>>>>> main

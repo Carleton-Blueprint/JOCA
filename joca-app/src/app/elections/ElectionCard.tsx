@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useMutation } from "@apollo/client/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,23 +16,46 @@ import { ClientDate } from "../events/clientDate";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { ElectionItem, Candidate } from "./page";
-import { formatTime } from "@/lib/utils";
+import { Election, Candidate } from "@/lib/types";
+import { VOTE_FOR_CANDIDATE, GET_ELECTIONS } from "@/lib/queries";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Field,
+  FieldContent,
+  FieldLabel,
+  FieldDescription,
+  FieldTitle,
+} from "@/components/ui/field";
+import { toast } from "sonner";
 
-export default function ElectionCard({ election }: { election: ElectionItem }) {
+export default function ElectionCard({ election }: { election: Election }) {
+  const [selectedCandidate, setSelectedCandidate] =
+    React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
 
-  const handleViewDetails = () => {
-    setOpen(true);
-  };
+  const [voteForCandidate, { loading: voting }] = useMutation(
+    VOTE_FOR_CANDIDATE,
+    { refetchQueries: [{ query: GET_ELECTIONS }] },
+  );
 
-  const onBallot = () => {
-    if (election.ballotUrl) {
-      window.open(election.ballotUrl, "_blank", "noopener,noreferrer");
+  const handleVote = async () => {
+    if (!selectedCandidate) return;
+    try {
+      await voteForCandidate({
+        variables: {
+          documentId: selectedCandidate.documentId,
+          data: { voteCount: selectedCandidate.voteCount + 1 },
+        },
+      });
+      setOpen(false);
+      toast.success("Vote submitted successfully");
+    } catch (error) {
+      toast.error("Failed to submit vote");
     }
   };
 
@@ -41,14 +65,11 @@ export default function ElectionCard({ election }: { election: ElectionItem }) {
         <CardHeader>
           <CardTitle className="text-2xl pb-2">{election.title}</CardTitle>
           <CardDescription className="flex flex-col gap-1 text-lg">
-            <span className="inline-flex items-center gap-2 dark:text-white">
+            <span className="inline-flex flex-wrap mb-2 items-center gap-2 text-black dark:text-muted-foreground">
               <CalendarDays className="opacity-70" />
-              <ClientDate date={election.date} />
-              <span className="text-muted-foreground">•</span>
-              <span className="inline-flex items-center gap-2">
-                <Clock className="opacity-70" />
-                {formatTime(election.time)}
-              </span>
+              Voting Window:
+              <ClientDate date={election.votingDateStart} /> –{" "}
+              <ClientDate date={election.votingDateEnd} />
             </span>
             <span className="inline-flex dark:text-white items-center gap-2">
               <MapPin className="opacity-70" />
@@ -56,10 +77,6 @@ export default function ElectionCard({ election }: { election: ElectionItem }) {
             </span>
           </CardDescription>
         </CardHeader>
-
-        <CardContent className="flex-grow">
-          <p className="text-md dark:text-white">{election.description}</p>
-        </CardContent>
 
         <CardFooter className="mt-auto">
           <div className="flex flex-wrap gap-6 justify-between w-full">
@@ -71,18 +88,14 @@ export default function ElectionCard({ election }: { election: ElectionItem }) {
               <Button
                 className="hover:cursor-pointer"
                 size="sm"
-                onClick={handleViewDetails}
+                onClick={() => setOpen(true)}
+                disabled={
+                  (election.candidates?.length ?? 0) < 2 ||
+                  !(new Date(election.votingDateStart) <= new Date()) ||
+                  !(new Date(election.votingDateEnd) >= new Date())
+                }
               >
-                View details
-              </Button>
-              <Button
-                className="hover:cursor-pointer"
-                size="sm"
-                onClick={onBallot}
-                variant="outline"
-                disabled={!election.ballotUrl}
-              >
-                {election.ballotUrl ? "View ballot" : "Ballot soon"}
+                View details & Vote
               </Button>
             </div>
           </div>
@@ -105,53 +118,82 @@ export default function ElectionCard({ election }: { election: ElectionItem }) {
           <DialogHeader>
             <DialogTitle>{election.title}</DialogTitle>
           </DialogHeader>
-
+          <DialogDescription>
+            {election.description || "No description available"}{" "}
+          </DialogDescription>
           <div className="space-y-4">
-            <div className="grid grid-cols-[32%_1fr] gap-y-2 text-sm">
-              <span className="text-muted-foreground">Voting window</span>
-              <span>
+            <div className="flex flex-col gap-y-2 text-sm">
+              <span className="text-muted-foreground">
+                Voting window:{" "}
                 {election.votingDateStart && election.votingDateEnd ? (
-                  <>
+                  <span className="text-black dark:text-white ml-2">
                     <ClientDate date={election.votingDateStart} /> –{" "}
                     <ClientDate date={election.votingDateEnd} />
-                  </>
+                  </span>
                 ) : (
                   "See details soon"
                 )}
               </span>
-              <span className="text-muted-foreground">Location</span>
-              <span>{election.location}</span>
-              <span className="text-muted-foreground">Date</span>
-              <span>
-                <ClientDate date={election.date} />
-              </span>
-              <span className="text-muted-foreground">Time</span>
-              <span>{formatTime(election.time)}</span>
             </div>
 
-            {election.candidates && election.candidates.length > 0 && (
+            {election.candidates && election.candidates.length > 1 && (
               <section className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                  <Users className="h-4 w-4" />
-                  <span>Candidates</span>
+                <div className="flex items-center gap-2 text-sm font-semibold pt-8 pb-2 border-b border-gray-200 dark:border-gray-800">
+                  <Users className="size-6" />
+                  <span className="text-xl">Candidates</span>
                 </div>
-                <ul className="list-disc pl-5 space-y-1">
-                  {election.candidates.map((candidate: Candidate, idx: number) => (
-                    <li key={idx}>{candidate.firstName} {candidate.lastName}</li>
+                <RadioGroup
+                  defaultValue={election.candidates[0]?.documentId ?? null}
+                  onValueChange={(value: string) => {
+                    setSelectedCandidate(
+                      election.candidates?.find(
+                        (candidate: Candidate) =>
+                          candidate.documentId === value,
+                      ) ?? null,
+                    );
+                  }}
+                >
+                  {election.candidates?.map((candidate: Candidate) => (
+                    <div
+                      key={candidate.documentId}
+                      className="flex items-center gap-2"
+                    >
+                      <FieldLabel htmlFor={candidate.documentId}>
+                        <Field orientation="horizontal">
+                          <FieldContent>
+                            <FieldTitle>
+                              {candidate.member?.firstName ?? "N/A"}{" "}
+                              {candidate.member?.lastName ?? "N/A"}
+                            </FieldTitle>
+
+                            <RadioGroupItem
+                              value={candidate.documentId}
+                              id={candidate.documentId}
+                              className="text-black dark:text-white p-2"
+                            />
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
+                    </div>
                   ))}
-                </ul>
+                </RadioGroup>
               </section>
             )}
-
-            <footer className="flex gap-2 items-center justify-center">
-              <Button className="flex-1" onClick={() => setOpen(false)}>
+            <footer className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="cursor-pointer"
+              >
                 Close
               </Button>
-              {election.ballotUrl && (
-                <Button className="flex-1" variant="secondary" onClick={onBallot}>
-                  Go to ballot
-                </Button>
-              )}
+              <Button
+                onClick={handleVote}
+                disabled={!selectedCandidate || voting}
+                className="cursor-pointer"
+              >
+                {voting ? "Submitting..." : "Submit Vote"}
+              </Button>
             </footer>
           </div>
         </DialogContent>
@@ -159,4 +201,3 @@ export default function ElectionCard({ election }: { election: ElectionItem }) {
     </>
   );
 }
-
