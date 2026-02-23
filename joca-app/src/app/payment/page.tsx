@@ -29,29 +29,25 @@ export default function PaymentPage() {
       toast.error(
         "No email address is associated with your account. Please update your profile before making a payment.",
       );
-      setIsLoading(false);
       return;
     }
     setIsLoading(true);
-
     try {
       const result = await createCheckoutSession(
         session.user.id,
         session.user.email,
       );
+      // Redirect to Stripe Checkout
       if (result?.url) {
         window.location.href = result.url;
       } else {
-        setIsLoading(false);
-        toast.error("No checkout URL returned. Please try again.");
+        toast.error("No checkout URL returned");
       }
     } catch (error) {
+      console.error("Payment error:", error);
       setIsLoading(false);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to initiate payment. Please try again.",
-      );
+      // You can add toast notification here
+      toast.error("Failed to initiate payment. Please try again.");
     }
   };
 

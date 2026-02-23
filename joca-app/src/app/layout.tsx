@@ -19,7 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Jamaican Ottawa Community Association",
-  description: "A Little Piece of Jamaica in the Nation’s Capital of Canada, Ottawa",
+  description:
+    "A Little Piece of Jamaica in the Nation’s Capital of Canada, Ottawa",
 };
 
 export default function RootLayout({
@@ -42,7 +43,7 @@ export default function RootLayout({
             <Header />
             {children}
 
-            <Toaster position="top-center" />
+            <Toaster position="top-center" richColors />
             <Footer />
           </ThemeProvider>
         </body>
