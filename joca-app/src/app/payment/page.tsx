@@ -42,6 +42,8 @@ export default function PaymentPage() {
         window.location.href = result.url;
       } else {
         toast.error("No checkout URL returned");
+        setIsLoading(false);
+        return;
       }
     } catch (error) {
       console.error("Payment error:", error);

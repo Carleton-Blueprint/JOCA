@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { sendVerificationEmail } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-const COOLDOWN_MS = 60_000;
+const COOLDOWN_MS = 600_000; //10 minutes
 const STORAGE_KEY = "verificationEmailSentAt";
 
 const getSecondsRemaining = () => {

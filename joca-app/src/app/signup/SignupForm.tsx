@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 
 import { toast } from "sonner";
-import { sendVerificationEmail, signUp } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { useState } from "react";
 
 const signupSchema = z
@@ -83,9 +83,7 @@ export function SignupForm() {
           setIsLoading(false);
           setError(ctx?.error?.message || "Signup failed");
         },
-        onComplete: () => {
-          form.reset();
-        },
+
       },
     );
   }
