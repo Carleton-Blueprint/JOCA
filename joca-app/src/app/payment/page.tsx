@@ -77,7 +77,7 @@ export default function PaymentPage() {
     );
   }
 
-  if (!session?.user?.emailVerified) {
+  if (!session?.user?.emailVerified && process.env.NODE_ENV !== "development") {
     return (
       <div className="container mx-auto p-8 max-w-2xl">
         <div className="flex items-center justify-center min-h-[400px]">

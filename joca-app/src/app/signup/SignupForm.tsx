@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const signupSchema = z
   .object({
@@ -48,6 +49,8 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
     useState(false);
+
+  const router = useRouter();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -77,7 +80,10 @@ export function SignupForm() {
         onSuccess: () => {
           setIsLoading(false);
           toast.success("Account created!");
-          setIsEmailVerificationPageVisible(true);
+          router.push("/payment");
+          if (process.env.NODE_ENV !== "development") {
+            setIsEmailVerificationPageVisible(true);
+          }
         },
         onError: (ctx: any) => {
           setIsLoading(false);
@@ -87,7 +93,10 @@ export function SignupForm() {
     );
   }
 
-  if (isEmailVerificationPageVisible) {
+  if (
+    isEmailVerificationPageVisible &&
+    process.env.NODE_ENV !== "development"
+  ) {
     return (
       <EmailVerificationPage
         name={form.getValues("firstName")}

@@ -4,11 +4,13 @@ import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const resendApiKey = process.env.RESEND_API_KEY;
-if (!resendApiKey) {
+if (!isDev && !resendApiKey) {
   throw new Error("RESEND_API_KEY environment variable is not set.");
 }
-const resend = new Resend(resendApiKey);
+const resend = isDev ? null : new Resend(resendApiKey!);
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
@@ -18,12 +20,12 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: !isDev,
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
       try {
-        await resend.emails.send({
+        await resend?.emails.send({
           from: "onboarding@resend.dev", //TODO: Change to JOCA email once prod domain is verified
           to: user.email,
           subject: "Verify your email",
@@ -36,7 +38,7 @@ export const auth = betterAuth({
         throw new Error("Failed to send verification email");
       }
     },
-    sendOnSignUp: true,
+    sendOnSignUp: !isDev,
     autoSignInAfterVerification: true,
     expiresIn: 600, //10 minutes
   },
@@ -52,7 +54,7 @@ export const auth = betterAuth({
     //Limits signup requests & verification email resend requests to 5 per minute
     customRules: {
       "/signup": {
-        max: 5,
+        max: 10,
         window: 60,
       },
     },
