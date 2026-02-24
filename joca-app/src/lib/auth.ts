@@ -18,22 +18,26 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      await resend.emails.send({
-        from: "onboarding@resend.dev", //TODO: Change to JOCA email once prod domain is verified
-        to: user.email,
-        subject: "Verify your email",
-        react: EmailVerificationTemplate({
-          username: user.name,
-          url,
-        }),
-      });
+      try {
+        await resend.emails.send({
+          from: process.env.NEXT_PUBLIC_URL || "onboarding@resend.dev", //TODO: Change to JOCA email once prod domain is verified
+          to: user.email,
+          subject: "Verify your email",
+          react: EmailVerificationTemplate({
+            username: user.name,
+            url,
+          }),
+        });
+      } catch (error) {
+        throw new Error("Failed to send verification email");
+      }
     },
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     expiresIn: 600, //10 minutes
   },
   /* Rate Limiting:
-  User cannot make more than 2 requests per minute to the API
+  User cannot make more than 10 requests per minute to the API
   Prevents spam during signup/login/verification email resend
   */
   rateLimit: {

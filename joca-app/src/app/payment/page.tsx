@@ -20,12 +20,7 @@ export default function PaymentPage() {
   const router = useRouter();
 
   const handlePayment = async () => {
-    if (!session?.user) {
-      router.push("/login");
-      return;
-    }
-
-    if (!session.user.email) {
+    if (!session?.user?.email) {
       toast.error(
         "No email address is associated with your account. Please update your profile before making a payment.",
       );
@@ -34,8 +29,8 @@ export default function PaymentPage() {
     setIsLoading(true);
     try {
       const result = await createCheckoutSession(
-        session.user.id,
-        session.user.email,
+        session?.user?.id,
+        session?.user?.email,
       );
       // Redirect to Stripe Checkout
       if (result?.url) {
@@ -48,7 +43,6 @@ export default function PaymentPage() {
     } catch (error) {
       console.error("Payment error:", error);
       setIsLoading(false);
-      // You can add toast notification here
       toast.error("Failed to initiate payment. Please try again.");
     }
   };
@@ -63,14 +57,16 @@ export default function PaymentPage() {
     );
   }
 
-  if (!session?.user) {
+  if (!session?.user || !session?.user?.emailVerified) {
     return (
       <div className="container mx-auto p-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Authentication Required</CardTitle>
-              <CardDescription>Please log in to make a payment</CardDescription>
+              <CardDescription>
+                Please log in to make a payment and verify your email address
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => router.push("/login")} className="w-full">

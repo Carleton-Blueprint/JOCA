@@ -5,14 +5,13 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Preview,
   Section,
   Tailwind,
   Text,
 } from "@react-email/components";
 
-interface WelcomeEmailProps {
+interface EmailVerificationTemplateProps {
   username?: string;
   url?: string;
 }
@@ -20,7 +19,7 @@ interface WelcomeEmailProps {
 export const EmailVerificationTemplate = ({
   username = "User",
   url,
-}: WelcomeEmailProps) => {
+}: EmailVerificationTemplateProps) => {
   const previewText = `Welcome to JOCA, ${username}!`;
 
   return (
