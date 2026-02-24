@@ -29,8 +29,8 @@ export default function PaymentPage() {
     setIsLoading(true);
     try {
       const result = await createCheckoutSession(
-        session?.user?.id,
-        session?.user?.email,
+        session.user.id,
+        session.user.email,
       );
       // Redirect to Stripe Checkout
       if (result?.url) {
@@ -57,22 +57,37 @@ export default function PaymentPage() {
     );
   }
 
-  if (!session?.user || !session?.user?.emailVerified) {
+  if (!session?.user) {
     return (
       <div className="container mx-auto p-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Authentication Required</CardTitle>
-              <CardDescription>
-                Please log in to make a payment and verify your email address
-              </CardDescription>
+              <CardDescription>Please log in to make a payment</CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => router.push("/login")} className="w-full">
                 Go to Login
               </Button>
             </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session?.user?.emailVerified) {
+    return (
+      <div className="container mx-auto p-8 max-w-2xl">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Email Verification Required</CardTitle>
+              <CardDescription>
+                Please verify your email address to make a payment
+              </CardDescription>
+            </CardHeader>
           </Card>
         </div>
       </div>

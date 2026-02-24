@@ -46,7 +46,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmailVerificationLoading, setIsEmailVerificationLoading] =
+  const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
     useState(false);
 
   const form = useForm<SignupFormValues>({
@@ -77,18 +77,17 @@ export function SignupForm() {
         onSuccess: () => {
           setIsLoading(false);
           toast.success("Account created!");
-          setIsEmailVerificationLoading(true);
+          setIsEmailVerificationPageVisible(true);
         },
         onError: (ctx: any) => {
           setIsLoading(false);
           setError(ctx?.error?.message || "Signup failed");
         },
-
       },
     );
   }
 
-  if (isEmailVerificationLoading) {
+  if (isEmailVerificationPageVisible) {
     return (
       <EmailVerificationPage
         name={form.getValues("firstName")}

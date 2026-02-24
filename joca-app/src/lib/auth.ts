@@ -4,7 +4,11 @@ import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) {
+  throw new Error("RESEND_API_KEY environment variable is not set.");
+}
+const resend = new Resend(resendApiKey);
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
@@ -20,7 +24,7 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       try {
         await resend.emails.send({
-          from: process.env.NEXT_PUBLIC_URL || "onboarding@resend.dev", //TODO: Change to JOCA email once prod domain is verified
+          from: "onboarding@resend.dev", //TODO: Change to JOCA email once prod domain is verified
           to: user.email,
           subject: "Verify your email",
           react: EmailVerificationTemplate({

@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sendVerificationEmail } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { Loader } from "@/components/ui/loader";
+import { useSession } from "@/lib/auth-client";
 
 const COOLDOWN_MS = 600_000; //10 minutes
 const STORAGE_KEY = "verificationEmailSentAt";
@@ -26,6 +28,8 @@ export const EmailVerificationPage = ({
   email: string;
 }) => {
   const [cooldown, setCooldown] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setCooldown(getSecondsRemaining());
@@ -38,6 +42,7 @@ export const EmailVerificationPage = ({
   }, [cooldown]);
 
   const handleResend = async () => {
+    setIsLoading(true);
     await sendVerificationEmail(
       { email, callbackURL: "/payment" },
       {
@@ -53,7 +58,20 @@ export const EmailVerificationPage = ({
         },
       },
     );
+    setIsLoading(false);
   };
+
+  if (!session?.user) {
+    return (
+      <div className="text-center text-muted-foreground">Not logged in</div>
+    );
+  }
+
+  if (session?.user?.emailVerified) {
+    return (
+      <div className="text-center text-muted-foreground">Email verified</div>
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto my-12">
@@ -73,11 +91,17 @@ export const EmailVerificationPage = ({
             variant="outline"
             className="cursor-pointer hover:bg-primary hover:text-white"
             onClick={handleResend}
-            disabled={cooldown > 0}
+            disabled={cooldown > 0 || isLoading}
           >
-            {cooldown > 0
-              ? `Resend in ${cooldown}s`
-              : "Resend Verification Email"}
+            {cooldown > 0 || isLoading ? (
+              isLoading ? (
+                <Loader />
+              ) : (
+                `Resend in ${cooldown}s`
+              )
+            ) : (
+              "Resend Verification Email"
+            )}
           </Button>
         </div>
         <div className="flex flex-col items-center justify-center p-8 gap-4">
