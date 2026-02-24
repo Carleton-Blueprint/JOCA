@@ -80,8 +80,9 @@ export function SignupForm() {
         onSuccess: () => {
           setIsLoading(false);
           toast.success("Account created!");
-          router.push("/payment");
-          if (process.env.NODE_ENV !== "development") {
+          if (process.env.NODE_ENV === "development") {
+            router.push("/payment");
+          } else {
             setIsEmailVerificationPageVisible(true);
           }
         },
