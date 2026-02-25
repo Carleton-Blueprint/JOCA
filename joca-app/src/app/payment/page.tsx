@@ -13,6 +13,7 @@ import { createCheckoutSession } from "@/lib/checkout";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Loading from "../loading";
 
 export default function PaymentPage() {
   const { data: session, isPending } = useSession();
@@ -47,15 +48,7 @@ export default function PaymentPage() {
     }
   };
 
-  if (isPending) {
-    return (
-      <div className="container mx-auto p-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isPending) return <Loading />;
 
   //TODO: Eventually we also want to check if the user already activated their membership
   if (!session?.user) {
@@ -80,7 +73,11 @@ export default function PaymentPage() {
     );
   }
 
-  if (!session?.user?.emailVerified && process.env.NODE_ENV !== "development") {
+  if (
+    !session?.user?.emailVerified &&
+    process.env.NODE_ENV !== "development" &&
+    !isPending
+  ) {
     return (
       <div className="container mx-auto p-8 max-w-2xl">
         <div className="flex items-center justify-center min-h-[400px]">

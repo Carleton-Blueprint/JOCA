@@ -12,9 +12,11 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
+import { NotLoggedIn } from "@/components/NotLoggedIn";
+import Loading from "../../loading";
 
 export default function PaymentSuccessPage() {
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [isVerifying, setIsVerifying] = useState(true);
@@ -29,16 +31,11 @@ export default function PaymentSuccessPage() {
     return () => clearTimeout(timer);
   }, [sessionId]);
 
+  if (isPending) return <Loading />;
+
   //TODO: Check if the user already activated their membership
-  if (!session?.user)
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-8 gap-4">
-        <p className="text-center text-xl">Not logged in</p>
-        <Button variant="outline" asChild>
-          <Link href="/login">Log In</Link>
-        </Button>
-      </div>
-    );
+  //TODO: Add loading state as part of conditional (!isPending) if still needed after webhook verification
+  if (!session?.user) return <NotLoggedIn />;
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">

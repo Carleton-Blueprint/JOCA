@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Loader } from "@/components/ui/loader";
 import { useSession } from "@/lib/auth-client";
 import Link from "next/link";
+import Loading from "../loading";
+import { NotLoggedIn } from "@/components/NotLoggedIn";
 
 const COOLDOWN_MS = 600_000; //10 minutes
 const STORAGE_KEY = "verificationEmailSentAt";
@@ -30,7 +32,7 @@ export const EmailVerificationPage = ({
 }) => {
   const [cooldown, setCooldown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
 
   useEffect(() => {
     setCooldown(getSecondsRemaining());
@@ -62,19 +64,20 @@ export const EmailVerificationPage = ({
     setIsLoading(false);
   };
 
-  if (!session?.user) {
-    return (
-      <div className="text-center text-muted-foreground">Not logged in</div>
-    );
-  }
+  if (isPending) return <Loading />;
 
-  if (session?.user?.emailVerified && process.env.NODE_ENV !== "development") {
+  if (!session?.user) return <NotLoggedIn />;
+
+  if (
+    session?.user?.emailVerified &&
+    process.env.NODE_ENV !== "development"
+  ) {
     return (
       <div className="text-center text-muted-foreground flex flex-col items-center justify-center gap-4">
-        Email verified already. Redirecting to payment page...
-        <Link href="/payment" className="text-primary hover:underline">
-          Go to payment page
-        </Link>
+        Email verified already.
+        <Button variant="outline" asChild>
+          <Link href="/payment">Go to payment page</Link>
+        </Button>
       </div>
     );
   }

@@ -11,6 +11,8 @@ import { GET_ELECTIONS } from "@/lib/queries";
 import { ElectionCard } from "./ElectionCard";
 import type { Election } from "@/lib/types";
 import { Loader } from "@/components/ui/loader";
+import Loading from "../loading";
+import { NotLoggedIn } from "@/components/NotLoggedIn";
 
 export interface GetElectionsData {
   elections: Election[];
@@ -50,22 +52,9 @@ export const ElectionCards = () => {
   }, [query, activeCategory, data]);
 
   // Show loading state until hydration is complete
-  if (!isMounted || isPending) {
-    return (
-      <div className="w-full h-full flex items-center justify-center p-8">
-        <Loader />
-      </div>
-    );
-  }
+  if (!isMounted || isPending) return <Loading />;
 
-  if (!session?.user) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-8 gap-4">
-        <p className="text-center text-xl">Not logged in</p>
-        <Button onClick={() => router.push("/login")}>Go to Login</Button>
-      </div>
-    );
-  }
+  if (!session?.user) return <NotLoggedIn />;
 
   return (
     <main className="w-full h-full flex flex-col gap-6 p-8">
