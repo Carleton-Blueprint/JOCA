@@ -12,11 +12,9 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
-export default function PaymentSuccessPage() {
-  const router = useRouter();
-  const { data: session, isPending } = useSession();
+export const PaymentSuccessPage = () => {
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [isVerifying, setIsVerifying] = useState(true);
@@ -79,4 +77,4 @@ export default function PaymentSuccessPage() {
       </Card>
     </div>
   );
-}
+};
