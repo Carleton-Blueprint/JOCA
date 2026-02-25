@@ -1,5 +1,6 @@
 import { EventCards } from "./EventCards";
 
+//No auth check necessary - spec says anyone can view events
 export default function EventsPage() {
   return (
     <>

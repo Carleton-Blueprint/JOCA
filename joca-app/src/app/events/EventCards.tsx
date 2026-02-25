@@ -7,7 +7,7 @@ import { useQuery } from "@apollo/client/react";
 import { GET_EVENTS } from "@/lib/queries";
 import { EventCard } from "./EventCard";
 import Loading from "../loading";
-import { Event } from "@/lib/types";
+import type { Event } from "@/lib/types";
 
 export interface GetEventsData {
   events: Event[];
@@ -16,7 +16,7 @@ export interface GetEventsData {
 const categories = ["All", "Culture", "Community", "Education"] as const;
 type CategoryFilter = (typeof categories)[number];
 
-export function EventCards() {
+export const EventCards = () => {
   const [query, setQuery] = React.useState("");
   const [activeCategory, setActiveCategory] =
     React.useState<CategoryFilter>("All");
@@ -80,4 +80,4 @@ export function EventCards() {
       </section>
     </>
   );
-}
+};

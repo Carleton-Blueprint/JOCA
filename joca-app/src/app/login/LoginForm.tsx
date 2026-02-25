@@ -13,7 +13,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Loader } from "@/components/ui/loader";
+import { useSession } from "@/lib/auth-client";
 
 import {
   Form,
@@ -25,6 +27,7 @@ import {
 } from "@/components/ui/form";
 import Link from "next/link";
 import { toast } from "sonner";
+import Loading from "../loading";
 
 //handleSubmit validates the form using this schema
 const loginSchema = z.object({
@@ -35,10 +38,16 @@ const loginSchema = z.object({
 // Infers types based on schema so no external type declaration necessary
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export function LoginForm() {
+export const LoginForm = () => {
   const router = useRouter();
+  const { data: session, isPending } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Initialize form (React Hook Form provides handleSubmit here)
   const form = useForm<LoginFormValues>({
@@ -50,27 +59,33 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: LoginFormValues) {
-
-    await signIn.email({
-      email: values.email,
-      password: values.password,
-    }, {
-      onRequest: () => {
-        setIsLoading(true);
-        setError(null);
+    await signIn.email(
+      {
+        email: values.email,
+        password: values.password,
       },
-      onSuccess: () => {
-        setIsLoading(false);
-        toast.success("Signed in successfully");
-        router.push("/");
+      {
+        onRequest: () => {
+          setIsLoading(true);
+          setError(null);
+        },
+        onSuccess: () => {
+          setIsLoading(false);
+          toast.success("Signed in successfully");
+          router.push("/");
+        },
+        onError: (ctx: any) => {
+          setIsLoading(false);
+          setError(ctx?.error?.message || "Failed to sign in");
+        },
       },
-      onError: (ctx: any) => {
-        setIsLoading(false);
-        setError(ctx?.error?.message || "Failed to sign in");
-      },
-    });
-
+    );
   }
+
+  if (session?.user) router.push("/");
+
+  if (!isMounted || isPending) return <Loading />;
+
   return (
     <div className="font-sans flex flex-col items-center  justify-center gap-16">
       <main className="flex flex-col p-4 gap-[32px] row-start-2 justify-center items-center sm:items-start w-full max-w-md py-6 ">
@@ -138,7 +153,7 @@ export function LoginForm() {
                   className="w-full hover:cursor-pointer"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign In"}
+                  {isLoading ? <Loader /> : "Sign In"}
                 </Button>
               </form>
             </Form>
@@ -161,4 +176,4 @@ export function LoginForm() {
       </main>
     </div>
   );
-}
+};

@@ -1,9 +1,14 @@
 import { LoginForm } from "./LoginForm";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function LoginPage() {
-  return (
-    <>
-      <LoginForm />
-    </>
-  );
+export default async function LoginPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session?.user) redirect("/");
+
+  return <LoginForm />;
 }

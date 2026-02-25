@@ -26,10 +26,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { Event } from "@/lib/types";
+import type { Event } from "@/lib/types";
 import { formatTime } from "@/lib/utils";
 
-export function EventCard({ event }: { event: Event }) {
+export const EventCard = ({ event }: { event: Event }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleViewDetails = () => {
@@ -148,4 +148,4 @@ export function EventCard({ event }: { event: Event }) {
       </Dialog>
     </>
   );
-}
+};

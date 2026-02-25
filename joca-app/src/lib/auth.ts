@@ -48,13 +48,13 @@ export const auth = betterAuth({
   */
   rateLimit: {
     enabled: true,
-    max: 10, //max number of requests per window
+    max: 20, //max number of requests per window
     window: 60, //window in seconds
 
     //Limits signup requests & verification email resend requests to 5 per minute
     customRules: {
       "/signup": {
-        max: 10,
+        max: 20,
         window: 60,
       },
     },

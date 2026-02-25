@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { Election, Candidate } from "@/lib/types";
+import type { Election, Candidate } from "@/lib/types";
 import { VOTE_FOR_CANDIDATE, GET_ELECTIONS } from "@/lib/queries";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/field";
 import { toast } from "sonner";
 
-export default function ElectionCard({ election }: { election: Election }) {
+export const ElectionCard = ({ election }: { election: Election }) => {
   const [selectedCandidate, setSelectedCandidate] =
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
@@ -201,4 +201,4 @@ export default function ElectionCard({ election }: { election: Election }) {
       </Dialog>
     </>
   );
-}
+};

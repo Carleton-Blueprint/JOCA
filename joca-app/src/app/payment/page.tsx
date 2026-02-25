@@ -57,6 +57,7 @@ export default function PaymentPage() {
     );
   }
 
+  //TODO: Eventually we also want to check if the user already activated their membership
   if (!session?.user) {
     return (
       <div className="container mx-auto p-8">
@@ -64,11 +65,13 @@ export default function PaymentPage() {
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Authentication Required</CardTitle>
-              <CardDescription>Please log in to make a payment</CardDescription>
+              <CardDescription>
+                Please log in to start your membership
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => router.push("/login")} className="w-full">
-                Go to Login
+                Log In
               </Button>
             </CardContent>
           </Card>

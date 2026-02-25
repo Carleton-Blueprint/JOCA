@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 
 const signupSchema = z
   .object({
@@ -45,6 +46,7 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
+  const { data: session, isPending } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
@@ -93,6 +95,8 @@ export function SignupForm() {
       },
     );
   }
+
+  if (session?.user) router.push("/");
 
   if (
     isEmailVerificationPageVisible &&

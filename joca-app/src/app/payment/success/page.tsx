@@ -1,12 +1,22 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function PaymentSuccessPage() {
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [isVerifying, setIsVerifying] = useState(true);
@@ -20,6 +30,9 @@ export default function PaymentSuccessPage() {
 
     return () => clearTimeout(timer);
   }, [sessionId]);
+
+  //TODO: Check if the user already activated their membership
+  if (!session?.user) router.push("/login");
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
@@ -36,7 +49,8 @@ export default function PaymentSuccessPage() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                Your payment has been processed successfully. Your membership status will be updated shortly.
+                Your payment has been processed successfully. Your membership
+                status will be updated shortly.
               </p>
               {sessionId && (
                 <p className="text-xs text-muted-foreground">

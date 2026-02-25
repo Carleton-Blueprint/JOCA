@@ -1,9 +1,14 @@
 import { SignupForm } from "./SignupForm";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function SignupPage() {
-  return (
-    <>
-      <SignupForm />
-    </>
-  );
+export default async function SignupPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session?.user) redirect("/");
+
+  return <SignupForm />;
 }
