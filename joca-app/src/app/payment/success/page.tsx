@@ -32,7 +32,15 @@ export default function PaymentSuccessPage() {
   }, [sessionId]);
 
   //TODO: Check if the user already activated their membership
-  if (!session?.user) router.push("/login");
+  if (!session?.user)
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center p-8 gap-4">
+        <p className="text-center text-xl">Not logged in</p>
+        <Button variant="outline" asChild>
+          <Link href="/login">Log In</Link>
+        </Button>
+      </div>
+    );
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
