@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { headers } from "next/headers";
 
-export default async function ElectionPage() {
+export default async function ElectionsPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
