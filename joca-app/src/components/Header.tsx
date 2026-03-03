@@ -135,6 +135,15 @@ const Header = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
+                <Link
+                  href="https://billing.stripe.com/p/login/test_3cI28t78j1ub50JfPIfUQ00"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Manage membership
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href="/notifications" className="flex items-center gap-2 cursor-pointer">
                   <Bell className="h-4 w-4" />
                   Notifications
