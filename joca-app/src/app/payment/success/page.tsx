@@ -11,30 +11,59 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSession } from "@/lib/auth-client";
+import { useTypedSession } from "@/lib/auth-client";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 import Loading from "../../loading";
 
 export default function PaymentSuccessPage() {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useTypedSession();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [isVerifying, setIsVerifying] = useState(true);
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Prevent hydration mismatch by ensuring client-only rendering for dynamic content
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
-    // verify payment with webhook
-    // For now just showing success after a delay
-    const timer = setTimeout(() => {
-      setIsVerifying(false);
-    }, 1000);
+    if (!isClient) return; // Don't run SSE on server
 
-    return () => clearTimeout(timer);
-  }, [sessionId]);
+    // Use Server-Sent Events to listen for payment verification
+    const eventSource = new EventSource("/api/payment-events");
 
-  if (isPending) return <Loading />;
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
 
-  //TODO: Check if the user already activated their membership
-  //TODO: Add loading state as part of conditional (!isPending) if still needed after webhook verification
+        if (data.type === "payment_verified" && data.hasPaid) {
+          setPaymentVerified(true);
+          setIsVerifying(false);
+          eventSource.close();
+        }
+      } catch (error) {
+        console.error("SSE message parse error:", error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error:", error);
+      setTimeout(() => {
+        eventSource.close();
+      }, 5000);
+    };
+
+    // Clean up on unmount
+    return () => {
+      eventSource.close();
+    };
+  }, [isClient]);
+
+  // During SSR and initial render, show loading to prevent hydration mismatch
+  if (isPending || !isClient) return <Loading />;
+
   if (!session?.user) return <NotLoggedIn />;
 
   return (
@@ -48,12 +77,37 @@ export default function PaymentSuccessPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {isVerifying ? (
-            <p className="text-muted-foreground">Verifying payment...</p>
+            <div className="space-y-2">
+              <p className="text-muted-foreground">Waiting for payment confirmation...</p>
+              <p className="text-xs text-gray-500">This should happen within a few seconds</p>
+            </div>
+          ) : paymentVerified ? (
+            <>
+              <p className="text-sm text-green-600 font-medium">
+                Payment verified! Your membership is now active.
+              </p>
+              {sessionId && (
+                <p className="text-xs text-muted-foreground">
+                  Session ID: {sessionId}
+                </p>
+              )}
+              <div className="flex gap-4">
+                <Button asChild>
+                  <Link href="/">Go to Home</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/events">View Events</Link>
+                </Button>
+              </div>
+            </>
           ) : (
             <>
+              <p className="text-sm text-amber-600">
+                Payment processing may be delayed.
+              </p>
               <p className="text-sm text-muted-foreground">
                 Your payment has been processed successfully. Your membership
-                status will be updated shortly.
+                status should be updated shortly. If not, please contact support.
               </p>
               {sessionId && (
                 <p className="text-xs text-muted-foreground">
