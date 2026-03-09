@@ -1,6 +1,6 @@
-"use client"
+"use client";
 import Link from "next/link";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import {
@@ -14,7 +14,6 @@ import { useSession, signOut } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CreditCard, Bell, LogOut } from "lucide-react";
-
 
 const Header = () => {
   const { data: session, isPending } = useSession();
@@ -78,7 +77,6 @@ const Header = () => {
               >
                 Elections
               </Link>
-
             )}
 
             <Link
@@ -106,10 +104,7 @@ const Header = () => {
         {isMounted && !isPending && session?.user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative h-9 w-9 rounded-full"
-              >
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 {(session.user as { image?: string })?.image ? (
                   <Image
                     src={(session.user as { image: string }).image}
@@ -123,15 +118,12 @@ const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuItem asChild>
-                <Link href="/account" className="flex items-center gap-2 cursor-pointer">
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <User className="h-4 w-4" />
                   Account
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/billing" className="flex items-center gap-2 cursor-pointer">
-                  <CreditCard className="h-4 w-4" />
-                  Billing
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -143,14 +135,11 @@ const Header = () => {
                   Manage membership
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/notifications" className="flex items-center gap-2 cursor-pointer">
-                  <Bell className="h-4 w-4" />
-                  Notifications
-                </Link>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
+              <DropdownMenuItem
+                onSelect={handleLogout}
+                className="cursor-pointer"
+              >
                 <LogOut className="h-4 w-4" />
                 Sign Out
               </DropdownMenuItem>

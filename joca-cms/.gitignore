@@ -131,3 +131,6 @@ build
 .strapi-cloud.json
 .env
 .env*
+
+# Claude local instructions
+CLAUDE.local.md
