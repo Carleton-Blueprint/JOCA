@@ -42,7 +42,6 @@ export default function PaymentPage() {
         return;
       }
     } catch (error) {
-      console.error("Payment error:", error);
       setIsLoading(false);
       toast.error("Failed to initiate payment. Please try again.");
     }

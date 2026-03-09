@@ -30,10 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
-      <ApolloWrapper>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased flex flex-col justify-between min-h-screen`}
-        >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased flex flex-col justify-between min-h-screen`}
+      >
+        <ApolloWrapper>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -46,8 +46,8 @@ export default function RootLayout({
             <Toaster position="top-center" richColors />
             <Footer />
           </ThemeProvider>
-        </body>
-      </ApolloWrapper>
+        </ApolloWrapper>
+      </body>
     </html>
   );
 }

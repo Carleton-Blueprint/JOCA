@@ -3,13 +3,10 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { sendVerificationEmail } from "@/lib/auth-client";
+import { sendVerificationEmail, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader } from "@/components/ui/loader";
-import { useSession } from "@/lib/auth-client";
 import Link from "next/link";
-import Loading from "../loading";
-import { NotLoggedIn } from "@/components/NotLoggedIn";
 
 const COOLDOWN_MS = 600_000; //10 minutes
 const STORAGE_KEY = "verificationEmailSentAt";
@@ -32,7 +29,7 @@ export const EmailVerificationPage = ({
 }) => {
   const [cooldown, setCooldown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session, isPending } = useSession();
+  const { data: session } = useSession();
 
   useEffect(() => {
     setCooldown(getSecondsRemaining());
@@ -46,32 +43,28 @@ export const EmailVerificationPage = ({
 
   const handleResend = async () => {
     setIsLoading(true);
-    await sendVerificationEmail(
-      { email, callbackURL: "/payment" },
-      {
-        onSuccess: () => {
-          localStorage.setItem(STORAGE_KEY, Date.now().toString());
-          setCooldown(COOLDOWN_MS / 1000);
-          toast.success("Verification email sent.");
+    try {
+      await sendVerificationEmail(
+        { email, callbackURL: "/payment" },
+        {
+          onSuccess: () => {
+            localStorage.setItem(STORAGE_KEY, Date.now().toString());
+            setCooldown(COOLDOWN_MS / 1000);
+            toast.success("Verification email sent.");
+          },
+          onError: (ctx) => {
+            toast.error(
+              ctx?.error?.message || "Failed to resend verification email.",
+            );
+          },
         },
-        onError: (ctx) => {
-          toast.error(
-            ctx?.error?.message || "Failed to resend verification email.",
-          );
-        },
-      },
-    );
-    setIsLoading(false);
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (isPending) return <Loading />;
-
-  if (!session?.user) return <NotLoggedIn />;
-
-  if (
-    session?.user?.emailVerified &&
-    process.env.NODE_ENV !== "development"
-  ) {
+  if (session?.user?.emailVerified && process.env.NODE_ENV !== "development") {
     return (
       <div className="text-center text-muted-foreground flex flex-col items-center justify-center gap-4">
         Email verified already.

@@ -19,17 +19,17 @@ export async function POST(request: NextRequest) {
       try {
         event = stripe.webhooks.constructEvent(body, sig!, endpointSecret!);
       } catch (err: any) {
-        console.error(`Webhook signature verification failed.`, err.message);
-        return NextResponse.json({ error: "Webhook error" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Webhook error: " + err.message },
+          { status: 400 },
+        );
       }
     }
 
     // Handle the event
     switch (event.type) {
-      case "checkout.session.completed":
+      case "checkout.session.completed": {
         const session = event.data.object;
-
-        // Get the user ID from metadata
         const userId = session.metadata?.userId;
 
         if (userId) {
@@ -43,8 +43,29 @@ export async function POST(request: NextRequest) {
             { status: 400 },
           );
         }
-
         break;
+      }
+
+      case "invoice.paid": {
+        const invoice = event.data.object;
+        const subscriptionId = invoice.subscription;
+
+        if (subscriptionId) {
+          const subscription = await stripe.subscriptions.retrieve(
+            subscriptionId as string,
+          );
+          const userId = subscription.metadata?.userId;
+
+          if (userId) {
+            await prisma.user.update({
+              where: { id: userId },
+              data: { hasPaid: true },
+            });
+          }
+        }
+        break;
+      }
+
       default:
         // Unhandled event type - silently ignore
         break;

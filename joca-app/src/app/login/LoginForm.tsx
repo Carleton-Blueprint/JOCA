@@ -33,7 +33,7 @@ import { AlreadyLoggedIn } from "@/components/AlreadyLoggedIn";
 //handleSubmit validates the form using this schema
 const loginSchema = z.object({
   email: z.email("Invalid email"),
-  password: z.string().min(8, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 // Infers types based on schema so no external type declaration necessary

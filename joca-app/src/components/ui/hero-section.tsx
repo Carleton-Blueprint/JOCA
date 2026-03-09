@@ -21,15 +21,15 @@ export const HeroSection = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <nav className="flex sm:flex-row flex-col gap-8 items-center justify-center">
-                <Link href="about">
+                <Link href="/about">
                   <InteractiveHoverButton>More About Us</InteractiveHoverButton>
                 </Link>
-                <Link href="signup">
+                <Link href="/signup">
                   <InteractiveHoverButton>
                     Become a Member
                   </InteractiveHoverButton>
                 </Link>
-                <Link href="events">
+                <Link href="/events">
                   <InteractiveHoverButton>View Events</InteractiveHoverButton>
                 </Link>
               </nav>

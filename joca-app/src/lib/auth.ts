@@ -27,6 +27,14 @@ export const auth = betterAuth({
       },
     },
   },
+  session: {
+    expiresIn: 36000, //10 hours
+    cookieCache: {
+      enabled: true,
+      maxAge: 60, //1 minute
+      strategy: "compact",
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: !isDev,
@@ -68,5 +76,5 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
 });
