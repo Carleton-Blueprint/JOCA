@@ -5,6 +5,12 @@ import { headers } from "next/headers";
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+if (process.env.NODE_ENV === "production" && !endpointSecret) {
+  throw new Error(
+    "STRIPE_WEBHOOK_SECRET environment variable is not set in production.",
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
@@ -13,7 +19,7 @@ export async function POST(request: NextRequest) {
     let event: any;
 
     // In development without STRIPE_WEBHOOK_SECRET, skip verification for testing
-    if (!endpointSecret && process.env.NODE_ENV === "development") {
+    if (!endpointSecret || process.env.NODE_ENV !== "production") {
       event = JSON.parse(body);
     } else {
       try {
@@ -32,17 +38,18 @@ export async function POST(request: NextRequest) {
         const session = event.data.object;
         const userId = session.metadata?.userId;
 
-        if (userId) {
+        if (!userId) {
+          console.error("checkout.session.completed: no userId in metadata");
+          break;
+        }
+
+        if (session.payment_status === "paid") {
           await prisma.user.update({
             where: { id: userId },
             data: { hasPaid: true },
           });
-        } else {
-          return NextResponse.json(
-            { error: "No userId in metadata" },
-            { status: 400 },
-          );
         }
+        // if payment_status !== "paid", invoice.paid will fire when it clears
         break;
       }
 
@@ -71,6 +78,7 @@ export async function POST(request: NextRequest) {
         break;
     }
 
+    //Returns 200 by defualt
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("Webhook error:", error);

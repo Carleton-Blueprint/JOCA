@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMutation } from "@apollo/client/react";
+import { useApolloClient } from "@apollo/client/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import type { Election, Candidate } from "@/lib/types";
-import { VOTE_FOR_CANDIDATE, GET_ELECTIONS } from "@/lib/queries";
+import { GET_ELECTIONS } from "@/lib/queries";
+import { voteForCandidate } from "@/lib/voteAction";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Field,
@@ -36,27 +37,24 @@ export const ElectionCard = ({ election }: { election: Election }) => {
   const [selectedCandidate, setSelectedCandidate] =
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
+  const [voting, setVoting] = React.useState(false);
 
-  const [voteForCandidate, { loading: voting }] = useMutation(
-    VOTE_FOR_CANDIDATE,
-    { refetchQueries: [{ query: GET_ELECTIONS }] },
-  );
+  const apolloClient = useApolloClient();
 
   const handleVote = async () => {
     if (!selectedCandidate) return;
+    setVoting(true);
     try {
-      await voteForCandidate({
-        variables: {
-          documentId: selectedCandidate.documentId,
-          data: { voteCount: selectedCandidate.voteCount + 1 },
-        },
-      });
+      await voteForCandidate(selectedCandidate.documentId);
+      await apolloClient.refetchQueries({ include: [GET_ELECTIONS] });
       setOpen(false);
       toast.success("Vote submitted successfully");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to submit vote.",
       );
+    } finally {
+      setVoting(false);
     }
   };
 
