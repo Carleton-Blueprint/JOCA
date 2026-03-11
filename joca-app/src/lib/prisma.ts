@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 // Creating Prisma Client instance
 
 const adapter = new PrismaPg({
+  //Use DATABASE_URL for regular operations (uses pgBouncer connection pooling)
   connectionString: process.env.DATABASE_URL!,
 });
 
