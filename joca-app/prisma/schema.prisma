@@ -24,8 +24,26 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  votes         Vote[]
   @@unique([email])
   @@map("user")
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  userId      String?
+  anonId      String?
+  electionId  String
+  candidateId String
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, electionId])
+  @@unique([anonId, electionId])
+  @@index([electionId])
+  @@index([candidateId])
+  @@map("vote")
 }
 
 model Session {
