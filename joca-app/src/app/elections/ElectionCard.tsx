@@ -38,6 +38,7 @@ export const ElectionCard = ({ election }: { election: Election }) => {
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
+  const [hasVoted, setHasVoted] = React.useState(false);
 
   const apolloClient = useApolloClient();
 
@@ -45,9 +46,10 @@ export const ElectionCard = ({ election }: { election: Election }) => {
     if (!selectedCandidate) return;
     setVoting(true);
     try {
-      await voteForCandidate(selectedCandidate.documentId);
+      await voteForCandidate(selectedCandidate.documentId, election.documentId);
       await apolloClient.refetchQueries({ include: [GET_ELECTIONS] });
       setOpen(false);
+      setHasVoted(true);
       toast.success("Vote submitted successfully");
     } catch (error) {
       toast.error(
@@ -89,12 +91,13 @@ export const ElectionCard = ({ election }: { election: Election }) => {
                 size="sm"
                 onClick={() => setOpen(true)}
                 disabled={
+                  hasVoted ||
                   (election.candidates?.length ?? 0) < 2 ||
                   !(new Date(election.votingDateStart) <= new Date()) ||
                   !(new Date(election.votingDateEnd) >= new Date())
                 }
               >
-                View details & Vote
+                {hasVoted ? "Vote submitted" : "View details & Vote"}
               </Button>
             </div>
           </div>
@@ -188,10 +191,10 @@ export const ElectionCard = ({ election }: { election: Election }) => {
               </Button>
               <Button
                 onClick={handleVote}
-                disabled={!selectedCandidate || voting}
+                disabled={!selectedCandidate || voting || hasVoted}
                 className="cursor-pointer"
               >
-                {voting ? "Submitting..." : "Submit Vote"}
+                {hasVoted ? "Vote submitted" : voting ? "Submitting..." : "Submit Vote"}
               </Button>
             </footer>
           </div>
