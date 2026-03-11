@@ -10,7 +10,6 @@ import { useQuery } from "@apollo/client/react";
 import { GET_ELECTIONS } from "@/lib/queries";
 import { ElectionCard } from "./ElectionCard";
 import type { Election } from "@/lib/types";
-import { Loader } from "@/components/ui/loader";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 

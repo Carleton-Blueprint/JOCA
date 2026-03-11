@@ -1,13 +1,10 @@
 "use server";
 
 import { Prisma } from "@/generated/prisma/client";
-import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { cookies, headers } from "next/headers";
 
 const STRAPI_GRAPHQL_URL =
-  process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL ||
-  "http://localhost:1337/graphql";
+  process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
 
 async function strapiRequest<T>(query: string): Promise<T> {
   const res = await fetch(STRAPI_GRAPHQL_URL, {
@@ -33,30 +30,9 @@ async function strapiRequest<T>(query: string): Promise<T> {
 export async function voteForCandidate(
   candidateId: string,
   electionId: string,
+  userId: string,
 ): Promise<{ voteCount: number }> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  const userId = session?.user?.id ?? null;
-
-  // Supports both authenticated and anonymous voting.
-  // Anonymous voting is limited per-device via a stable, httpOnly cookie.
-  const cookieStore = await cookies();
-  let anonId: string | null = null;
-  if (!userId) {
-    const existing = cookieStore.get("joca_anon_voter")?.value;
-    anonId = existing ?? crypto.randomUUID();
-    if (!existing) {
-      cookieStore.set("joca_anon_voter", anonId, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365,
-      });
-    }
-  }
+  if (!userId) throw new Error("You must be logged in to vote.");
 
   // DB-enforced uniqueness prevents double-votes (and races).
   let createdVote: { id: string } | null = null;
@@ -64,7 +40,6 @@ export async function voteForCandidate(
     createdVote = await prisma.vote.create({
       data: {
         userId,
-        anonId,
         electionId,
         candidateId,
       },
@@ -73,6 +48,10 @@ export async function voteForCandidate(
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
+      /* TODO: Unique constraint violation: When you attempt to create/update a record
+      that would result in duplicate entries
+      In this case, the unique constraint is on the combination of userId and electionId
+      */
       error.code === "P2002"
     ) {
       throw new Error("You have already voted in this election.");
@@ -107,6 +86,22 @@ export async function voteForCandidate(
         // ignore
       });
     }
+    throw error;
+  }
+}
+
+export async function checkIfVoted(
+  electionId: string,
+  userId: string,
+): Promise<boolean> {
+  if (!userId) return false;
+  try {
+    const vote = await prisma.vote.findUnique({
+      where: { userId_electionId: { userId, electionId } },
+      select: { id: true },
+    });
+    return vote ? true : false;
+  } catch (error) {
     throw error;
   }
 }
