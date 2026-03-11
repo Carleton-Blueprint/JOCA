@@ -19,6 +19,9 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   user: {
+    deleteUser: {
+      enabled: true,
+    },
     additionalFields: {
       hasPaid: {
         type: "boolean",
