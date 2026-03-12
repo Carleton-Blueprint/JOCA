@@ -4,7 +4,16 @@ import type { CustomSession } from "./auth.types";
 // BetterAuth React Hooks
 //Exported specific methods from auth-client instantiation
 
-export const { signIn, signUp, signOut, useSession, sendVerificationEmail } =
+export const {
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  sendVerificationEmail,
+  updateUser,
+  changePassword,
+  deleteUser,
+} =
   createAuthClient({
     baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
   });

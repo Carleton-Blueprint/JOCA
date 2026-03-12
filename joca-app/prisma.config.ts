@@ -10,7 +10,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    //Use DIRECT_URL for migrations (bypassses pgBouncer connection pooling)
     url: process.env["DIRECT_URL"],
   },
 });

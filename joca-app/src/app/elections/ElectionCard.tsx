@@ -15,15 +15,18 @@ import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import { ClientDate } from "../events/clientDate";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import type { Election, Candidate } from "@/lib/types";
 import { GET_ELECTIONS } from "@/lib/queries";
-import { voteForCandidate } from "@/lib/voteAction";
+import { voteForCandidate, checkIfVoted } from "@/lib/actions";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Field,
@@ -32,22 +35,42 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { toast } from "sonner";
+import { useTypedSession } from "@/lib/auth-client";
 
 export const ElectionCard = ({ election }: { election: Election }) => {
   const [selectedCandidate, setSelectedCandidate] =
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
+  const [openVoteDialog, setOpenVoteDialog] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
+  const [hasVoted, setHasVoted] = React.useState(false);
+
+  const { data: session } = useTypedSession();
+  const userId = session?.user?.id;
 
   const apolloClient = useApolloClient();
 
+  React.useEffect(() => {
+    const check = async () => {
+      if (!userId) return;
+      setHasVoted(await checkIfVoted(election.documentId, userId));
+    };
+    check();
+  }, [election.documentId, userId, setHasVoted]);
+
   const handleVote = async () => {
-    if (!selectedCandidate) return;
+    if (!selectedCandidate || !userId) return;
     setVoting(true);
     try {
-      await voteForCandidate(selectedCandidate.documentId);
+      await voteForCandidate(
+        selectedCandidate.documentId,
+        election.documentId,
+        userId,
+      );
+      //Prevents stale data from being displayed
       await apolloClient.refetchQueries({ include: [GET_ELECTIONS] });
       setOpen(false);
+      setHasVoted(true);
       toast.success("Vote submitted successfully");
     } catch (error) {
       toast.error(
@@ -74,6 +97,7 @@ export const ElectionCard = ({ election }: { election: Election }) => {
               <MapPin className="opacity-70" />
               {election.location ?? "N/A"}
             </span>
+            <span>{userId ? "Logged in as " + userId : "Not logged in"}</span>
           </CardDescription>
         </CardHeader>
 
@@ -89,12 +113,13 @@ export const ElectionCard = ({ election }: { election: Election }) => {
                 size="sm"
                 onClick={() => setOpen(true)}
                 disabled={
+                  hasVoted ||
                   (election.candidates?.length ?? 0) < 2 ||
                   !(new Date(election.votingDateStart) <= new Date()) ||
                   !(new Date(election.votingDateEnd) >= new Date())
                 }
               >
-                View details & Vote
+                {hasVoted ? "Vote submitted" : "View details & Vote"}
               </Button>
             </div>
           </div>
@@ -186,13 +211,49 @@ export const ElectionCard = ({ election }: { election: Election }) => {
               >
                 Close
               </Button>
-              <Button
-                onClick={handleVote}
-                disabled={!selectedCandidate || voting}
-                className="cursor-pointer"
-              >
-                {voting ? "Submitting..." : "Submit Vote"}
-              </Button>
+              <Dialog open={openVoteDialog} onOpenChange={setOpenVoteDialog}>
+                <DialogTrigger asChild>
+                  <Button className="cursor-pointer">
+                    {hasVoted
+                      ? "Vote submitted"
+                      : voting
+                        ? "Submitting..."
+                        : "Vote"}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Submit Vote</DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription>
+                    Are you sure you want to submit your vote for{" "}
+                    {selectedCandidate?.member?.firstName ?? "N/A"}{" "}
+                    {selectedCandidate?.member?.lastName ?? "N/A"}? This action
+                    cannot be undone.
+                  </DialogDescription>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button
+                        className="cursor-pointer"
+                        variant="destructive"
+                        onClick={handleVote}
+                        disabled={voting || hasVoted}
+                      >
+                        Submit Vote
+                      </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button
+                        onClick={() => setOpenVoteDialog(false)}
+                        className="cursor-pointer"
+                        variant="secondary"
+                      >
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </footer>
           </div>
         </DialogContent>
