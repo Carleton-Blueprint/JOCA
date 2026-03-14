@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,6 @@ const categories = ["All", "Executive", "Committee", "Referendum"] as const;
 type CategoryFilter = (typeof categories)[number];
 
 export const ElectionCards = () => {
-  const router = useRouter();
   const { data: session, isPending } = useSession();
   const [isMounted, setIsMounted] = useState(false);
 

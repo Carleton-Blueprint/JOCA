@@ -48,7 +48,7 @@ export async function voteForCandidate(
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
-      /* TODO: Unique constraint violation: When you attempt to create/update a record
+      /* P2002: Unique constraint violation: When you attempt to create/update a record
       that would result in duplicate entries
       In this case, the unique constraint is on the combination of userId and electionId
       */
@@ -101,6 +101,19 @@ export async function checkIfVoted(
       select: { id: true },
     });
     return vote ? true : false;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function checkIfHasPaid(userId: string): Promise<boolean> {
+  if (!userId) return false;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { hasPaid: true },
+    });
+    return user?.hasPaid ?? false;
   } catch (error) {
     throw error;
   }

@@ -16,7 +16,6 @@ export default async function PaymentCancelPage() {
     headers: await headers(),
   });
 
-  //TODO: Check if the user already activated their membership
   if (!session?.user) redirect("/login");
 
   return (

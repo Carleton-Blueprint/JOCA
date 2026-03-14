@@ -32,7 +32,7 @@ import {
   useTypedSession,
 } from "@/lib/auth-client";
 import { Loader } from "@/components/ui/loader";
-import Link from "next/link";
+import { NotLoggedIn } from "@/components/NotLoggedIn";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -156,6 +156,10 @@ export const AccountPageComponent = () => {
         return;
       }
       toast.success("Your account has been deleted");
+      //60-second cookie to redirect to goodbye page
+      //Prevents users who shouldn't have access to the goodbye page from accessing it
+      document.cookie =
+        "account_deleted=1; path=/; max-age=60; SameSite=Strict";
       router.replace("/goodbye");
     } catch {
       toast.error("Failed to delete account");
@@ -173,14 +177,7 @@ export const AccountPageComponent = () => {
   }
 
   if (!session?.user) {
-    return (
-      <div className="container mx-auto p-8 flex flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">You have been logged out.</p>
-        <Link href="/login">
-          <Button>Log In</Button>
-        </Link>
-      </div>
-    );
+    return <NotLoggedIn />;
   }
 
   return (
