@@ -10,6 +10,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { checkIfHasPaid } from "@/lib/actions";
 
 export default async function PaymentCancelPage() {
   const session = await auth.api.getSession({
@@ -17,6 +18,9 @@ export default async function PaymentCancelPage() {
   });
 
   if (!session?.user) redirect("/login");
+
+  const hasPaid = await checkIfHasPaid(session.user.id);
+  if (!hasPaid) redirect("/payment/success");
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">

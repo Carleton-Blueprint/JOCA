@@ -10,15 +10,18 @@ import {
 } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 import { createCheckoutSession } from "@/lib/checkout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Loading from "../loading";
+import { NotLoggedIn } from "@/components/NotLoggedIn";
 
 export const StartPaymentPage = () => {
   const { data: session, isPending } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => setIsMounted(true), []);
 
   const handlePayment = async () => {
     if (!session?.user?.email) {
@@ -47,50 +50,9 @@ export const StartPaymentPage = () => {
     }
   };
 
-  if (isPending) return <Loading />;
+  if (!isMounted || isPending) return <Loading />;
 
-  if (!session?.user) {
-    return (
-      <div className="container mx-auto p-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Authentication Required</CardTitle>
-              <CardDescription>
-                Please log in to start your membership
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => router.push("/login")} className="w-full">
-                Log In
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (
-    !session?.user?.emailVerified &&
-    process.env.NODE_ENV !== "development" &&
-    !isPending
-  ) {
-    return (
-      <div className="container mx-auto p-8 max-w-2xl">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Email Verification Required</CardTitle>
-              <CardDescription>
-                Please verify your email address to make a payment
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  if (!session?.user) return <NotLoggedIn />;
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">

@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
+import { checkIfHasPaid } from "@/lib/actions";
 
 export default async function PaymentSuccessPage({
   searchParams,
@@ -24,7 +25,7 @@ export default async function PaymentSuccessPage({
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
 
-  let paymentVerified = authSession.user.hasPaid;
+  let paymentVerified = await checkIfHasPaid(authSession.user.id);
 
   if (!paymentVerified && session_id) {
     try {

@@ -25,7 +25,7 @@ import {
 
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import Loading from "../loading";
@@ -53,6 +53,9 @@ export const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
     useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => setIsMounted(true), []);
 
   const router = useRouter();
 
@@ -98,7 +101,7 @@ export const SignupForm = () => {
     );
   }
 
-  if (isPending) return <Loading />;
+  if (isPending || !isMounted) return <Loading />;
 
   if (session?.user) return <AlreadyLoggedIn />;
 
