@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { EmailNotVerified } from "@/components/EmailNotVerified";
-import { checkIfHasPaid } from "@/lib/actions";
+import prisma from "@/lib/prisma";
 
 export default async function PaymentPage() {
   const session = await auth.api.getSession({
@@ -15,8 +15,10 @@ export default async function PaymentPage() {
   if (!session?.user.emailVerified && process.env.NODE_ENV !== "development")
     return <EmailNotVerified />;
 
-  const hasPaid = await checkIfHasPaid(session.user.id);
-  if (hasPaid) redirect("/payment/success");
+  const activeSubscription = await prisma.subscription.findFirst({
+    where: { referenceId: session.user.id, status: "active" },
+  });
+  if (activeSubscription) redirect("/payment/success");
 
   return <StartPaymentPage />;
 }

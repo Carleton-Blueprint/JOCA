@@ -8,10 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useSession } from "@/lib/auth-client";
-import { createCheckoutSession } from "@/lib/checkout";
+import { useSession, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
@@ -24,26 +22,13 @@ export const StartPaymentPage = () => {
   useEffect(() => setIsMounted(true), []);
 
   const handlePayment = async () => {
-    if (!session?.user?.email) {
-      toast.error(
-        "No email address is associated with your account. Please update your profile before making a payment.",
-      );
-      return;
-    }
     setIsLoading(true);
     try {
-      const result = await createCheckoutSession(
-        session.user.id,
-        session.user.email,
-      );
-      // Redirect to Stripe Checkout
-      if (result?.url) {
-        window.location.href = result.url;
-      } else {
-        toast.error("No checkout URL returned");
-        setIsLoading(false);
-        return;
-      }
+      await subscription.upgrade({
+        plan: "membership",
+        successUrl: "/payment/success",
+        cancelUrl: "/payment/cancel",
+      });
     } catch (error) {
       setIsLoading(false);
       toast.error("Failed to initiate payment. Please try again.");

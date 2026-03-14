@@ -16,14 +16,12 @@ export default async function ElectionsPage() {
   if (!session?.user.emailVerified && process.env.NODE_ENV !== "development")
     return <EmailNotVerified />;
 
-  /*Use a direct prisma query instead of using the session user object
-  because of cookie cache (60 second "delay")*/
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { hasPaid: true },
+  /*Use a direct prisma query to bypass the 60s cookie cache on session data*/
+  const activeSubscription = await prisma.subscription.findFirst({
+    where: { referenceId: session.user.id, status: "active" },
   });
 
-  if (!dbUser?.hasPaid) return <NotPaid />;
+  if (!activeSubscription) return <NotPaid />;
 
   return <ElectionCards />;
 }
