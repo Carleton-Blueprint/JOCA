@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { stripeClient } from "@better-auth/stripe/client";
 import type { CustomSession } from "./auth.types";
 
 // BetterAuth React Hooks
@@ -13,10 +14,15 @@ export const {
   updateUser,
   changePassword,
   deleteUser,
-} =
-  createAuthClient({
-    baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
-  });
+  subscription,   // ADD THIS
+} = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
+  plugins: [
+    stripeClient({
+      subscription: true, //if you want to enable subscription management
+    }),
+  ],
+});
 
 // Type helper for useSession hook with custom fields
 export function useTypedSession() {

@@ -1,8 +1,12 @@
 import { betterAuth } from "better-auth";
+import { stripe } from "@better-auth/stripe";
+import Stripe from "stripe";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -21,13 +25,6 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       enabled: true,
-    },
-    additionalFields: {
-      hasPaid: {
-        type: "boolean",
-        defaultValue: false,
-        required: false,
-      },
     },
   },
   session: {
@@ -71,5 +68,21 @@ export const auth = betterAuth({
     max: 30, //max number of requests per window
     window: 60, //window in seconds
   },
+  plugins: [
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: "membership",
+            priceId: process.env.STRIPE_PRICE_ID!,
+          },
+        ],
+      },
+    }),
+  ],
   trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
 });

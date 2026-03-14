@@ -8,7 +8,6 @@ export interface CustomUser {
     image?: string | null;
     createdAt: Date;
     updatedAt: Date;
-    hasPaid: boolean; // Add your custom field here
 }
 
 export interface CustomSession extends Session {
