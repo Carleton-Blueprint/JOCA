@@ -19,6 +19,8 @@ export default async function PaymentCancelPage() {
 
   if (!session?.user) redirect("/login");
 
+  // "active" covers the grace period (Stripe keeps status active until periodEnd even after cancellation).
+  // If trials are added in future, also include status: "trialing".
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: session.user.id, status: "active" },
   });

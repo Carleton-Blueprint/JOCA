@@ -15,6 +15,8 @@ export default async function PaymentPage() {
   if (!session?.user.emailVerified && process.env.NODE_ENV !== "development")
     return <EmailNotVerified />;
 
+  // "active" covers the grace period (Stripe keeps status active until periodEnd even after cancellation).
+  // If trials are added in future, also include status: "trialing".
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: session.user.id, status: "active" },
   });

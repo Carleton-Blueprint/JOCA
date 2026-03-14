@@ -16,6 +16,8 @@ export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
 
+  // "active" covers the grace period (Stripe keeps status active until periodEnd even after cancellation).
+  // If trials are added in future, also include status: "trialing".
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: authSession.user.id, status: "active" },
   });
