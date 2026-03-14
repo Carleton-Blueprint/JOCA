@@ -59,7 +59,7 @@ export default async function PaymentSuccessPage({
           <CardDescription>
             {paymentVerified
               ? "Thank you for your membership payment"
-              : "Your payment is still being processed"}
+              : "Your payment has yet to be confirmed"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -85,9 +85,15 @@ export default async function PaymentSuccessPage({
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                Your payment was received but could not be confirmed yet. Your
+                Your payment could not be confirmed yet. If you paid, your
                 membership status will be updated shortly. If this persists,
                 please contact support.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                If you did not pay, please go here to try again:
+                <Button asChild variant="outline" className="ml-2">
+                  <Link href="/payment">Try Again</Link>
+                </Button>
               </p>
               {session_id && (
                 <p className="text-xs text-muted-foreground">
