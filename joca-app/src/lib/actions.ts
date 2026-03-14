@@ -105,16 +105,3 @@ export async function checkIfVoted(
     throw error;
   }
 }
-
-export async function checkIfHasPaid(userId: string): Promise<boolean> {
-  if (!userId) return false;
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { hasPaid: true },
-    });
-    return user?.hasPaid ?? false;
-  } catch (error) {
-    throw error;
-  }
-}
