@@ -127,9 +127,9 @@ const Header = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                {/* // TODO: Change to the actual billing URL */}
+                {/* // TODO: Change to the actual billing URL (on test link right now) */}
                 <Link
-                  href="https://billing.stripe.com/p/login/test_3cI28t78j1ub50JfPIfUQ00"
+                  href={`${process.env.STRIPE_BILLING_URL}`}
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <CreditCard className="h-4 w-4" />
