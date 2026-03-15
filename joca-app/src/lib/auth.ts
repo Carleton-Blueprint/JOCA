@@ -12,10 +12,6 @@ if (!process.env.STRIPE_WEBHOOK_SECRET) {
   throw new Error("STRIPE_WEBHOOK_SECRET environment variable is not set.");
 }
 
-if (!process.env.STRIPE_PRICE_ID) {
-  throw new Error("STRIPE_PRICE_ID environment variable is not set.");
-}
-
 const isDev = process.env.NODE_ENV === "development";
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -101,7 +97,7 @@ export const auth = betterAuth({
         plans: [
           {
             name: "membership",
-            priceId: process.env.STRIPE_PRICE_ID!,
+            lookupKey: "membership",
           },
         ],
       },

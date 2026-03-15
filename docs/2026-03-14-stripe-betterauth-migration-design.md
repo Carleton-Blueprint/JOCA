@@ -87,18 +87,19 @@ additionalFields: {
 stripe({
   stripeClient,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  createCustomerOnSignUp: true,
   subscription: {
     enabled: true,
     plans: [
       {
         name: "membership",
-        priceId: process.env.STRIPE_PRICE_ID!,
+        lookupKey: "membership",
       },
     ],
   },
 })
 ```
+
+`lookupKey` is used instead of `priceId` so admins can update the membership price in the Stripe Dashboard without a code change or redeploy - just reassign the `"membership"` lookup key to the new price. `createCustomerOnSignUp` is intentionally omitted: enabling it causes duplicate Stripe customers (one on signup, one at checkout). The Stripe customer is created lazily at checkout and linked to the user via the authenticated session.
 
 The plugin handles webhook routing, signature verification, and subscription lifecycle internally. No other changes needed.
 
@@ -252,6 +253,16 @@ Replace `checkIfHasPaid` call with subscription check. The correct post-migratio
 
 ---
 
+## Post-Migration Additions
+
+The following were discovered and added after the initial migration:
+
+**Account deletion billing fix:** Added `beforeDelete` hook to `auth.ts` `deleteUser` config. Cancels the user's active Stripe subscription and deletes their subscription record before the user row is removed - prevents continued billing after account deletion. Direct DB deletions bypass this hook; cancel the Stripe subscription manually in the Stripe Dashboard in that case.
+
+**Subscription uniqueness:** Added `@@unique([referenceId])` to the `Subscription` model. Enforces one subscription per user at the DB level. Also replaced `findFirst`/`deleteMany` in the `beforeDelete` hook with `findUnique`/`delete`.
+
+---
+
 ## Environment Variables
 
-No new variables required. `STRIPE_PRICE_ID` moves from `checkout.ts` to `auth.ts` subscription plan config (already referenced there via `process.env.STRIPE_PRICE_ID`).
+`STRIPE_PRICE_ID` is no longer needed - replaced by Stripe lookup keys. Remove it from `.env`.
