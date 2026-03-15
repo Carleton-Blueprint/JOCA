@@ -20,7 +20,7 @@ Migrate from a manual Stripe integration (custom webhook handler, `hasPaid` bool
 - Multiple membership tiers (one plan: "membership")
 - Organization billing
 - Trial periods
-- Billing portal UI
+- ~~Billing portal UI~~ (added post-migration - see Post-Migration Additions)
 
 ---
 
@@ -260,6 +260,8 @@ The following were discovered and added after the initial migration:
 **Account deletion billing fix:** Added `beforeDelete` hook to `auth.ts` `deleteUser` config. Cancels the user's active Stripe subscription and deletes their subscription record before the user row is removed - prevents continued billing after account deletion. Direct DB deletions bypass this hook; cancel the Stripe subscription manually in the Stripe Dashboard in that case.
 
 **Subscription uniqueness:** Added `@@unique([referenceId])` to the `Subscription` model. Enforces one subscription per user at the DB level. Also replaced `findFirst`/`deleteMany` in the `beforeDelete` hook with `findUnique`/`delete`.
+
+**Billing portal:** Added `subscription.billingPortal()` call in `Header.tsx` under the user dropdown ("Manage membership" item). Uses `onSelect` directly on `DropdownMenuItem` (no `<Link>` wrapper needed - the plugin handles the redirect internally). No code changes required when switching to live mode; configure the portal separately in the live mode Stripe Dashboard.
 
 ---
 

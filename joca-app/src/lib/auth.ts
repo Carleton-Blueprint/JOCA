@@ -33,13 +33,13 @@ export const auth = betterAuth({
         // Cancel active Stripe subscription before deleting the user,
         // otherwise Stripe will continue billing the card indefinitely.
         const sub = await prisma.subscription.findUnique({
-          where: { referenceId: user.id, status: "active" },
-          select: { stripeSubscriptionId: true },
+          where: { referenceId: user.id },
+          select: { stripeSubscriptionId: true, status: true },
         });
-        if (sub?.stripeSubscriptionId) {
+        if (sub?.status === "active" && sub?.stripeSubscriptionId) {
           await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
         }
-        // Clean up all subscription records - no FK cascade since referenceId
+        // Clean up subscription record - no FK cascade since referenceId
         // has no @relation to User.
         await prisma.subscription.delete({
           where: { referenceId: user.id },
