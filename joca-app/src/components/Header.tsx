@@ -26,20 +26,22 @@ const Header = () => {
   }, []);
 
   const openBillingPortal = async () => {
-    try {
-      await subscription.billingPortal({
+    await subscription.billingPortal(
+      {
         locale: "auto",
         referenceId: session?.user?.id,
         customerType: "user",
         returnUrl: "/",
         disableRedirect: false,
-      });
-    } catch {
-      //When billing portal fails for unpaid users
-      toast.error(
-        "No active membership found. Please purchase a membership first.",
-      );
-    }
+      },
+      {
+        onError: () => {
+          toast.error(
+            "No active membership found. Please purchase a membership first.",
+          );
+        },
+      },
+    );
   };
 
   const handleLogout = async () => {

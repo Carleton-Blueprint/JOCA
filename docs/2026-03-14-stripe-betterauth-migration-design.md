@@ -257,11 +257,15 @@ Replace `checkIfHasPaid` call with subscription check. The correct post-migratio
 
 The following were discovered and added after the initial migration:
 
-**Account deletion billing fix:** Added `beforeDelete` hook to `auth.ts` `deleteUser` config. Cancels the user's active Stripe subscription and deletes their subscription record before the user row is removed - prevents continued billing after account deletion. Direct DB deletions bypass this hook; cancel the Stripe subscription manually in the Stripe Dashboard in that case.
+**Account deletion billing fix:** Added `beforeDelete` hook to `auth.ts` `deleteUser` config. Cancels the user's active Stripe subscription and deletes their subscription record before the user row is removed - prevents continued billing after account deletion. The `delete()` call is guarded by `if (sub)` so users who never paid can still delete their account without a P2025 error. Direct DB deletions bypass this hook; cancel the Stripe subscription manually in the Stripe Dashboard in that case.
 
-**Subscription uniqueness:** Added `@@unique([referenceId])` to the `Subscription` model. Enforces one subscription per user at the DB level. Also replaced `findFirst`/`deleteMany` in the `beforeDelete` hook with `findUnique`/`delete`.
+**Subscription uniqueness:** Added `@@unique([referenceId])` to the `Subscription` model. Enforces one subscription per user at the DB level. Also replaced `findFirst`/`deleteMany` in the `beforeDelete` hook with `findUnique`/`delete`. The unique constraint is applied in migration `20260314220000` via `CREATE UNIQUE INDEX IF NOT EXISTS`.
 
-**Billing portal:** Added `subscription.billingPortal()` call in `Header.tsx` under the user dropdown ("Manage membership" item). Uses `onSelect` directly on `DropdownMenuItem` (no `<Link>` wrapper needed - the plugin handles the redirect internally). No code changes required when switching to live mode; configure the portal separately in the live mode Stripe Dashboard.
+**Migration order fix:** Migration `20260314215529_add_subscription_referenceid_index` was out of order - it referenced the `subscription` table before it was created by `20260314220000`. The index migration was made a no-op; the unique index creation was moved into `20260314220000` using `CREATE UNIQUE INDEX IF NOT EXISTS` (safe for existing DBs where the constraint was already applied via `db push`).
+
+**STRIPE_WEBHOOK_SECRET dev guard:** The startup guard for `STRIPE_WEBHOOK_SECRET` is now dev-aware - `isDev` is declared before the guard and the check is wrapped with `!isDev`, matching the same pattern used for `RESEND_API_KEY`. Developers running locally without the webhook secret no longer get a startup crash.
+
+**Billing portal:** Added `subscription.billingPortal()` call in `Header.tsx` under the user dropdown ("Manage membership" item). Uses `onSelect` directly on `DropdownMenuItem` (no `<Link>` wrapper needed - the plugin handles the redirect internally). Wrapped in try/catch - unpaid users (no Stripe customer) see a toast error rather than a silent failure. No code changes required when switching to live mode; configure the portal separately in the live mode Stripe Dashboard.
 
 ---
 

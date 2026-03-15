@@ -94,7 +94,7 @@ export const auth = betterAuth({
   plugins: [
     stripe({
       stripeClient,
-      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
       subscription: {
         enabled: true,
         plans: [
