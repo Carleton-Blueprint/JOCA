@@ -41,9 +41,12 @@ export const auth = betterAuth({
         }
         // Clean up subscription record - no FK cascade since referenceId
         // has no @relation to User.
-        await prisma.subscription.delete({
-          where: { referenceId: user.id },
-        });
+        //Add check to prevent throwing error if it doesn't exist
+        if (sub) {
+          await prisma.subscription.delete({
+            where: { referenceId: user.id },
+          });
+        }
       },
     },
   },

@@ -14,6 +14,7 @@ import { useSession, signOut, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CreditCard, Bell, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 const Header = () => {
   const { data: session, isPending } = useSession();
@@ -25,13 +26,20 @@ const Header = () => {
   }, []);
 
   const openBillingPortal = async () => {
-    await subscription.billingPortal({
-      locale: "auto",
-      referenceId: session?.user?.id,
-      customerType: "user",
-      returnUrl: "/",
-      disableRedirect: false,
-    });
+    try {
+      await subscription.billingPortal({
+        locale: "auto",
+        referenceId: session?.user?.id,
+        customerType: "user",
+        returnUrl: "/",
+        disableRedirect: false,
+      });
+    } catch {
+      //When billing portal fails for unpaid users
+      toast.error(
+        "No active membership found. Please purchase a membership first.",
+      );
+    }
   };
 
   const handleLogout = async () => {
