@@ -25,3 +25,6 @@ CREATE TABLE "subscription" (
 
     CONSTRAINT "subscription_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateUniqueIndex (moved from 20260314215529 which ran before this table was created)
+CREATE UNIQUE INDEX IF NOT EXISTS "subscription_referenceId_key" ON "subscription"("referenceId");

@@ -1,2 +1,3 @@
--- CreateIndex
-CREATE INDEX "subscription_referenceId_idx" ON "subscription"("referenceId");
+-- This migration was superseded by 20260314220000_add_subscription_remove_haspaid.
+-- The index creation was moved there to ensure it runs after the table is created.
+-- This file is intentionally left as a no-op to preserve migration history.
