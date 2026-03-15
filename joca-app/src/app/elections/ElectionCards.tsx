@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSession } from "@/lib/auth-client";
+import { useSessionReady } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ const categories = ["All", "Executive", "Committee", "Referendum"] as const;
 type CategoryFilter = (typeof categories)[number];
 
 export const ElectionCards = () => {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
 
   const [query, setQuery] = React.useState("");
@@ -49,7 +49,7 @@ export const ElectionCards = () => {
   }, [query, activeCategory, data]);
 
   // Show loading state until hydration is complete
-  if (!isMounted || (isPending && !session)) return <Loading />;
+  if (!isMounted || isPending) return <Loading />;
 
   if (!session?.user) return <NotLoggedIn />;
 

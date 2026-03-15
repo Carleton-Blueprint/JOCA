@@ -35,7 +35,7 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { toast } from "sonner";
-import { useTypedSession } from "@/lib/auth-client";
+import { useSessionReady } from "@/lib/auth-client";
 
 export const ElectionCard = ({ election }: { election: Election }) => {
   const [selectedCandidate, setSelectedCandidate] =
@@ -45,7 +45,7 @@ export const ElectionCard = ({ election }: { election: Election }) => {
   const [voting, setVoting] = React.useState(false);
   const [hasVoted, setHasVoted] = React.useState(false);
 
-  const { data: session } = useTypedSession();
+  const { data: session } = useSessionReady();
   const userId = session?.user?.id;
 
   const apolloClient = useApolloClient();

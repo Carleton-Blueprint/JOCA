@@ -15,7 +15,7 @@ import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Loader } from "@/components/ui/loader";
-import { useSession } from "@/lib/auth-client";
+import { useSessionReady } from "@/lib/auth-client";
 
 import {
   Form,
@@ -41,7 +41,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +83,7 @@ export const LoginForm = () => {
     );
   }
 
-  if (!isMounted || (isPending && session)) return <Loading />;
+  if (!isMounted || isPending) return <Loading />;
 
   if (session?.user) return <AlreadyLoggedIn />;
 

@@ -29,7 +29,7 @@ import {
   changePassword,
   deleteUser,
   updateUser,
-  useTypedSession,
+  useSessionReady,
 } from "@/lib/auth-client";
 import { Loader } from "@/components/ui/loader";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
@@ -72,7 +72,7 @@ function splitName(fullName: string | undefined | null) {
 
 export const AccountPageComponent = () => {
   const router = useRouter();
-  const { data: session, isPending } = useTypedSession();
+  const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -168,7 +168,7 @@ export const AccountPageComponent = () => {
     }
   };
 
-  if (!isMounted || (isPending && !session)) {
+  if (!isMounted || isPending) {
     return (
       <div className="container mx-auto p-8 flex flex-col items-center justify-center gap-4">
         <Loader />

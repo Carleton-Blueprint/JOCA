@@ -1,6 +1,6 @@
+import { useRef } from "react";
 import { createAuthClient } from "better-auth/react";
 import { stripeClient } from "@better-auth/stripe/client";
-import type { CustomSession } from "./auth.types";
 
 // BetterAuth React Hooks
 //Exported specific methods from auth-client instantiation
@@ -24,8 +24,11 @@ export const {
   ],
 });
 
-// Type helper for useSession hook with custom fields
-export function useTypedSession() {
+// Returns isPending: true only on the initial load, not on background re-fetches.
+// Prevents loader flickers when the session re-validates on window focus.
+export function useSessionReady() {
   const session = useSession();
-  return session as typeof session & { data: CustomSession | null };
+  const initialized = useRef(false);
+  if (!session.isPending) initialized.current = true;
+  return { ...session, isPending: !initialized.current };
 }

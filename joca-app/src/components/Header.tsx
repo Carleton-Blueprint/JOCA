@@ -10,14 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession, signOut, subscription } from "@/lib/auth-client";
+import { useSessionReady, signOut, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CreditCard, Bell, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 const Header = () => {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 

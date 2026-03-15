@@ -8,14 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useSession, subscription } from "@/lib/auth-client";
+import { useSessionReady, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 
 export const StartPaymentPage = () => {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSessionReady();
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -35,7 +35,7 @@ export const StartPaymentPage = () => {
     }
   };
 
-  if (!isMounted || (isPending && !session)) return <Loading />;
+  if (!isMounted || isPending) return <Loading />;
 
   if (!session?.user) return <NotLoggedIn />;
 

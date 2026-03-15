@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useSessionReady } from "@/lib/auth-client";
 import Loading from "../loading";
 import { AlreadyLoggedIn } from "@/components/AlreadyLoggedIn";
 
@@ -48,7 +48,7 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export const SignupForm = () => {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSessionReady();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
@@ -101,7 +101,7 @@ export const SignupForm = () => {
     );
   }
 
-  if (!isMounted || (isPending && session)) return <Loading />;
+  if (!isMounted || isPending) return <Loading />;
 
   if (session?.user) return <AlreadyLoggedIn />;
 
