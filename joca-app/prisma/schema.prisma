@@ -110,6 +110,6 @@ model Subscription {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
-  @@index([referenceId])
+  @@unique([referenceId])
   @@map("subscription")
 }

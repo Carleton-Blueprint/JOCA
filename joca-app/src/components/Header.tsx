@@ -129,7 +129,7 @@ const Header = () => {
               <DropdownMenuItem asChild>
                 {/* // TODO: Change to the actual billing URL (on test link right now) */}
                 <Link
-                  href={`${process.env.STRIPE_BILLING_URL}`}
+                  href={process.env.NEXT_PUBLIC_STRIPE_BILLING_PORTAL_URL!}
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <CreditCard className="h-4 w-4" />
