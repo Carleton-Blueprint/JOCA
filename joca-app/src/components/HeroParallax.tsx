@@ -11,6 +11,39 @@ import {
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { TextAnimate } from "@/components/ui/text-animate";
 
+const ProductCard = ({
+  product,
+  translate,
+}: {
+  product: {
+    title: string;
+    thumbnail: string;
+  };
+  translate: MotionValue<number>;
+}) => {
+  return (
+    <motion.div
+      style={{
+        x: translate,
+      }}
+      whileHover={{
+        y: -20,
+      }}
+      key={product.title}
+      className="group/product h-96 w-[30rem] relative shrink-0"
+    >
+      <Image
+        src={product.thumbnail}
+        fill
+        className="object-cover object-left-top"
+        alt={product.title}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      />
+      <div className="absolute inset-0 h-full w-full opacity-0 bg-black pointer-events-none"></div>
+    </motion.div>
+  );
+};
+
 export const HeroParallax = ({
   products,
 }: {
@@ -101,47 +134,16 @@ export const HeroParallax = ({
   );
 };
 
-export const Header = () => {
+const Header = () => {
   return (
     <div className="max-w-7xl relative mx-auto py-20 px-4 w-full  left-0 top-0">
-      <TextGenerateEffect words={"Jamaican Ottawa Community Association"} />
+      <TextGenerateEffect
+        words={"Jamaican Ottawa Community Association, Inc."}
+      />
       <TextAnimate className="max-w-2xl text-bold md:text-xl mt-8 dark:text-neutral-200">
         Jamaican Ottawa Community Association - Building community through
         culture, connection, and celebration
       </TextAnimate>
     </div>
-  );
-};
-
-export const ProductCard = ({
-  product,
-  translate,
-}: {
-  product: {
-    title: string;
-    thumbnail: string;
-  };
-  translate: MotionValue<number>;
-}) => {
-  return (
-    <motion.div
-      style={{
-        x: translate,
-      }}
-      whileHover={{
-        y: -20,
-      }}
-      key={product.title}
-      className="group/product h-96 w-[30rem] relative shrink-0"
-    >
-      <Image
-        src={product.thumbnail}
-        fill
-        className="object-cover object-left-top"
-        alt={product.title}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      />
-      <div className="absolute inset-0 h-full w-full opacity-0 bg-black pointer-events-none"></div>
-    </motion.div>
   );
 };

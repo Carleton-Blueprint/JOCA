@@ -1,9 +1,9 @@
 import { CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { HeroParallax } from "@/components/ui/hero-parallax";
+import { HeroParallax } from "@/components/HeroParallax";
 import { FlippingCard } from "@/components/ui/flipping-card";
-import { HeroSection } from "@/components/ui/hero-section";
+import { HeroSection } from "@/components/HeroSection";
 import { GradientSlideButton } from "@/components/ui/gradient-slide-button";
 
 export const products = Array.from({ length: 15 }, (_, index) => ({
