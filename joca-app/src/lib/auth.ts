@@ -100,8 +100,20 @@ export const auth = betterAuth({
         enabled: true,
         plans: [
           {
-            name: "membership",
-            lookupKey: "membership",
+            name: "senior-membership",
+            lookupKey: "senior-membership",
+          },
+          {
+            name: "general-membership",
+            lookupKey: "general-membership",
+          },
+          {
+            name: "family-membership",
+            lookupKey: "family-membership",
+          },
+          {
+            name: "student-associate-membership",
+            lookupKey: "student-associate-membership",
           },
         ],
       },
