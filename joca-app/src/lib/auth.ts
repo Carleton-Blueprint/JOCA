@@ -36,7 +36,7 @@ export const auth = betterAuth({
     },
     deleteUser: {
       enabled: true,
-      beforeDelete: async (user) => {
+      beforeDelete: async (user: { id: string; email: string }) => {
         // Cancel active Stripe subscription before deleting the user,
         // otherwise Stripe will continue billing the card indefinitely.
         const sub = await prisma.subscription.findUnique({
@@ -77,9 +77,20 @@ export const auth = betterAuth({
       process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true",
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
+    sendVerificationEmail: async ({
+      user,
+      url,
+    }: {
+      user: { email: string; name: string };
+      url: string;
+    }) => {
+      if (!resend) {
+        throw new Error(
+          "Resend client not configured. Email verification is disabled."
+        );
+      }
       try {
-        await resend?.emails.send({
+        await resend.emails.send({
           from: "onboarding@resend.dev", //TODO: Change to JOCA email once prod domain is verified
           to: user.email,
           subject: "Verify your email",
