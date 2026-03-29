@@ -11,6 +11,7 @@ import { ElectionCard } from "./ElectionCard";
 import type { Election } from "@/lib/types";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export interface GetElectionsData {
   elections: Election[];
@@ -97,7 +98,10 @@ export const ElectionCards = () => {
         ) : loading ? (
           <p className="text-muted-foreground">Loading elections...</p>
         ) : filteredElections?.length === 0 ? (
-          <p className="text-muted-foreground">No elections found.</p>
+          <EmptyState 
+            title="No elections found" 
+            description="Try adjusting your search or browse by category"
+          />
         ) : (
           filteredElections?.map((election) => (
             <ElectionCard election={election} key={election.documentId} />

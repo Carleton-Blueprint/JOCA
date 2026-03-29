@@ -8,6 +8,7 @@ import { GET_EVENTS } from "@/lib/queries";
 import { EventCard } from "./EventCard";
 import Loading from "../loading";
 import type { Event } from "@/lib/types";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export interface GetEventsData {
   events: Event[];
@@ -73,7 +74,14 @@ export const EventCards = () => {
               : "Unable to load events. Please try again."}
           </p>
         ) : filteredEvents?.length === 0 ? (
+<<<<<<< HEAD
           <p className="text-muted-foreground">No events found.</p>
+=======
+          <EmptyState 
+            title="No events found" 
+            description="Try adjusting your search or browse by category"
+          />
+>>>>>>> 6840529 (feat: Add reusable EmptyState component for better empty list UX)
         ) : (
           filteredEvents?.map((event: Event) => (
             <EventCard event={event} key={event.documentId} />
