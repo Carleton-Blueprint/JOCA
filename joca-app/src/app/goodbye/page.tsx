@@ -25,7 +25,7 @@ export default async function GoodbyePage() {
             JOCA.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex gap-4 sm:flex-row">
           <Button asChild>
             <Link href="/">Home</Link>
           </Button>

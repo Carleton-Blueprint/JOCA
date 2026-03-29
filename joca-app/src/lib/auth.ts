@@ -5,6 +5,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
+import { DELETE_MEMBER, GET_MEMBER_BY_EMAIL } from "@/lib/queries";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -52,6 +53,34 @@ export const auth = betterAuth({
           await prisma.subscription.delete({
             where: { referenceId: user.id },
           });
+        }
+        // Delete corresponding Strapi member record.
+        const strapiUrl =
+          process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL ||
+          "http://localhost:1337/graphql";
+        try {
+          const memberRes = await fetch(strapiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query: GET_MEMBER_BY_EMAIL,
+              variables: { email: user.email },
+            }),
+          });
+          const memberJson = await memberRes.json();
+          const documentId = memberJson.data?.members?.[0]?.documentId;
+          if (documentId) {
+            await fetch(strapiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                query: DELETE_MEMBER,
+                variables: { documentId },
+              }),
+            });
+          }
+        } catch (error) {
+          console.error("Failed to delete Strapi member:", error);
         }
       },
     },

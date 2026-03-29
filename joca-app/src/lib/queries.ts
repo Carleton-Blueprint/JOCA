@@ -62,6 +62,14 @@ export const GET_MEMBER_BY_EMAIL = `
   }
 `;
 
+export const DELETE_MEMBER = `
+  mutation DeleteMember($documentId: ID!) {
+    deleteMember(documentId: $documentId) {
+      documentId
+    }
+  }
+`;
+
 export const GET_CANDIDATE = `
   query GetCandidate($documentId: ID!) {
     candidate(documentId: $documentId) { voteCount }
