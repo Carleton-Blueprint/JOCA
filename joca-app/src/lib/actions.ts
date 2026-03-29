@@ -3,7 +3,7 @@
 import { Prisma } from "../../prisma/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { Member } from "@/lib/types";
-import { CREATE_MEMBER, GET_CANDIDATE, GET_MEMBER_BY_EMAIL, UPDATE_CANDIDATE } from "./queries";
+import { CREATE_MEMBER, DELETE_MEMBER, GET_CANDIDATE, GET_MEMBER_BY_EMAIL, UPDATE_CANDIDATE } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
   process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
@@ -42,6 +42,13 @@ export async function getMemberByEmail(email: string): Promise<Member | null> {
     return members[0] ?? null;
   } catch (error) {
     throw new Error("Failed to get member, " + error);
+  }
+}
+
+export async function deleteMemberByEmail(email: string): Promise<void> {
+  const member = await getMemberByEmail(email);
+  if (member?.documentId) {
+    await strapiRequest(DELETE_MEMBER, { documentId: member.documentId });
   }
 }
 
