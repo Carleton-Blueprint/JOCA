@@ -2,15 +2,17 @@
 
 import { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
+import { Member } from "@/lib/types";
 
 const STRAPI_GRAPHQL_URL =
   process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
 
-async function strapiRequest<T>(query: string): Promise<T> {
+//Helper function to make requests to the Strapi GraphQL API
+async function strapiRequest<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   const res = await fetch(STRAPI_GRAPHQL_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, variables }),
     cache: "no-store",
   });
 
@@ -27,6 +29,25 @@ async function strapiRequest<T>(query: string): Promise<T> {
   return json.data as T;
 }
 
+export async function createMember(
+  firstName: string,
+  lastName: string,
+  email: string,
+  phoneNumber: string,
+): Promise<Member> {
+  try {
+    const { createMember } = await strapiRequest<{ createMember: Member }>(
+      `mutation CreateMember($data: MemberInput!) {
+        createMember(data: $data) { documentId firstName lastName email phoneNumber }
+      }`,
+      { data: { firstName, lastName, email, phoneNumber } },
+    );
+    return createMember;
+  } catch (error) {
+    throw new Error("Failed to create member, " + error);
+  }
+}
+
 export async function voteForCandidate(
   candidateId: string,
   electionId: string,
@@ -35,9 +56,9 @@ export async function voteForCandidate(
   if (!userId) throw new Error("You must be logged in to vote.");
 
   // DB-enforced uniqueness prevents double-votes (and races).
-  let createdVote: { id: string } | null = null;
+
   try {
-    createdVote = await prisma.vote.create({
+    await prisma.vote.create({
       data: {
         userId,
         electionId,
@@ -50,7 +71,8 @@ export async function voteForCandidate(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       /* P2002: Unique constraint violation: When you attempt to create/update a record
       that would result in duplicate entries
-      In this case, the unique constraint is on the combination of userId and electionId
+      In this case, the unique constraint is on the combination of userId and electionId 
+      (voting more than once on the same user)
       */
       error.code === "P2002"
     ) {
@@ -80,12 +102,6 @@ export async function voteForCandidate(
 
     return { voteCount: updateCandidate.voteCount };
   } catch (error) {
-    // Best-effort rollback: allow user to retry if the Strapi write failed.
-    if (createdVote) {
-      await prisma.vote.delete({ where: { id: createdVote.id } }).catch(() => {
-        // ignore
-      });
-    }
     throw error;
   }
 }

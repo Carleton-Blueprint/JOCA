@@ -310,7 +310,8 @@ export const AccountPageComponent = () => {
         <CardHeader>
           <CardTitle className="text-destructive">Delete account</CardTitle>
           <CardDescription>
-            This will permanently delete your account and all associated data.
+            Warning, this is a destructive action. This will permanently delete
+            your account and all associated data.
           </CardDescription>
         </CardHeader>
         <CardContent>

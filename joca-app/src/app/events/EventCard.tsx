@@ -110,39 +110,26 @@ export const EventCard = ({ event }: { event: Event }) => {
 
           <div className="space-y-4">
             <p>{event.description}</p>
-            <section className="flex flex-col">
-              <div className="grid grid-cols-[32%_1fr] items-center">
-                <p>Location:</p>
-                <Button
-                  variant="link"
-                  className="justify-start text-md hover:cursor-pointer p-0"
-                >
-                  {" "}
-                  <em>{event.location}</em>
-                </Button>
-                <p>Date:</p>
-                <em>
-                  <ClientDate date={event.date} />
-                </em>
-                <p>Time:</p>
-                <em>{formatTime(event.time)}</em>
+            <section>
+              <div className="flex flex-col justify-center gap-2">
+                <div className="flex items-center gap-2">
+                  <p>Location:</p>
+                  <em className="text-primary font-semibold">
+                    {event.location}
+                  </em>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p>Date:</p>
+                  <em className="text-secondary font-semibold">
+                    <ClientDate date={event.date} />
+                  </em>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p>Time:</p>
+                  <em>{formatTime(event.time)}</em>
+                </div>
               </div>
             </section>
-            <footer className="flex flex-wrap gap-2 items-center justify-center">
-              <Button className="flex-1">
-                {" "}
-                <CalendarDays />
-                Add to Calendar
-              </Button>
-              <Button className="flex-1">
-                <Camera />
-                See Post
-              </Button>
-              <Button className="flex-1">
-                {" "}
-                <Bell /> RSVP
-              </Button>
-            </footer>
           </div>
         </DialogContent>
       </Dialog>

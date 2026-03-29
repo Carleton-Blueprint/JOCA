@@ -35,12 +35,3 @@ export const GET_ELECTIONS = gql`
     }
   }
 `;
-
-export const VOTE_FOR_CANDIDATE = gql`
-  mutation UpdateCandidate($documentId: ID!, $data: CandidateInput!) {
-    updateCandidate(documentId: $documentId, data: $data) {
-      documentId
-      voteCount
-    }
-  }
-`;

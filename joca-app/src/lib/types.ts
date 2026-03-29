@@ -39,6 +39,7 @@ export type Member = {
 export type User = {
   documentId: string;
   email: string;
+  phoneNumber?: string;
   provider?: string;
   password?: string;
   resetPasswordToken?: string;

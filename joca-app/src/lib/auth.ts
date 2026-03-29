@@ -27,6 +27,12 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   user: {
+    additionalFields: {
+      phoneNumber: {
+        type: "string",
+        required: true,
+      },
+    },
     deleteUser: {
       enabled: true,
       beforeDelete: async (user) => {

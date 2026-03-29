@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { createAuthClient } from "better-auth/react";
+import { inferAdditionalFields } from "better-auth/client/plugins";
 import { stripeClient } from "@better-auth/stripe/client";
+import type { auth } from "@/lib/auth";
 
 // BetterAuth React Hooks
 //Exported specific methods from auth-client instantiation
@@ -18,6 +20,7 @@ export const {
 } = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
   plugins: [
+    inferAdditionalFields<typeof auth>(),
     stripeClient({
       subscription: true, //if you want to enable subscription management
     }),

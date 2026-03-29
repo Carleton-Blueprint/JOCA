@@ -11,17 +11,29 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
+import { createMember } from "@/lib/actions";
 
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
 
-  // "active" covers the grace period (Stripe keeps status active until periodEnd even after cancellation).
-  // If trials are added in future, also include status: "trialing".
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: authSession.user.id, status: "active" },
   });
-  const paymentVerified = !!activeSubscription;
+  const paymentVerified = activeSubscription ? true : false;
+
+  if (paymentVerified) {
+    try {
+      await createMember(
+        authSession.user.name.split(" ")[0],
+        authSession.user.name.split(" ")[1],
+        authSession.user.email,
+        authSession.user.phoneNumber,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
