@@ -8,7 +8,10 @@ const STRAPI_GRAPHQL_URL =
   process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
 
 //Helper function to make requests to the Strapi GraphQL API
-async function strapiRequest<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
+async function strapiRequest<T>(
+  query: string,
+  variables?: Record<string, unknown>,
+): Promise<T> {
   const res = await fetch(STRAPI_GRAPHQL_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -56,9 +59,9 @@ export async function voteForCandidate(
   if (!userId) throw new Error("You must be logged in to vote.");
 
   // DB-enforced uniqueness prevents double-votes (and races).
-
+  let createdVote: { id: string } | null = null;
   try {
-    await prisma.vote.create({
+    createdVote = await prisma.vote.create({
       data: {
         userId,
         electionId,
@@ -102,6 +105,19 @@ export async function voteForCandidate(
 
     return { voteCount: updateCandidate.voteCount };
   } catch (error) {
+    // Best-effort rollback: delete the DB vote so the user can retry.
+    if (createdVote) {
+      await prisma.vote
+        .delete({ where: { id: createdVote.id } })
+        .catch((rollbackError) => {
+          // Log so the orphaned vote is visible in server logs and can be cleaned up manually.
+          console.error(
+            "Rollback failed - vote record orphaned:",
+            createdVote?.id,
+            rollbackError,
+          );
+        });
+    }
     throw error;
   }
 }

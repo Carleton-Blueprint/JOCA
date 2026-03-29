@@ -24,12 +24,9 @@ export default async function PaymentSuccessPage() {
 
   if (paymentVerified) {
     try {
-      await createMember(
-        authSession.user.name.split(" ")[0],
-        authSession.user.name.split(" ")[1],
-        authSession.user.email,
-        authSession.user.phoneNumber,
-      );
+      const [firstName, ...rest] = authSession.user.name.split(" ");
+      const lastName = rest.join(" ");
+      await createMember(firstName, lastName, authSession.user.email, authSession.user.phoneNumber);
     } catch (error) {
       console.error(error);
     }
