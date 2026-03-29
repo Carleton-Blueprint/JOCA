@@ -14,36 +14,47 @@ import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { createMember, getMemberByEmail } from "@/lib/actions";
 import { Member } from "@/lib/types";
 
+// Type extension for Better Auth session with additional fields
+type AuthUser = {
+  id: string;
+  email: string;
+  name: string;
+  phoneNumber?: string;
+};
+
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
 
+  const user = authSession.user as AuthUser;
+
   const activeSubscription = await prisma.subscription.findFirst({
-    where: { referenceId: authSession.user.id, status: "active" },
+    where: { referenceId: user.id, status: "active" },
   });
   const paymentVerified = activeSubscription ? true : false;
 
   //Console errors here can be found in Vercel logs
   if (paymentVerified) {
-    let existing: Member | null = null;
     try {
-      existing = await getMemberByEmail(authSession.user.email);
-    } catch (error) {
-      console.error(error);
-    }
-    try {
+      const existing = await getMemberByEmail(user.email);
       if (!existing) {
-        const [firstName, ...rest] = authSession.user.name.split(" ");
+        const [firstName, ...rest] = user.name.split(" ");
         const lastName = rest.join(" ");
+        
+        if (!user.phoneNumber) {
+          throw new Error("Phone number is required but not found in user session");
+        }
+        
         await createMember(
           firstName,
           lastName,
-          authSession.user.email,
-          authSession.user.phoneNumber,
+          user.email,
+          user.phoneNumber,
         );
       }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to create member in Strapi:", error);
+      // Don't block the success page - member creation is not critical for payment confirmation
     }
   }
 
