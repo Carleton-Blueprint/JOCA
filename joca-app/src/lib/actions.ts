@@ -3,6 +3,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { Member } from "@/lib/types";
+import { CREATE_MEMBER, GET_CANDIDATE, UPDATE_CANDIDATE } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
   process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
@@ -40,9 +41,7 @@ export async function createMember(
 ): Promise<Member> {
   try {
     const { createMember } = await strapiRequest<{ createMember: Member }>(
-      `mutation CreateMember($data: MemberInput!) {
-        createMember(data: $data) { documentId firstName lastName email phoneNumber }
-      }`,
+      CREATE_MEMBER,
       { data: { firstName, lastName, email, phoneNumber } },
     );
     return createMember;
@@ -88,20 +87,17 @@ export async function voteForCandidate(
   // so we never base the write on a stale Apollo cache value.
   const { candidate } = await strapiRequest<{
     candidate: { voteCount: number };
-  }>(`query { candidate(documentId: "${candidateId}") { voteCount } }`);
+  }>(GET_CANDIDATE, { documentId: candidateId });
 
   const nextCount = (candidate?.voteCount ?? 0) + 1;
 
   try {
     const { updateCandidate } = await strapiRequest<{
       updateCandidate: { voteCount: number };
-    }>(
-      `mutation {
-        updateCandidate(documentId: "${candidateId}", data: { voteCount: ${nextCount} }) {
-          voteCount
-        }
-      }`,
-    );
+    }>(UPDATE_CANDIDATE, {
+      documentId: candidateId,
+      data: { voteCount: nextCount },
+    });
 
     return { voteCount: updateCandidate.voteCount };
   } catch (error) {
