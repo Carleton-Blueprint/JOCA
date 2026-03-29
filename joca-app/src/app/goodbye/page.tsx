@@ -1,5 +1,3 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +9,6 @@ import {
 } from "@/components/ui/card";
 
 export default async function GoodbyePage() {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("account_deleted")) {
-    redirect("/");
-  }
   return (
     <div className="container mx-auto p-8 max-w-2xl">
       <Card>

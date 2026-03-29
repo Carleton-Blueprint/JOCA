@@ -156,10 +156,6 @@ export const AccountPageComponent = () => {
         return;
       }
       toast.success("Your account has been deleted");
-      //60-second cookie to redirect to goodbye page
-      //Prevents users who shouldn't have access to the goodbye page from accessing it
-      document.cookie =
-        "account_deleted=1; path=/; max-age=60; SameSite=Strict";
       router.replace("/goodbye");
     } catch {
       toast.error("Failed to delete account");
