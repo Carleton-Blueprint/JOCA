@@ -72,6 +72,8 @@ export const EventCards = () => {
               ? error.message
               : "Unable to load events. Please try again."}
           </p>
+        ) : filteredEvents?.length === 0 ? (
+          <p className="text-muted-foreground">No events found.</p>
         ) : (
           filteredEvents?.map((event: Event) => (
             <EventCard event={event} key={event.documentId} />
