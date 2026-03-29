@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
-import { createMember } from "@/lib/actions";
+import { createMember, getMemberByEmail } from "@/lib/actions";
 
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
@@ -24,9 +24,12 @@ export default async function PaymentSuccessPage() {
 
   if (paymentVerified) {
     try {
-      const [firstName, ...rest] = authSession.user.name.split(" ");
-      const lastName = rest.join(" ");
-      await createMember(firstName, lastName, authSession.user.email, authSession.user.phoneNumber);
+      const existing = await getMemberByEmail(authSession.user.email);
+      if (!existing) {
+        const [firstName, ...rest] = authSession.user.name.split(" ");
+        const lastName = rest.join(" ");
+        await createMember(firstName, lastName, authSession.user.email, authSession.user.phoneNumber);
+      }
     } catch (error) {
       console.error(error);
     }

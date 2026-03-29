@@ -50,6 +50,18 @@ export const CREATE_MEMBER = `
   }
 `;
 
+export const GET_MEMBER_BY_EMAIL = `
+  query GetMemberByEmail($email: String!) {
+    members(filters: { email: { eq: $email } }) {
+      documentId
+      firstName
+      lastName
+      email
+      phoneNumber
+    }
+  }
+`;
+
 export const GET_CANDIDATE = `
   query GetCandidate($documentId: ID!) {
     candidate(documentId: $documentId) { voteCount }
