@@ -44,6 +44,7 @@ export const ElectionCard = ({ election }: { election: Election }) => {
   const [openVoteDialog, setOpenVoteDialog] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
   const [hasVoted, setHasVoted] = React.useState(false);
+  const [voteCheckError, setVoteCheckError] = React.useState(false);
 
   const { data: session } = useSessionReady();
   const userId = session?.user?.id;
@@ -53,7 +54,13 @@ export const ElectionCard = ({ election }: { election: Election }) => {
   React.useEffect(() => {
     const check = async () => {
       if (!userId) return;
-      setHasVoted(await checkIfVoted(election.documentId, userId));
+      try {
+        setHasVoted(await checkIfVoted(election.documentId, userId));
+        setVoteCheckError(false);
+      } catch (error) {
+        console.error("Failed to check vote status:", error);
+        setVoteCheckError(true);
+      }
     };
     check();
   }, [election.documentId, userId, setHasVoted]);
@@ -213,12 +220,17 @@ export const ElectionCard = ({ election }: { election: Election }) => {
               </Button>
               <Dialog open={openVoteDialog} onOpenChange={setOpenVoteDialog}>
                 <DialogTrigger asChild>
-                  <Button className="cursor-pointer">
-                    {hasVoted
-                      ? "Vote submitted"
-                      : voting
-                        ? "Submitting..."
-                        : "Vote"}
+                  <Button
+                    className="cursor-pointer"
+                    disabled={voteCheckError || hasVoted || voting}
+                  >
+                    {voteCheckError
+                      ? "Error checking vote status"
+                      : hasVoted
+                        ? "Vote submitted"
+                        : voting
+                          ? "Submitting..."
+                          : "Vote"}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
