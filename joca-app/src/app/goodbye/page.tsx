@@ -7,8 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function GoodbyePage() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session) redirect("/");
   return (
     <div className="container mx-auto p-8 max-w-2xl">
       <Card>
