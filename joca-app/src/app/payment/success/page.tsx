@@ -12,21 +12,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { createMember, getMemberByEmail } from "@/lib/actions";
-import { Member } from "@/lib/types";
-
-// Type extension for Better Auth session with additional fields
-type AuthUser = {
-  id: string;
-  email: string;
-  name: string;
-  phoneNumber?: string;
-};
 
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
 
-  const user = authSession.user as AuthUser;
+  const { user } = authSession;
 
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: user.id, status: "active" },
@@ -40,21 +31,19 @@ export default async function PaymentSuccessPage() {
       if (!existing) {
         const [firstName, ...rest] = user.name.split(" ");
         const lastName = rest.join(" ");
-        
+
         if (!user.phoneNumber) {
-          throw new Error("Phone number is required but not found in user session");
+          throw new Error(
+            "Phone number is required but not found in user session",
+          );
         }
-        
-        await createMember(
-          firstName,
-          lastName,
-          user.email,
-          user.phoneNumber,
-        );
+
+        await createMember(firstName, lastName, user.email, user.phoneNumber);
       }
     } catch (error) {
-      console.error("Failed to create member in Strapi:", error);
+      console.error("Failed to fetch/create member in Strapi:", error);
       // Don't block the success page - member creation is not critical for payment confirmation
+      //Page will still render. Will retry on next load
     }
   }
 
