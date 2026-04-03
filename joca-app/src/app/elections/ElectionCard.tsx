@@ -104,7 +104,6 @@ export const ElectionCard = ({ election }: { election: Election }) => {
               <MapPin className="opacity-70" />
               {election.location ?? "N/A"}
             </span>
-            <span>{userId ? "Logged in as " + userId : "Not logged in"}</span>
           </CardDescription>
         </CardHeader>
 
@@ -244,25 +243,21 @@ export const ElectionCard = ({ election }: { election: Election }) => {
                     cannot be undone.
                   </DialogDescription>
                   <DialogFooter>
-                    <DialogClose asChild>
-                      <Button
-                        className="cursor-pointer"
-                        variant="destructive"
-                        onClick={handleVote}
-                        disabled={voting || hasVoted}
-                      >
-                        Submit Vote
-                      </Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button
-                        onClick={() => setOpenVoteDialog(false)}
-                        className="cursor-pointer"
-                        variant="secondary"
-                      >
-                        Cancel
-                      </Button>
-                    </DialogClose>
+                    <Button
+                      className="cursor-pointer"
+                      variant="destructive"
+                      onClick={handleVote}
+                      disabled={voting || hasVoted}
+                    >
+                      Submit Vote
+                    </Button>
+                    <Button
+                      onClick={() => setOpenVoteDialog(false)}
+                      className="cursor-pointer"
+                      variant="secondary"
+                    >
+                      Cancel
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
