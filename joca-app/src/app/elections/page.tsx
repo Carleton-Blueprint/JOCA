@@ -20,7 +20,6 @@ export default async function ElectionsPage() {
     return <EmailNotVerified />;
 
   /*Use a direct prisma query to bypass the 60s cookie cache on session data*/
-  // "active" covers the grace period (Stripe keeps status active until periodEnd even after cancellation).
   // If trials are added in future, also include status: "trialing".
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: session.user.id, status: "active" },

@@ -12,7 +12,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { EmailVerificationPage } from "./EmailVerificationPage";
 
 import {
   Form,
@@ -57,8 +56,6 @@ export const SignupForm = () => {
   const { data: session, isPending } = useSessionReady();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
-    useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
@@ -97,7 +94,7 @@ export const SignupForm = () => {
           if (process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION === "true") {
             router.push("/payment");
           } else {
-            setIsEmailVerificationPageVisible(true);
+            router.push(`/email-verification?name=${encodeURIComponent(values.firstName)}&email=${encodeURIComponent(values.email)}`);
           }
         },
         onError: (ctx: any) => {
@@ -111,18 +108,6 @@ export const SignupForm = () => {
   if (!isMounted || isPending) return <Loading />;
 
   if (session?.user) return <AlreadyLoggedIn />;
-
-  if (
-    isEmailVerificationPageVisible &&
-    process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true"
-  ) {
-    return (
-      <EmailVerificationPage
-        name={form.getValues("firstName")}
-        email={form.getValues("email")}
-      />
-    );
-  }
 
   return (
     <div className="font-sans my-12 flex flex-col items-center justify-items-center h-full gap-16">

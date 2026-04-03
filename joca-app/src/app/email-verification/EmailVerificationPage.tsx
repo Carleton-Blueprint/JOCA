@@ -20,7 +20,7 @@ const getSecondsRemaining = () => {
   );
 };
 
-export const EmailVerificationPage = ({
+export const EmailVerification = ({
   name,
   email,
 }: {
@@ -29,7 +29,10 @@ export const EmailVerificationPage = ({
 }) => {
   const [cooldown, setCooldown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { data: session } = useSession();
+
+  useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
     setCooldown(getSecondsRemaining());
@@ -64,7 +67,11 @@ export const EmailVerificationPage = ({
     }
   };
 
-  if (session?.user?.emailVerified && process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true") {
+  if (
+    isMounted &&
+    session?.user?.emailVerified &&
+    process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true"
+  ) {
     return (
       <div className="text-center text-muted-foreground flex flex-col items-center justify-center gap-4">
         Email verified already.

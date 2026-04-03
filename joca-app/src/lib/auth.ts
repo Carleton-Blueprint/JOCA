@@ -19,6 +19,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 if (!isDev && !resendApiKey) {
   throw new Error("RESEND_API_KEY environment variable is not set.");
 }
+
 const resend = isDev ? null : new Resend(resendApiKey!);
 
 export const auth = betterAuth({
@@ -86,7 +87,7 @@ export const auth = betterAuth({
     }) => {
       if (!resend) {
         throw new Error(
-          "Resend client not configured. Email verification is disabled."
+          "Resend client not configured. Email verification is disabled.",
         );
       }
       try {
