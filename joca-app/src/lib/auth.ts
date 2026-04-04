@@ -38,22 +38,41 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       beforeDelete: async (user: { id: string; email: string }) => {
-        // Cancel active Stripe subscription before deleting the user,
-        // otherwise Stripe will continue billing the card indefinitely.
+        // Find the subscription record
         const sub = await prisma.subscription.findUnique({
           where: { referenceId: user.id },
           select: { stripeSubscriptionId: true, status: true },
         });
-        if (sub?.status === "active" && sub?.stripeSubscriptionId) {
-          await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
-        }
-        // Clean up subscription record - no FK cascade since referenceId
-        // has no @relation to User.
-        //Add check to prevent throwing error if it doesn't exist
         if (sub) {
-          await prisma.subscription.delete({
-            where: { referenceId: user.id },
-          });
+          // Delete the DB row first. If this throws, Stripe is untouched and
+          // both sides remain consistent - the error propagates and aborts deletion.
+          try {
+            await prisma.subscription.delete({
+              where: { referenceId: user.id },
+            });
+          } catch (error) {
+            console.error(
+              `Failed to delete subscription record for user ${user.id}:`,
+              error,
+            );
+            throw error;
+          }
+
+          // Cancel Stripe only after the DB row is gone. If Stripe fails here,
+          // the DB is already clean (no phantom active record), so log a billing
+          // alert for manual resolution but do not block account deletion.
+          // Can check the alert in Vercel logs
+          if (sub.status === "active" && sub.stripeSubscriptionId) {
+            try {
+              await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
+            } catch (error) {
+              console.error(
+                `[BILLING ALERT] Stripe cancellation failed after DB delete for user ${user.id}. ` +
+                  `Stripe subscription ${sub.stripeSubscriptionId} requires manual cancellation.`,
+                error,
+              );
+            }
+          }
         }
         // Delete corresponding Strapi member record.
         try {
