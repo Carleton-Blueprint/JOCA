@@ -49,6 +49,8 @@ export const StartPaymentPage = () => {
     } catch (error) {
       setIsLoading(false);
       toast.error("Failed to initiate payment. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
