@@ -90,7 +90,7 @@ const Header = () => {
             >
               Events
             </Link>
-            {!isPending && session?.user && (
+            {isMounted && !isPending && session?.user && (
               <Link
                 href="/elections"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
