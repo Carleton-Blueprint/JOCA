@@ -63,7 +63,7 @@ type DeleteValues = z.infer<typeof deleteSchema>;
 function splitName(fullName: string | undefined | null) {
   const name = (fullName || "").trim();
   if (!name) return { firstName: "", lastName: "" };
-  const parts = name.split(/\\s+/);
+  const parts = name.split(/\s+/);
   return {
     firstName: parts[0] || "",
     lastName: parts.slice(1).join(" ") || "",
