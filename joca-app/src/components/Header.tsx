@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CreditCard, Bell, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { Loader } from "@/components/ui/loader";
 
 const Header = () => {
   const { data: session, isPending } = useSessionReady();
@@ -109,6 +110,7 @@ const Header = () => {
         </div>
       </div>
       <div className="flex items-center gap-4">
+        {isPending && <Loader />}
         {isMounted && !isPending && !session?.user && (
           <>
             <Link href="/login">
