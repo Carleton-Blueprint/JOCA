@@ -108,8 +108,13 @@ export const auth = betterAuth({
           if (existing && !existing.emailVerified) {
             await prisma.user
               .delete({ where: { id: existing.id } })
-              .catch(() => {
-                // Already deleted through race condition - safe to try again
+              .catch((error) => {
+                // May already be deleted through race condition - safe to try again
+                console.error(
+                  `Failed to delete existing user ${existing.id} for email ${email}:`,
+                  error,
+                );
+                throw error;
               });
           }
         }
