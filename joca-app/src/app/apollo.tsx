@@ -1,22 +1,30 @@
 "use client";
 
-// import { apolloClient } from "@/app/apollo_client";
+import { useRef } from "react";
 import { ApolloProvider } from "@apollo/client/react";
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 
-const apolloClient = new ApolloClient({
-  link: new HttpLink({
-    uri:
-      process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL ||
-      "http://localhost:1337/graphql",
-  }),
-  cache: new InMemoryCache(),
-});
+function makeClient() {
+  return new ApolloClient({
+    link: new HttpLink({
+      uri:
+        process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL ||
+        "http://localhost:1337/graphql",
+    }),
+    cache: new InMemoryCache(),
+  });
+}
 
 export default function ApolloWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <ApolloProvider client={apolloClient}>{children}</ApolloProvider>;
+  const clientRef = useRef<ApolloClient | null>(null);
+  if (!clientRef.current) {
+    clientRef.current = makeClient();
+  }
+  return (
+    <ApolloProvider client={clientRef.current}>{children}</ApolloProvider>
+  );
 }
