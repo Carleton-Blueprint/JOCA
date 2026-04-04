@@ -32,8 +32,14 @@ import { AlreadyLoggedIn } from "@/components/AlreadyLoggedIn";
 
 const signupSchema = z
   .object({
-    firstName: z.string().trim().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().trim().min(2, "Last name must be at least 2 characters"),
+    firstName: z
+      .string()
+      .trim()
+      .min(2, "First name must be at least 2 characters"),
+    lastName: z
+      .string()
+      .trim()
+      .min(2, "Last name must be at least 2 characters"),
     email: z.email("Invalid email address"),
     phoneNumber: z
       .string()
@@ -80,6 +86,8 @@ export const SignupForm = () => {
       {
         email: values.email,
         password: values.password,
+        firstName: values.firstName,
+        lastName: values.lastName,
         name: values.firstName + " " + values.lastName,
         phoneNumber: values.phoneNumber,
         callbackURL: "/payment",
@@ -95,7 +103,9 @@ export const SignupForm = () => {
           if (process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION === "true") {
             router.push("/payment");
           } else {
-            router.push(`/email-verification?name=${encodeURIComponent(values.firstName)}&email=${encodeURIComponent(values.email)}`);
+            router.push(
+              `/email-verification?name=${encodeURIComponent(values.firstName)}&email=${encodeURIComponent(values.email)}`,
+            );
           }
         },
         onError: (ctx: any) => {

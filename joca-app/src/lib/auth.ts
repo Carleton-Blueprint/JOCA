@@ -34,6 +34,14 @@ export const auth = betterAuth({
         type: "string",
         required: true,
       },
+      firstName: {
+        type: "string",
+        required: true,
+      },
+      lastName: {
+        type: "string",
+        required: true,
+      },
     },
     deleteUser: {
       enabled: true,

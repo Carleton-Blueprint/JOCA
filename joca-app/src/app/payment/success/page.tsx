@@ -29,8 +29,7 @@ export default async function PaymentSuccessPage() {
     try {
       const existing = await getMemberByEmail(user.email);
       if (!existing) {
-        const [firstName, ...rest] = user.name.split(" ");
-        const lastName = rest.join(" ");
+        const { firstName, lastName } = user;
 
         if (!user.phoneNumber) {
           throw new Error(
