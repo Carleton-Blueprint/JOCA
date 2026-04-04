@@ -12,7 +12,9 @@ import {
 } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
-  process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
+  process.env.NODE_ENV !== "development"
+    ? process.env.STRAPI_GRAPHQL_URL!
+    : "http://localhost:1337/graphql";
 
 // Generic helper for Strapi GraphQL requests.
 // T represents the shape of json.data - NOT the entity itself.

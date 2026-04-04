@@ -8,8 +8,9 @@ function makeClient() {
   return new ApolloClient({
     link: new HttpLink({
       uri:
-        process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL ||
-        "http://localhost:1337/graphql",
+        process.env.NODE_ENV !== "development"
+          ? process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL!
+          : "http://localhost:1337/graphql",
     }),
     cache: new InMemoryCache(),
   });
@@ -24,7 +25,5 @@ export default function ApolloWrapper({
   if (!clientRef.current) {
     clientRef.current = makeClient();
   }
-  return (
-    <ApolloProvider client={clientRef.current}>{children}</ApolloProvider>
-  );
+  return <ApolloProvider client={clientRef.current}>{children}</ApolloProvider>;
 }
