@@ -6,6 +6,7 @@ import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
 import { deleteMemberByEmail } from "@/lib/actions";
+import { createAuthMiddleware } from "better-auth/api";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -90,6 +91,30 @@ export const auth = betterAuth({
         }
       },
     },
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/sign-up/email") {
+        const body = ctx.body as { email?: string } | undefined;
+        const email = body?.email;
+        if (email) {
+          // If a previous unverified signup exists for this email, remove it
+          // so the real owner can always sign up. Verified accounts are left
+          // untouched so "email already in use" still fires for them.
+          const existing = await prisma.user.findUnique({
+            where: { email },
+            select: { id: true, emailVerified: true },
+          });
+          if (existing && !existing.emailVerified) {
+            await prisma.user
+              .delete({ where: { id: existing.id } })
+              .catch(() => {
+                // Already deleted through race condition - safe to try again
+              });
+          }
+        }
+      }
+    }),
   },
   session: {
     expiresIn: 36000, //10 hours
