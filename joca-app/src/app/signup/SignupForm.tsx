@@ -32,11 +32,12 @@ import { AlreadyLoggedIn } from "@/components/AlreadyLoggedIn";
 
 const signupSchema = z
   .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    firstName: z.string().trim().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().trim().min(2, "Last name must be at least 2 characters"),
     email: z.email("Invalid email address"),
     phoneNumber: z
       .string()
+      .trim()
       .min(10, "Phone number must be at least 10 digits")
       .regex(
         /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
