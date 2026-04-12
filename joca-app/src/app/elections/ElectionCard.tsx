@@ -54,7 +54,7 @@ export const ElectionCard = ({ election }: { election: Election }) => {
     const check = async () => {
       if (!userId) return;
       try {
-        setHasVoted(await checkIfVoted(election.documentId, userId));
+        setHasVoted(await checkIfVoted(election.documentId));
         setVoteCheckError(false);
       } catch (error) {
         console.error("Failed to check vote status:", error);
@@ -71,7 +71,6 @@ export const ElectionCard = ({ election }: { election: Election }) => {
       await voteForCandidate(
         selectedCandidate.documentId,
         election.documentId,
-        userId,
       );
       //Prevents stale data from being displayed
       await apolloClient.refetchQueries({ include: [GET_ELECTIONS] });

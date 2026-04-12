@@ -110,13 +110,13 @@ export const auth = betterAuth({
               .delete({ where: { id: existing.id } })
               .catch((error) => {
                 if (error.code !== "P2025") {
+                  // Prisma P2025 - record not found (shallow this error)
                   console.error(
                     "Error deleting existing unverified signup: ",
                     error,
                   );
                   throw error;
                 }
-                // Prisma P2025 - record not found (shallow this error)
                 // Record already deleted by concurrent request - safe to proceed
               });
           }

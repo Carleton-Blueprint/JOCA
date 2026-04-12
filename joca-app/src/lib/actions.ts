@@ -2,6 +2,8 @@
 
 import { Prisma } from "../../prisma/generated/prisma/client";
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { Member } from "@/lib/types";
 import {
   CREATE_MEMBER,
@@ -85,9 +87,17 @@ export async function createMember(
 export async function voteForCandidate(
   candidateId: string,
   electionId: string,
-  userId: string,
 ): Promise<{ voteCount: number }> {
-  if (!userId) throw new Error("You must be logged in to vote.");
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) throw new Error("You must be logged in to vote.");
+
+  const activeSubscription = await prisma.subscription.findFirst({
+    where: { referenceId: session.user.id, status: "active" },
+  });
+  if (!activeSubscription)
+    throw new Error("An active membership is required to vote.");
+
+  const userId = session.user.id;
 
   // DB-enforced uniqueness prevents double-votes (and races).
   let createdVote: { id: string } | null = null;
@@ -150,11 +160,10 @@ export async function voteForCandidate(
   }
 }
 
-export async function checkIfVoted(
-  electionId: string,
-  userId: string,
-): Promise<boolean> {
-  if (!userId) return false;
+export async function checkIfVoted(electionId: string): Promise<boolean> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return false;
+  const userId = session.user.id;
   try {
     const vote = await prisma.vote.findUnique({
       where: { userId_electionId: { userId, electionId } },
