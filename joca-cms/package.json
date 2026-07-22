@@ -15,15 +15,15 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.40.0",
-    "@strapi/plugin-graphql": "^5.40.0",
-    "@strapi/plugin-users-permissions": "5.40.0",
-    "@strapi/strapi": "5.41.1",
+    "@strapi/plugin-cloud": "5.50.2",
+    "@strapi/plugin-graphql": "^5.50.2",
+    "@strapi/plugin-users-permissions": "5.50.2",
+    "@strapi/strapi": "5.50.2",
     "better-sqlite3": "12.8.0",
     "pg": "^8.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.3",
+    "react-router-dom": "^6.30.4",
     "styled-components": "^6.3.12"
   },
   "devDependencies": {
@@ -39,5 +39,30 @@
   "strapi": {
     "uuid": "42a1b413-e0ea-4cbd-a0af-4f7c9a4ad304",
     "installId": "1ead6ea5d8e7d23bd64715f10f687546dc2aedfd01f1c2ad5ccd4f9de6031646"
+  },
+  "pnpm": {
+    "overrides": {
+      "@apollo/server": "^5.5.1",
+      "@babel/core": "^7.29.6",
+      "@hono/node-server": "^2.0.5",
+      "@protobufjs/utf8": "^1.1.1",
+      "ajv@>=7.0.0-alpha.0 <8.18.0": "^8.18.0",
+      "body-parser": "^1.20.6",
+      "brace-expansion@<1.1.16": "^1.1.16",
+      "brace-expansion@>=5.0.0 <5.0.6": "^5.0.7",
+      "dompurify": "^3.4.12",
+      "esbuild": "^0.25.10",
+      "fast-uri": "^3.1.1",
+      "follow-redirects": "^1.16.0",
+      "form-data@>=4.0.0 <4.0.6": "^4.0.6",
+      "js-yaml@<3.15.0": "3.15.0",
+      "postcss": "^8.5.10",
+      "qs": "^6.15.2",
+      "sharp": "^0.35.0",
+      "shell-quote": "^1.8.4",
+      "tar": "^7.5.19",
+      "tmp": "^0.2.6",
+      "vite": "^6.4.2"
+    }
   }
 }
