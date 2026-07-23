@@ -38,7 +38,7 @@ We aim to **preserve and share Jamaican heritage** while fostering collaboration
 | **Database**       | Supabase • Prisma ORM                                         |
 | **Authentication** | Better Auth • Session Management                              |
 | **UI Components**  | shadcn/ui                                                     |
-| **Deployment**     | Vercel (Frontend) • Strapi Cloud (CMS) • Supabase (DB) |
+| **Deployment**     | Vercel (Frontend) • Strapi Cloud (CMS) • Supabase (DB)        |
 
 </div>
 
