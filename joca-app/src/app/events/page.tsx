@@ -3,6 +3,9 @@ import { EventCards } from "./EventCards";
 import { getEvents } from "@/lib/strapi";
 import Loading from "../loading";
 
+// Strapi fetch uses cache: "no-store", so this route must be dynamic at build time.
+export const dynamic = "force-dynamic";
+
 async function EventsList() {
   const events = await getEvents();
   return <EventCards events={events} />;
