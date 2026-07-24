@@ -5,7 +5,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
-import { deleteMemberByEmail } from "@/lib/actions";
+import { deleteMemberByEmail } from "@/lib/strapi";
 import { createAuthMiddleware } from "better-auth/api";
 import { SESSION_FRESH_AGE_SECONDS } from "@/lib/auth-constants";
 

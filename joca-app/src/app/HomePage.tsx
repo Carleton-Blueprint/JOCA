@@ -1,10 +1,27 @@
-import { CardTitle } from "@/components/ui/card";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { HeroParallax } from "@/components/HeroParallax";
-import { FlippingCard } from "@/components/ui/flipping-card";
+import { CardTitle } from "@/components/ui/card";
 import { HeroSection } from "@/components/HeroSection";
-import { GradientSlideButton } from "@/components/ui/gradient-slide-button";
+
+const HeroParallax = dynamic(
+  () =>
+    import("@/components/HeroParallax").then((mod) => mod.HeroParallax),
+  {
+    loading: () => <div className="min-h-[70vh] w-full" aria-hidden />,
+  },
+);
+
+const FlippingCard = dynamic(
+  () =>
+    import("@/components/ui/flipping-card").then((mod) => mod.FlippingCard),
+);
+
+const GradientSlideButton = dynamic(() =>
+  import("@/components/ui/gradient-slide-button").then(
+    (mod) => mod.GradientSlideButton,
+  ),
+);
 
 export const products = Array.from({ length: 15 }, (_, index) => ({
   title: `Joca${index + 1}`,

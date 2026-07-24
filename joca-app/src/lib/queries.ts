@@ -1,8 +1,6 @@
-import { gql } from "@apollo/client";
-
-//Apollo Queries
-export const GET_EVENTS = gql`
-  query {
+// Strapi GraphQL queries
+export const GET_EVENTS = `
+  query GetEvents {
     events {
       documentId
       date
@@ -15,8 +13,8 @@ export const GET_EVENTS = gql`
   }
 `;
 
-export const GET_ELECTIONS = gql`
-  query {
+export const GET_ELECTIONS = `
+  query GetElections {
     elections {
       documentId
       title
@@ -36,7 +34,6 @@ export const GET_ELECTIONS = gql`
   }
 `;
 
-//Strapi Queries
 export const CREATE_MEMBER = `
   mutation CreateMember($data: MemberInput!) {
     createMember(data: $data) {

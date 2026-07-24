@@ -1,17 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { useApolloClient } from "@apollo/client/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
+import { CalendarDays, MapPin, Users } from "lucide-react";
 import { ClientDate } from "../events/clientDate";
 import {
   Dialog,
@@ -25,8 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import type { Election, Candidate } from "@/lib/types";
-import { GET_ELECTIONS } from "@/lib/queries";
-import { voteForCandidate, checkIfVoted } from "@/lib/actions";
+import { voteForCandidate } from "@/lib/actions";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Field,
@@ -35,47 +33,36 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { toast } from "sonner";
-import { useSessionReady } from "@/lib/auth-client";
 
-export const ElectionCard = ({ election }: { election: Election }) => {
+export const ElectionCard = ({
+  election,
+  initialHasVoted,
+}: {
+  election: Election;
+  initialHasVoted: boolean;
+}) => {
+  const router = useRouter();
   const [selectedCandidate, setSelectedCandidate] =
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
-  const [hasVoted, setHasVoted] = React.useState(false);
-  const [voteCheckError, setVoteCheckError] = React.useState(false);
-
-  const { data: session } = useSessionReady();
-  const userId = session?.user?.id;
-
-  const apolloClient = useApolloClient();
+  const [hasVoted, setHasVoted] = React.useState(initialHasVoted);
 
   React.useEffect(() => {
-    const check = async () => {
-      if (!userId) return;
-      try {
-        setHasVoted(await checkIfVoted(election.documentId));
-        setVoteCheckError(false);
-      } catch (error) {
-        console.error("Failed to check vote status:", error);
-        setVoteCheckError(true);
-      }
-    };
-    check();
-  }, [election.documentId, userId, setHasVoted]);
+    setHasVoted(initialHasVoted);
+  }, [initialHasVoted]);
 
   const handleVote = async () => {
-    if (!selectedCandidate || !userId) return;
+    if (!selectedCandidate) return;
     setVoting(true);
     try {
       await voteForCandidate(
         selectedCandidate.documentId,
         election.documentId,
       );
-      //Prevents stale data from being displayed
-      await apolloClient.refetchQueries({ include: [GET_ELECTIONS] });
       setOpen(false);
       setHasVoted(true);
+      router.refresh();
       toast.success("Vote submitted successfully");
     } catch (error) {
       toast.error(
@@ -219,15 +206,13 @@ export const ElectionCard = ({ election }: { election: Election }) => {
                 <DialogTrigger asChild>
                   <Button
                     className="cursor-pointer"
-                    disabled={voteCheckError || hasVoted || voting}
+                    disabled={hasVoted || voting}
                   >
-                    {voteCheckError
-                      ? "Error checking vote status"
-                      : hasVoted
-                        ? "Vote submitted"
-                        : voting
-                          ? "Submitting..."
-                          : "Vote"}
+                    {hasVoted
+                      ? "Vote submitted"
+                      : voting
+                        ? "Submitting..."
+                        : "Vote"}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>

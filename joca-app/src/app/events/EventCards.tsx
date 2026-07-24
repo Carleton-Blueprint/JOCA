@@ -3,30 +3,21 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@apollo/client/react";
-import { GET_EVENTS } from "@/lib/queries";
 import { EventCard } from "./EventCard";
-import Loading from "../loading";
 import type { Event } from "@/lib/types";
 import { EmptyState } from "@/components/ui/EmptyState";
-
-export interface GetEventsData {
-  events: Event[];
-}
 
 const categories = ["All", "Culture", "Community", "Education"] as const;
 type CategoryFilter = (typeof categories)[number];
 
-export const EventCards = () => {
+export const EventCards = ({ events }: { events: Event[] }) => {
   const [query, setQuery] = React.useState("");
   const [activeCategory, setActiveCategory] =
     React.useState<CategoryFilter>("All");
 
-  const { loading, error, data } = useQuery<GetEventsData>(GET_EVENTS);
-
   const filteredEvents = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return data?.events.filter((event) => {
+    return events.filter((event) => {
       const matchesCategory =
         activeCategory === "All" || event.category === activeCategory;
       const matchesQuery =
@@ -36,9 +27,7 @@ export const EventCards = () => {
         event.description?.toLowerCase().includes(normalizedQuery);
       return matchesCategory && matchesQuery;
     });
-  }, [query, activeCategory, data]);
-
-  if (loading) return <Loading />;
+  }, [query, activeCategory, events]);
 
   return (
     <>
@@ -67,19 +56,13 @@ export const EventCards = () => {
       </section>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-64">
-        {error ? (
-          <p className="text-muted-foreground">
-            {error instanceof Error
-              ? error.message
-              : "Unable to load events. Please try again."}
-          </p>
-        ) : filteredEvents?.length === 0 ? (
-          <EmptyState 
-            title="No events found" 
+        {filteredEvents.length === 0 ? (
+          <EmptyState
+            title="No events found"
             description="Try adjusting your search or browse by category"
           />
         ) : (
-          filteredEvents?.map((event: Event) => (
+          filteredEvents.map((event: Event) => (
             <EventCard event={event} key={event.documentId} />
           ))
         )}

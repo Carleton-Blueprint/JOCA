@@ -1,43 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { useSessionReady } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@apollo/client/react";
-import { GET_ELECTIONS } from "@/lib/queries";
 import { ElectionCard } from "./ElectionCard";
 import type { Election } from "@/lib/types";
-import Loading from "../loading";
-import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { EmptyState } from "@/components/ui/EmptyState";
-
-export interface GetElectionsData {
-  elections: Election[];
-}
 
 const categories = ["All", "Executive", "Committee", "Referendum"] as const;
 type CategoryFilter = (typeof categories)[number];
 
-export const ElectionCards = () => {
-  const { data: session, isPending } = useSessionReady();
-  const [isMounted, setIsMounted] = useState(false);
-
+export const ElectionCards = ({
+  elections,
+  votedElectionIds,
+}: {
+  elections: Election[];
+  votedElectionIds: string[];
+}) => {
   const [query, setQuery] = React.useState("");
   const [activeCategory, setActiveCategory] =
     React.useState<CategoryFilter>("All");
 
-  const { loading, error, data } = useQuery<GetElectionsData>(GET_ELECTIONS);
-
-  // Wait for client-side hydration to complete
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const votedSet = React.useMemo(
+    () => new Set(votedElectionIds),
+    [votedElectionIds],
+  );
 
   const filteredElections = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return data?.elections.filter((election) => {
+    return elections.filter((election) => {
       const matchesCategory =
         activeCategory === "All" || election.category === activeCategory;
       const matchesQuery =
@@ -47,12 +38,7 @@ export const ElectionCards = () => {
         election.description?.toLowerCase().includes(normalizedQuery);
       return matchesCategory && matchesQuery;
     });
-  }, [query, activeCategory, data]);
-
-  // Show loading state until hydration is complete
-  if (!isMounted || isPending) return <Loading />;
-
-  if (!session?.user) return <NotLoggedIn />;
+  }, [query, activeCategory, elections]);
 
   return (
     <main className="w-full h-full flex flex-col gap-6 p-8">
@@ -89,22 +75,18 @@ export const ElectionCards = () => {
       </section>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-64">
-        {error ? (
-          <p className="text-muted-foreground">
-            {error instanceof Error
-              ? error.message
-              : "Unable to load elections. Please try again."}
-          </p>
-        ) : loading ? (
-          <p className="text-muted-foreground">Loading elections...</p>
-        ) : filteredElections?.length === 0 ? (
-          <EmptyState 
-            title="No elections found" 
+        {filteredElections.length === 0 ? (
+          <EmptyState
+            title="No elections found"
             description="Try adjusting your search or browse by category"
           />
         ) : (
-          filteredElections?.map((election) => (
-            <ElectionCard election={election} key={election.documentId} />
+          filteredElections.map((election) => (
+            <ElectionCard
+              election={election}
+              key={election.documentId}
+              initialHasVoted={votedSet.has(election.documentId)}
+            />
           ))
         )}
       </section>

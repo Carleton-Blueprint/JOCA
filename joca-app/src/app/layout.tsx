@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ApolloWrapper from "./apollo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -33,20 +32,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased flex flex-col justify-between min-h-screen`}
       >
-        <ApolloWrapper>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          {children}
 
-            <Toaster position="top-center" richColors />
-            <Footer />
-          </ThemeProvider>
-        </ApolloWrapper>
+          <Toaster position="top-center" richColors />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

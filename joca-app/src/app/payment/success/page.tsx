@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -11,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
-import { createMember, getMemberByEmail } from "@/lib/actions";
+import { createMember, getMemberByEmail } from "@/lib/strapi";
 
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
@@ -22,28 +23,27 @@ export default async function PaymentSuccessPage() {
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: user.id, status: "active" },
   });
-  const paymentVerified = activeSubscription ? true : false;
+  const paymentVerified = Boolean(activeSubscription);
 
-  //Console errors here can be found in Vercel logs
+  // Member sync is not critical for showing payment confirmation — run after response.
   if (paymentVerified) {
-    try {
-      const existing = await getMemberByEmail(user.email);
-      if (!existing) {
-        const { firstName, lastName } = user;
+    const { firstName, lastName, email, phoneNumber } = user;
+    after(async () => {
+      try {
+        const existing = await getMemberByEmail(email);
+        if (existing) return;
 
-        if (!user.phoneNumber) {
+        if (!phoneNumber) {
           throw new Error(
             "Phone number is required but not found in user session",
           );
         }
 
-        await createMember(firstName, lastName, user.email, user.phoneNumber);
+        await createMember(firstName, lastName, email, phoneNumber);
+      } catch (error) {
+        console.error("Failed to fetch/create member in Strapi:", error);
       }
-    } catch (error) {
-      console.error("Failed to fetch/create member in Strapi:", error);
-      // Don't block the success page - member creation is not critical for payment confirmation
-      //Page will still render. Will retry on next load
-    }
+    });
   }
 
   return (

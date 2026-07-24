@@ -11,7 +11,6 @@
     "setup": "bun install && bun prisma generate && echo 'Setup complete! Ensure your .env is configured.'"
   },
   "dependencies": {
-    "@apollo/client": "^4.2.8",
     "@better-auth/stripe": "^1.6.25",
     "@hookform/resolvers": "^5.4.0",
     "@prisma/adapter-pg": "^7.9.0",
@@ -32,7 +31,6 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "framer-motion": "^12.42.2",
-    "graphql": "^16.14.2",
     "lucide-react": "^1.26.0",
     "motion": "^12.42.2",
     "next": "16.2.11",
