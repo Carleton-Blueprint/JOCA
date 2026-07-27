@@ -11,10 +11,6 @@ import type { Election } from "@/lib/types";
 import Loading from "../loading";
 import { isEmailUnverified } from "@/lib/email-verification";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
-export const instant = false;
-
 async function ElectionsList({
   userId,
   electionsPromise,
@@ -36,7 +32,7 @@ async function ElectionsList({
   );
 }
 
-export default async function ElectionsPage() {
+async function ElectionsContent() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -57,11 +53,26 @@ export default async function ElectionsPage() {
   if (!activeSubscription) return <NotPaid />;
 
   return (
-    <Suspense fallback={<Loading />}>
-      <ElectionsList
-        userId={session.user.id}
-        electionsPromise={electionsPromise}
-      />
-    </Suspense>
+    <ElectionsList
+      userId={session.user.id}
+      electionsPromise={electionsPromise}
+    />
+  );
+}
+
+export default function ElectionsPage() {
+  return (
+    <main className="w-full h-full flex flex-col gap-6 p-8">
+      <section className="flex flex-col gap-3 items-center text-center">
+        <h1 className="text-4xl sm:text-5xl font-bold">Elections</h1>
+        <p className="text-gray-500 max-w-2xl">
+          Explore upcoming JOCA elections and referenda. Search by name,
+          location, or browse by category.
+        </p>
+      </section>
+      <Suspense fallback={<Loading />}>
+        <ElectionsContent />
+      </Suspense>
+    </main>
   );
 }
