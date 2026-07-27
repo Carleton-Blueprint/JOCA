@@ -16,3 +16,5 @@ Database Sessions vs JWT (Strapi's authentication standard): We chose Database S
 Prisma: Provides a type-safe client that prevents common "runtime" database errors during development.
 
 Consequences: Every auth check requires a database hit, adding minimal latency ($<50ms$), which we accept in exchange for superior security control. In addition, there are also two 'User' types now (one in Strapi, one in Prisma) which will have to be differentiated.
+
+Supabase is used as hosted Postgres only. The Data API stays disabled, and `anon` / `authenticated` grants on `public` stay revoked — all app queries go through Prisma (and Better Auth) server-side. Operators should treat recurring `pg_pgrst_no_exposed_schemas` log entries as expected noise in that configuration (see [HANDOFF.md](../HANDOFF.md) §3.2).
