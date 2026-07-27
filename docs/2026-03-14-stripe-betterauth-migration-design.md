@@ -1,11 +1,22 @@
 # Stripe + BetterAuth Plugin Migration Design
 
-**Date:** 2026-03-14
-**Status:** Approved
+**Date:** 2026-03-14  
+**Status:** Implemented (amended for multi-plan memberships)
 
 ## Overview
 
 Migrate from a manual Stripe integration (custom webhook handler, `hasPaid` boolean, `createCheckoutSession` server action) to the `@better-auth/stripe` plugin's native subscription management. The plugin is already partially wired in; this migration completes the integration and removes all manual plumbing.
+
+**Current membership plans** (name = Stripe Price lookup key):
+
+| Plan id / lookup key | UI label |
+| -------------------- | -------- |
+| `senior-membership` | Senior Membership |
+| `general-membership` | General Membership |
+| `family-membership` | Family Membership |
+| `student-associate-membership` | Student / Associate Membership |
+
+The original draft used a single `"membership"` plan. That was superseded; the live config and checkout UI use the four plans above. Admins can change prices in the Stripe Dashboard without a code deploy by reassigning each lookup key to a new Price.
 
 ## Goals
 
@@ -14,12 +25,13 @@ Migrate from a manual Stripe integration (custom webhook handler, `hasPaid` bool
 - Gate `/elections` access by active subscription status
 - Preserve grace period: access continues until end of billing period after cancellation
 - Single source of truth for payment status
+- Support four membership tiers via Stripe lookup keys
 
 ## Out of Scope
 
-- Multiple membership tiers (one plan: "membership")
 - Organization billing
 - Trial periods
+- ~~Single plan only~~ (four plans shipped — see table above)
 - ~~Billing portal UI~~ (added post-migration - see Post-Migration Additions)
 
 ---
@@ -93,16 +105,19 @@ stripe({
   subscription: {
     enabled: true,
     plans: [
+      { name: "senior-membership", lookupKey: "senior-membership" },
+      { name: "general-membership", lookupKey: "general-membership" },
+      { name: "family-membership", lookupKey: "family-membership" },
       {
-        name: "membership",
-        lookupKey: "membership",
+        name: "student-associate-membership",
+        lookupKey: "student-associate-membership",
       },
     ],
   },
 });
 ```
 
-`lookupKey` is used instead of `priceId` so admins can update the membership price in the Stripe Dashboard without a code change or redeploy - just reassign the `"membership"` lookup key to the new price. `createCustomerOnSignUp` is intentionally omitted: enabling it causes duplicate Stripe customers (one on signup, one at checkout). The Stripe customer is created lazily at checkout and linked to the user via the authenticated session.
+`lookupKey` is used instead of `priceId` so admins can update each tier’s price in the Stripe Dashboard without a code change or redeploy — reassign the matching lookup key to the new Price. Each `name` must match the `plan` string passed to `subscription.upgrade()`. `createCustomerOnSignUp` is intentionally omitted: enabling it causes duplicate Stripe customers (one on signup, one at checkout). The Stripe customer is created lazily at checkout and linked to the user via the authenticated session.
 
 The plugin handles webhook routing, signature verification, and subscription lifecycle internally. No other changes needed.
 
@@ -151,16 +166,30 @@ export interface CustomUser {
 
 **Delete:** `src/lib/checkout.ts`
 
-**Update `src/app/payment/StartPaymentPage.tsx`:** Replace the `createCheckoutSession` server action call with the plugin's client `subscription.upgrade()`:
+**Update `src/app/payment/StartPaymentPage.tsx`:** Replace the `createCheckoutSession` server action call with the plugin's client `subscription.upgrade()`. The page presents a radio group of the four plans; `selectedPlan` is one of the plan ids above:
 
 ```typescript
 import { subscription } from "@/lib/auth-client";
 
+const PLANS = [
+  { id: "senior-membership", label: "Senior Membership" },
+  { id: "general-membership", label: "General Membership" },
+  { id: "family-membership", label: "Family Membership" },
+  {
+    id: "student-associate-membership",
+    label: "Student / Associate Membership",
+  },
+];
+
 const handlePayment = async () => {
+  if (!selectedPlan) {
+    toast.error("Please select a membership plan.");
+    return;
+  }
   setIsLoading(true);
   try {
     await subscription.upgrade({
-      plan: "membership",
+      plan: selectedPlan,
       successUrl: "/payment/success",
       cancelUrl: "/payment/cancel",
     });
@@ -274,8 +303,10 @@ The following were discovered and added after the initial migration:
 
 **Billing portal:** Added `subscription.billingPortal()` call in `Header.tsx` under the user dropdown ("Manage membership" item). Uses `onSelect` directly on `DropdownMenuItem` (no `<Link>` wrapper needed - the plugin handles the redirect internally). Wrapped in try/catch - unpaid users (no Stripe customer) see a toast error rather than a silent failure. No code changes required when switching to live mode; configure the portal separately in the live mode Stripe Dashboard.
 
+**Four membership tiers:** Replaced the original single `"membership"` plan with `senior-membership`, `general-membership`, `family-membership`, and `student-associate-membership` in `auth.ts` and `StartPaymentPage.tsx`. Create matching Prices (test and live) with those exact lookup keys in the Stripe Dashboard.
+
 ---
 
 ## Environment Variables
 
-`STRIPE_PRICE_ID` is no longer needed - replaced by Stripe lookup keys. Remove it from `.env`.
+`STRIPE_PRICE_ID` is no longer needed — replaced by Stripe lookup keys on each plan. Remove it from `.env`. Ensure `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set (webhook secret required outside development).
