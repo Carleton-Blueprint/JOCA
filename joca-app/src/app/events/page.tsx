@@ -3,8 +3,9 @@ import { EventCards } from "./EventCards";
 import { getEvents } from "@/lib/strapi";
 import Loading from "../loading";
 
-// Strapi fetch uses cache: "no-store", so this route must be dynamic at build time.
-export const dynamic = "force-dynamic";
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
 
 async function EventsList() {
   const events = await getEvents();
