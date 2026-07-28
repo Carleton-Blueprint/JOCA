@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from "next/cache";
 import prisma from "@/lib/prisma";
 import type { Election, Event, Member } from "@/lib/types";
 import {
@@ -22,12 +23,14 @@ const STRAPI_GRAPHQL_URL =
 export async function strapiRequest<T>(
   query: string,
   variables?: Record<string, unknown>,
+  { cached = false }: { cached?: boolean } = {},
 ): Promise<T> {
   const res = await fetch(STRAPI_GRAPHQL_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, variables }),
-    cache: "no-store",
+    // Cached callers use `"use cache"`; skip no-store so the fetch can participate.
+    ...(cached ? {} : { cache: "no-store" as const }),
   });
 
   if (!res.ok) {
@@ -44,22 +47,36 @@ export async function strapiRequest<T>(
 }
 
 export async function getEvents(): Promise<Event[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("events");
   try {
-    const { events } = await strapiRequest<{ events: Event[] }>(GET_EVENTS);
+    const { events } = await strapiRequest<{ events: Event[] }>(
+      GET_EVENTS,
+      undefined,
+      { cached: true },
+    );
     return events ?? [];
   } catch (error) {
-    throw new Error("Failed to get events, " + error);
+    console.error("Failed to get events", error);
+    return [];
   }
 }
 
 export async function getElections(): Promise<Election[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("elections");
   try {
     const { elections } = await strapiRequest<{ elections: Election[] }>(
       GET_ELECTIONS,
+      undefined,
+      { cached: true },
     );
     return elections ?? [];
   } catch (error) {
-    throw new Error("Failed to get elections, " + error);
+    console.error("Failed to get elections", error);
+    return [];
   }
 }
 

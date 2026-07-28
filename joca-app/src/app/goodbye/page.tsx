@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +11,9 @@ import {
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Loading from "../loading";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
-export const instant = false;
-
-export default async function GoodbyePage() {
+async function GoodbyeContent() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (session) redirect("/");
   return (
@@ -38,5 +36,13 @@ export default async function GoodbyePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function GoodbyePage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <GoodbyeContent />
+    </Suspense>
   );
 }

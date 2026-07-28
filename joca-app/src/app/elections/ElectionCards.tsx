@@ -41,15 +41,7 @@ export const ElectionCards = ({
   }, [query, activeCategory, elections]);
 
   return (
-    <main className="w-full h-full flex flex-col gap-6 p-8">
-      <section className="flex flex-col gap-3 items-center text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold">Elections</h1>
-        <p className="text-gray-500 max-w-2xl">
-          Explore upcoming JOCA elections and referenda. Search by name,
-          location, or browse by category.
-        </p>
-      </section>
-
+    <>
       <section className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-center">
           <Input
@@ -90,6 +82,6 @@ export const ElectionCards = ({
           ))
         )}
       </section>
-    </main>
+    </>
   );
 };

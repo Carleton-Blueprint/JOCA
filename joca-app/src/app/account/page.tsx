@@ -1,15 +1,13 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AccountPageComponent } from "./AccountPage";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { EmailNotVerified } from "@/components/EmailNotVerified";
 import { isEmailUnverified } from "@/lib/email-verification";
+import Loading from "../loading";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
-export const instant = false;
-
-export default async function AccountPage() {
+async function AccountGate() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -18,4 +16,12 @@ export default async function AccountPage() {
   if (isEmailUnverified(session.user)) return <EmailNotVerified />;
 
   return <AccountPageComponent />;
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <AccountGate />
+    </Suspense>
+  );
 }

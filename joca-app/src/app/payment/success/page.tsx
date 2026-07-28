@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -15,12 +16,9 @@ import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { EmailNotVerified } from "@/components/EmailNotVerified";
 import { createMember, getMemberByEmail } from "@/lib/strapi";
 import { isEmailUnverified } from "@/lib/email-verification";
+import Loading from "../../loading";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
-export const instant = false;
-
-export default async function PaymentSuccessPage() {
+async function PaymentSuccessContent() {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
   if (isEmailUnverified(authSession.user)) return <EmailNotVerified />;
@@ -104,5 +102,13 @@ export default async function PaymentSuccessPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

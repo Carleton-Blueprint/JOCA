@@ -1,13 +1,11 @@
+import { Suspense } from "react";
 import { LoginForm } from "./LoginForm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Loading from "../loading";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
-export const instant = false;
-
-export default async function LoginPage() {
+async function LoginGate() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -15,4 +13,12 @@ export default async function LoginPage() {
   if (session?.user) redirect("/");
 
   return <LoginForm />;
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <LoginGate />
+    </Suspense>
+  );
 }
