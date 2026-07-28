@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "build:e2e": "bunx cross-env EXPOSE_TESTING_API=1 next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:e2e:instant": "playwright test e2e/instant",
     "postinstall": "prisma generate",
     "setup": "bun install && bun prisma generate && echo 'Setup complete! Ensure your .env is configured.'"
   },
@@ -54,12 +57,15 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",
+    "@next/playwright": "16.3.0-preview.9",
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^25.9.5",
     "@types/pg": "^8.20.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "babel-plugin-react-compiler": "^1.0.0",
+    "cross-env": "^10.1.0",
     "eslint": "^10.7.0",
     "eslint-config-next": "^16.3.0-preview.9",
     "prisma": "^7.9.0",

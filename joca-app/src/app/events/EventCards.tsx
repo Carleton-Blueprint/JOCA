@@ -55,7 +55,10 @@ export const EventCards = ({ events }: { events: Event[] }) => {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-64">
+      <section
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-64"
+        data-testid="events-content"
+      >
         {filteredEvents.length === 0 ? (
           <EmptyState
             title="No events found"

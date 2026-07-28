@@ -7,7 +7,12 @@ export default function AboutPage() {
         <section className="my-8">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold">{"About JOCA"}</h1>
+              <h1
+                className="text-4xl md:text-5xl font-bold"
+                data-testid="about-shell-heading"
+              >
+                {"About JOCA"}
+              </h1>
             </div>
           </div>
         </section>

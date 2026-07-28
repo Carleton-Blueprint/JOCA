@@ -33,7 +33,10 @@ export function HomePage() {
     <>
       <HeroParallax products={products} />
       <HeroSection />
-      <h1 className="text-center text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl md:text-4xl lg:text-5xl mb-6">
+      <h1
+        className="text-center text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl md:text-4xl lg:text-5xl mb-6"
+        data-testid="home-shell-heading"
+      >
         Become Involved In:
       </h1>
       <section className="w-full flex flex-wrap gap-8 items-center justify-center p-6 mb-4">

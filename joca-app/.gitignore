@@ -54,6 +54,8 @@ CLAUDE.local.md
 
 #Playwright
 .playwright-mcp/
+/test-results/
+/playwright-report/
 
 #Prisma
 prisma/seed.ts
