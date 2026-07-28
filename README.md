@@ -56,6 +56,7 @@ JOCA/
 |-----|---------|
 | [HANDOFF.md](HANDOFF.md) | Client ownership, service runbooks, acceptance checklist |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Local setup and production deploy |
+| [AGENTS.md](AGENTS.md) | Notes for coding agents (Supabase posture, etc.) |
 | [joca-app/.env.example](joca-app/.env.example) | Frontend environment variables |
 | [joca-cms/.env.example](joca-cms/.env.example) | CMS environment variables |
 

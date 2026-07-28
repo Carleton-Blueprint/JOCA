@@ -188,6 +188,7 @@ Paste signing secret into Vercel as `STRIPE_WEBHOOK_SECRET`. Use **live** secret
 |-------|--------|
 | Bad frontend deploy | Vercel → previous Deployment → Promote to Production |
 | Auth/session outage | Check Supabase status + `DATABASE_URL`; confirm Better Auth URLs match domain |
+| `pg_pgrst_no_exposed_schemas` in Postgres logs | Expected while Data API is disabled; not an app outage. Silence or leave alone per [HANDOFF.md](../HANDOFF.md) §3.2 — do not re-enable Data API just to clear logs |
 | Payments not activating | Stripe webhook delivery logs; verify secret and events; check `subscription` table |
 | CMS empty / GraphQL errors | Strapi Cloud status; permissions; `STRAPI_GRAPHQL_URL` |
 | Email not sending | Resend logs; domain verification; `RESEND_API_KEY` |

@@ -55,15 +55,25 @@ Also rotate any shared student credentials after transfer.
 
 ### 3.2 Supabase (app database)
 
-- Used **only** as Postgres for Prisma/Better Auth (no Supabase Auth client in the app).
+- Used **only** as Postgres for Prisma/Better Auth (no Supabase Auth client in the app; do not use the Supabase JS Data API).
 - Provide operators with:
   - Project URL / region
   - **Pooled** connection string → `DATABASE_URL`
   - **Direct** connection string → `DIRECT_URL` (migrations)
-- **Security:** Row Level Security (RLS) is currently disabled on app tables. The app connects with the database password (bypasses RLS), but the Supabase anon key must never be used from the browser against these tables. Recommended before go-live:
-  1. Enable RLS on `user`, `session`, `account`, `verification`, `vote`, `subscription` (and optionally `_prisma_migrations`).
-  2. Add no policies for `anon` / `authenticated` (deny by default), **or** disable the Data API / restrict network access.
-  3. Keep all app DB access server-side via Prisma.
+- **Security posture (intentional):**
+  1. **Data API disabled** — PostgREST/`/rest/v1` is not an app access path.
+  2. **Grants for `anon` / `authenticated` on `public` revoked** — no schema `USAGE` and no table/sequence/routine privileges on app tables.
+  3. **RLS enabled** on `user`, `session`, `account`, `verification`, `vote`, `subscription`, and `_prisma_migrations`, with **no policies** (deny by default for API roles).
+  4. Keep all app DB access **server-side via Prisma** using the database password. Never use the Supabase anon key from the browser against these tables.
+- **Known log noise:** With the Data API off, Postgres may repeatedly log `schema "pg_pgrst_no_exposed_schemas" does not exist`. Harmless. To silence it (keep Data API disabled):
+
+  ```sql
+  CREATE SCHEMA IF NOT EXISTS pgrst_no_exposed_schemas;
+  ALTER ROLE authenticator SET pgrst.db_schemas = 'pgrst_no_exposed_schemas';
+  NOTIFY pgrst;
+  ```
+
+  If you later re-enable the Data API, reset that role setting first (e.g. `ALTER ROLE authenticator RESET pgrst.db_schemas; NOTIFY pgrst;`) and expose `public` again in project settings. See [Supabase troubleshooting](https://supabase.com/docs/guides/troubleshooting/schema-pg_pgrst_no_exposed_schemas-does-not-exist).
 
 Schema changes: run Prisma migrations from `joca-app` (see [DEPLOY.md](docs/DEPLOY.md)).
 
