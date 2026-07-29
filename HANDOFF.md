@@ -50,6 +50,7 @@ Also rotate any shared student credentials after transfer.
   - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
   - `RESEND_API_KEY`
   - `STRAPI_GRAPHQL_URL`
+  - `STRAPI_WEBHOOK_SECRET` (must match Strapi Cloud / `joca-cms` — see §3.3 webhooks)
 - **Do not set** `NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION=true` in production.
 - After attaching a custom domain, update `BETTER_AUTH_URL` and `NEXT_PUBLIC_BETTER_AUTH_URL` to that origin (no trailing slash), then redeploy.
 
@@ -104,6 +105,23 @@ Today the Next.js server calls Strapi GraphQL **without** an API token (`joca-ap
 **Hardening recommendation before public launch:** create a Strapi API token with only those permissions, send it as `Authorization: Bearer …` from the Next.js server, and remove create/delete from the Public role. Document the token in Vercel (e.g. future `STRAPI_API_TOKEN`) once the code is updated.
 
 **CORS:** default `strapi::cors`. After the custom domain is live, restrict allowed origins to the production (and preview) site URLs in Strapi Cloud / middleware config.
+
+**Cache revalidation (Strapi → Next.js)**
+
+Editorial list pages (`/events`, `/elections`) cache Strapi data with `"use cache"` and hourly TTL. To refresh immediately after publish/unpublish/delete, configure Strapi webhooks:
+
+1. Generate a shared secret (`openssl rand -base64 32`) and set **`STRAPI_WEBHOOK_SECRET`** on Vercel and in Strapi Cloud env (same value as `joca-cms` — `config/server.ts` sends it as `Authorization: Bearer …` on outbound webhooks when set).
+2. In Strapi Admin → **Settings → Webhooks**, create a webhook:
+   - **URL:** `https://<YOUR_DOMAIN>/api/webhooks/strapi`
+   - **Events:** `entry.publish`, `entry.unpublish`, `entry.delete` for **Event**, **Election**, and **Candidate**
+   - **Headers:** only needed if `STRAPI_WEBHOOK_SECRET` is not set on Strapi — otherwise `defaultHeaders` in `joca-cms/config/server.ts` applies
+3. Use **one webhook pointing at production**. Preview deploys rely on TTL until a separate webhook is added.
+
+| Strapi content type | Cache tag invalidated |
+| ------------------- | --------------------- |
+| Event               | `events`              |
+| Election, Candidate | `elections`           |
+| Member              | *(none — not cached)* |
 
 ### 3.4 Stripe (memberships)
 

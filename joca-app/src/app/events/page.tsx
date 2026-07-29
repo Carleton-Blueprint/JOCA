@@ -1,9 +1,11 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { EventCards } from "./EventCards";
 import { getEvents } from "@/lib/strapi";
 import { EventsListFallback } from "./EventsListFallback";
 
 async function EventsList() {
+  await connection();
   const events = await getEvents();
   return <EventCards events={events} />;
 }
