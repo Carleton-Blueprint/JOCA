@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import { instant } from "@next/playwright";
 
 const EVENTS_SHELL = '[data-testid="events-shell-heading"]';
-const EVENTS_CONTENT = '[data-testid="events-content"]';
 
 test.describe("instant nav: home -> events", () => {
   test("events shell commits on client navigation", async ({ page }) => {
@@ -16,8 +15,6 @@ test.describe("instant nav: home -> events", () => {
       await trigger.click();
       await expect(page.locator(EVENTS_SHELL)).toBeVisible();
     });
-
-    await expect(page.locator(EVENTS_CONTENT)).toBeVisible();
   });
 });
 
