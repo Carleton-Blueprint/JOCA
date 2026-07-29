@@ -1,6 +1,7 @@
 # instant-nav rig: JOCA (joca-app)
 
 - BUILD: `bunx cross-env EXPOSE_TESTING_API=1 STRIPE_WEBHOOK_SECRET=<set> bun run build:e2e` then `bun run start` (never `next dev`)
+- CONFIG: `cacheComponents: true` and `partialPrefetching: true` in `next.config.ts` (partial prefetching prefetches App Shells per route on link hover/viewport)
 - EXPOSE: `process.env.EXPOSE_TESTING_API === '1'` wired in `next.config.ts` → `experimental.exposeTestingApiInProductionBuild`
 - RUN: `cross-env EXPOSE_TESTING_API=1 STRIPE_WEBHOOK_SECRET=<set> bun run test:e2e` against `BASE_URL` default `http://127.0.0.1:3000` (Playwright `webServer` starts the app when unset)
 - TEST USER: public routes only for now (no login fixture). Elections instant-nav tests deferred until a paid-member e2e account + `storageState` helper exists.
