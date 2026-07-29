@@ -9,7 +9,7 @@ export default function EventsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const isCategoryEnumError = error.message?.includes('ENUM_EVENT_CATEGORY');
+  const isCategoryEnumError = error.message?.includes("ENUM_EVENT_CATEGORY");
 
   return (
     <ListLoadError
