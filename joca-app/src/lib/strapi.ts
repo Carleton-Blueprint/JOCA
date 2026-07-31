@@ -16,6 +16,15 @@ const STRAPI_GRAPHQL_URL =
     ? process.env.STRAPI_GRAPHQL_URL!
     : "http://localhost:1337/graphql";
 
+const STRAPI_BASE_URL = STRAPI_GRAPHQL_URL.replace(/\/graphql\/?$/, "");
+
+/** Resolve a Strapi media URL (often relative, e.g. `/uploads/...`) to an absolute URL. */
+export function getStrapiMediaUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${STRAPI_BASE_URL}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
 // Generic helper for Strapi GraphQL requests.
 // T represents the shape of json.data - NOT the entity itself.
 // Strapi wraps every response under a key matching the operation name, e.g.:
@@ -55,7 +64,12 @@ export async function getEvents(): Promise<Event[]> {
     undefined,
     { cached: true },
   );
-  return events ?? [];
+  return (events ?? []).map((event) => ({
+    ...event,
+    image: event.image?.url
+      ? { ...event.image, url: getStrapiMediaUrl(event.image.url)! }
+      : null,
+  }));
 }
 
 export async function getElections(): Promise<Election[]> {

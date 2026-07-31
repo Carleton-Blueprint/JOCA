@@ -9,15 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Bell,
-  Bookmark,
-  BookmarkCheck,
-  CalendarDays,
-  Camera,
-  Clock,
-  MapPin,
-} from "lucide-react";
+import { Bookmark, CalendarDays, Clock, MapPin } from "lucide-react";
 import { ClientDate } from "@/app/events/clientDate";
 import {
   Dialog,
@@ -27,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import type { Event } from "@/lib/types";
-import { formatTime } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 
 export const EventCard = ({ event }: { event: Event }) => {
   const [open, setOpen] = React.useState(false);
@@ -38,7 +30,21 @@ export const EventCard = ({ event }: { event: Event }) => {
 
   return (
     <>
-      <Card className="h-full flex flex-col relative overflow-hidden">
+      <Card
+        className={cn(
+          "h-full flex flex-col relative overflow-hidden",
+          event.image?.url && "pt-0",
+        )}
+      >
+        {event.image?.url ? (
+          <div className="relative aspect-[16/9] w-full overflow-hidden">
+            <img
+              src={event.image.url}
+              alt={event.image.alternativeText || event.title}
+              className="size-full object-cover"
+            />
+          </div>
+        ) : null}
         <CardHeader>
           <CardTitle className="text-2xl pb-2">{event.title}</CardTitle>
           <CardDescription className="flex flex-col gap-2 md:text-lg sm:text-sm">
@@ -109,6 +115,13 @@ export const EventCard = ({ event }: { event: Event }) => {
           </DialogHeader>
 
           <div className="space-y-4">
+            {event.image?.url ? (
+              <img
+                src={event.image.url}
+                alt={event.image.alternativeText || event.title}
+                className="w-full rounded-md object-cover"
+              />
+            ) : null}
             <p>{event.description}</p>
             <section>
               <div className="flex flex-col justify-center gap-2">
