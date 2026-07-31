@@ -4,6 +4,13 @@ export type Candidate = {
   election?: Election;
 };
 
+export type StrapiMedia = {
+  url: string;
+  alternativeText?: string | null;
+  width?: number | null;
+  height?: number | null;
+};
+
 export type Event = {
   documentId: string;
   title: string;
@@ -12,6 +19,7 @@ export type Event = {
   location: string;
   description?: string;
   category: "Culture" | "Community" | "Education";
+  image?: StrapiMedia | null;
 };
 
 export type Election = {

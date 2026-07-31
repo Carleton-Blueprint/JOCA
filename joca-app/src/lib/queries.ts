@@ -9,6 +9,12 @@ export const GET_EVENTS = `
       title
       category
       time
+      image {
+        url
+        alternativeText
+        width
+        height
+      }
     }
   }
 `;
