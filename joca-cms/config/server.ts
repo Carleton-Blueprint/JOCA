@@ -1,11 +1,18 @@
-export default ({ env }) => {
-  const webhookSecret = env('STRAPI_WEBHOOK_SECRET', '');
+import type { Core } from "@strapi/strapi";
+
+const config = ({
+  env,
+}: Core.Config.Shared.ConfigParams): Core.Config.Server => {
+  const webhookSecret = env("STRAPI_WEBHOOK_SECRET", "");
 
   return {
-    host: env('HOST', '0.0.0.0'),
-    port: env.int('PORT', 1337),
+    host: env("HOST", "0.0.0.0"),
+    port: env.int("PORT", 1337),
     app: {
-      keys: env.array('APP_KEYS'),
+      keys: env.array("APP_KEYS"),
+    },
+    mcp: {
+      enabled: true,
     },
     ...(webhookSecret
       ? {
@@ -18,3 +25,5 @@ export default ({ env }) => {
       : {}),
   };
 };
+
+export default config;
