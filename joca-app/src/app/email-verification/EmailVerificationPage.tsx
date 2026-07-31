@@ -48,7 +48,7 @@ export const EmailVerification = ({
     setIsLoading(true);
     try {
       await sendVerificationEmail(
-        { email, callbackURL: "/payment" },
+        { email, callbackURL: "/pending" },
         {
           onSuccess: () => {
             localStorage.setItem(STORAGE_KEY, Date.now().toString());
@@ -76,7 +76,7 @@ export const EmailVerification = ({
       <div className="text-center text-muted-foreground flex flex-col items-center justify-center gap-4">
         Email verified already.
         <Button variant="outline" asChild>
-          <Link href="/payment">Go to payment page</Link>
+          <Link href="/pending">Continue</Link>
         </Button>
       </div>
     );

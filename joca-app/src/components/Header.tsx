@@ -13,18 +13,47 @@ import {
 import { useSessionReady, signOut, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, CreditCard, Bell, LogOut } from "lucide-react";
+import { User, CreditCard, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Loader } from "@/components/ui/loader";
 
 const Header = () => {
   const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
+  const [hasActiveMembership, setHasActiveMembership] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMembership() {
+      if (!session?.user) {
+        if (!cancelled) setHasActiveMembership(false);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/me/membership", { credentials: "include" });
+        if (!res.ok) {
+          if (!cancelled) setHasActiveMembership(false);
+          return;
+        }
+        const data = (await res.json()) as { active?: boolean };
+        if (!cancelled) setHasActiveMembership(Boolean(data.active));
+      } catch {
+        if (!cancelled) setHasActiveMembership(false);
+      }
+    }
+
+    void loadMembership();
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id]);
 
   const openBillingPortal = async () => {
     await subscription.billingPortal(
@@ -91,14 +120,17 @@ const Header = () => {
             >
               Events
             </Link>
-            {isMounted && !isPending && session?.user && (
-              <Link
-                href="/elections"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Elections
-              </Link>
-            )}
+            {isMounted &&
+              !isPending &&
+              session?.user &&
+              hasActiveMembership && (
+                <Link
+                  href="/elections"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Elections
+                </Link>
+              )}
 
             <Link
               href="/about"
@@ -148,13 +180,15 @@ const Header = () => {
                   Account
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={openBillingPortal}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <CreditCard className="h-4 w-4" />
-                Manage membership
-              </DropdownMenuItem>
+              {hasActiveMembership && (
+                <DropdownMenuItem
+                  onSelect={openBillingPortal}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Manage membership
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onSelect={handleLogout}

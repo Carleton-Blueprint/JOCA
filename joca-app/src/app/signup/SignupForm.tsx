@@ -21,6 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
@@ -29,6 +31,15 @@ import { useRouter } from "next/navigation";
 import { useSessionReady } from "@/lib/auth-client";
 import Loading from "../loading";
 import { AlreadyLoggedIn } from "@/components/AlreadyLoggedIn";
+import {
+  MEMBERSHIP_PLANS,
+  type MembershipPlanId,
+} from "@/lib/membership-plans";
+
+const planIds = MEMBERSHIP_PLANS.map((p) => p.id) as [
+  MembershipPlanId,
+  ...MembershipPlanId[],
+];
 
 const signupSchema = z
   .object({
@@ -51,6 +62,9 @@ const signupSchema = z
       ),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
+    requestedPlan: z.enum(planIds, {
+      message: "Please select a membership type",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -78,6 +92,7 @@ export const SignupForm = () => {
       phoneNumber: "",
       password: "",
       confirmPassword: "",
+      requestedPlan: undefined,
     },
   });
 
@@ -90,7 +105,8 @@ export const SignupForm = () => {
         lastName: values.lastName,
         name: values.firstName + " " + values.lastName,
         phoneNumber: values.phoneNumber,
-        callbackURL: "/payment",
+        requestedPlan: values.requestedPlan,
+        callbackURL: "/pending",
       },
       {
         onRequest: () => {
@@ -100,8 +116,8 @@ export const SignupForm = () => {
         onSuccess: () => {
           setIsLoading(false);
           if (process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION === "true") {
-            toast.success("Account created!");
-            router.push("/payment");
+            toast.success("Account created! Your application is pending review.");
+            router.push("/pending");
           } else {
             // Better Auth may return synthetic success for existing emails
             // (anti-enumeration). Keep messaging honest either way.
@@ -140,14 +156,12 @@ export const SignupForm = () => {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="w-full space-y-6"
               >
-                {/* Error message */}
                 {error && (
                   <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-md">
                     {error}
                   </div>
                 )}
 
-                {/* Personal Information Section */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -215,6 +229,43 @@ export const SignupForm = () => {
                     )}
                   />
 
+                  <FormField
+                    control={form.control}
+                    name="requestedPlan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Suggested membership type</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            className="space-y-2"
+                          >
+                            {MEMBERSHIP_PLANS.map((plan) => (
+                              <div
+                                key={plan.id}
+                                className="flex items-center space-x-3 rounded-md border p-3"
+                              >
+                                <RadioGroupItem value={plan.id} id={plan.id} />
+                                <Label
+                                  htmlFor={plan.id}
+                                  className="cursor-pointer flex-1 leading-5"
+                                >
+                                  {plan.label}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </FormControl>
+                        <p className="text-sm text-muted-foreground">
+                          JOCA reviews applications and confirms the final
+                          membership type before sending a payment link.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -246,7 +297,6 @@ export const SignupForm = () => {
                   </div>
                 </div>
 
-                {/* Submit button */}
                 <Button
                   type="submit"
                   className="w-full hover:cursor-pointer"

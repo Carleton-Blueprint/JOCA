@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { EmailNotVerified } from "@/components/EmailNotVerified";
 import prisma from "@/lib/prisma";
 import { isEmailUnverified } from "@/lib/email-verification";
+import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
 import Loading from "../loading";
 
 async function PaymentGate() {
@@ -24,7 +25,19 @@ async function PaymentGate() {
   });
   if (activeSubscription) redirect("/payment/success");
 
-  return <StartPaymentPage />;
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { membershipStatus: true, approvedPlan: true },
+  });
+
+  if (
+    user?.membershipStatus !== MEMBERSHIP_STATUS.APPROVED ||
+    !user.approvedPlan
+  ) {
+    redirect("/pending");
+  }
+
+  return <StartPaymentPage approvedPlan={user.approvedPlan} />;
 }
 
 export default function PaymentPage() {

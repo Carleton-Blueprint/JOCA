@@ -15,7 +15,7 @@ async function EmailVerificationContent({
   searchParams: Promise<{ name?: string; email?: string }>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (session?.user?.emailVerified) redirect("/payment");
+  if (session?.user?.emailVerified) redirect("/pending");
 
   const { name: nameParam, email: emailParam } = await searchParams;
 

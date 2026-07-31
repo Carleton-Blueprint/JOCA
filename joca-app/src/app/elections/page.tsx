@@ -10,6 +10,7 @@ import { getElections, getVotedElectionIds } from "@/lib/strapi";
 import type { Election } from "@/lib/types";
 import Loading from "../loading";
 import { isEmailUnverified } from "@/lib/email-verification";
+import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
 
 async function ElectionsList({
   userId,
@@ -50,7 +51,23 @@ async function ElectionsContent() {
     where: { referenceId: session.user.id, status: "active" },
   });
 
-  if (!activeSubscription) return <NotPaid />;
+  if (!activeSubscription) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { membershipStatus: true },
+    });
+    if (user?.membershipStatus === MEMBERSHIP_STATUS.APPROVED) {
+      return (
+        <NotPaid
+          href="/payment"
+          title="Payment required"
+          description="Your membership was approved. Complete payment to access elections."
+          cta="Complete payment"
+        />
+      );
+    }
+    return <NotPaid />;
+  }
 
   return (
     <ElectionsList

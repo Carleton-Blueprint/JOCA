@@ -15,9 +15,9 @@ Env templates: [joca-app/.env.example](joca-app/.env.example) · [joca-cms/.env.
 | CMS (Strapi 5)      | `joca-cms/` → **Strapi Cloud**     | Events, elections, candidates, members     |
 | Auth / app database | **Supabase** Postgres (via Prisma) | Users, sessions, subscriptions, votes      |
 | Payments            | **Stripe**                         | Membership subscriptions + Customer Portal |
-| Email               | **Resend**                         | Email verification messages                |
+| Email               | **Resend**                         | Verification + membership approval emails  |
 
-Architecture note: login accounts live in Supabase/Prisma (Better Auth). **Member** records in Strapi are created after successful payment and used for elections/candidates. Do not treat Strapi Users & Permissions as the primary member login system.
+Architecture note: login accounts live in Supabase/Prisma (Better Auth). New signups are staff-approved before Stripe payment. **Member** records in Strapi are created after successful payment and used for elections/candidates. Do not treat Strapi Users & Permissions as the primary member login system.
 
 ---
 
@@ -48,7 +48,7 @@ Also rotate any shared student credentials after transfer.
   - `DATABASE_URL`, `DIRECT_URL`
   - `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BETTER_AUTH_URL`
   - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-  - `RESEND_API_KEY`
+  - `RESEND_API_KEY`, `JOCA_APPROVALS_EMAIL`
   - `STRAPI_GRAPHQL_URL`
 - **Do not set** `NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION=true` in production.
 - After attaching a custom domain, update `BETTER_AUTH_URL` and `NEXT_PUBLIC_BETTER_AUTH_URL` to that origin (no trailing slash), then redeploy.
@@ -122,6 +122,16 @@ https://<YOUR_DOMAIN>/api/auth/stripe/webhook
 | Family              | `family-membership`            |
 | Student / associate | `student-associate-membership` |
 
+**Membership approval flow**
+
+1. Member signs up (suggests a plan) and verifies email.
+2. App emails `JOCA_APPROVALS_EMAIL` with applicant details + a signed review link (`/admin/approve-membership?token=…`, ~7 day expiry).
+3. Staff pick/override the plan and **Approve** → app creates a Stripe Checkout Session and Resend-emails the payment link to the member. **Reject** notifies the member and blocks payment.
+4. After payment, Better Auth Stripe webhooks activate `Subscription`; Elections + Manage membership unlock.
+5. Pending members can use Account / Sign Out only (no Elections nav, no Manage membership).
+
+Set `JOCA_APPROVALS_EMAIL` on Vercel when the inbox address is known.
+
 **Webhook events to subscribe:**
 
 - `checkout.session.completed`
@@ -137,13 +147,13 @@ https://<YOUR_DOMAIN>/api/auth/stripe/webhook
 4. Set `STRIPE_SECRET_KEY` on Vercel (`sk_test_…` vs `sk_live_…`).
 5. Local forwarding: `stripe listen --forward-to localhost:3000/api/auth/stripe/webhook`.
 
-Billing portal and checkout are already wired in the app UI. No Stripe Connect.
+Billing portal and checkout are wired in the app UI. Checkout links for new members are also created on staff approval. No Stripe Connect.
 
 ### 3.5 Resend (email)
 
-- Used for **email verification** only (no password-reset flow in the product yet).
+- Used for **email verification**, **staff membership-application notices**, and **member approve/reject + payment link** emails (no password-reset flow in the product yet).
 - Production still needs a verified JOCA domain and a real `from` address.
-- Code currently sends from `onboarding@resend.dev` (`joca-app/src/lib/auth.ts`) — replace after DNS verification in Resend.
-- Set `RESEND_API_KEY` on Vercel; keep it unset only for local work that also skips verification.
+- Code currently sends from `onboarding@resend.dev` (`joca-app/src/lib/resend.ts`) — replace after DNS verification in Resend.
+- Set `RESEND_API_KEY` and `JOCA_APPROVALS_EMAIL` on Vercel; keep Resend unset only for local work that also skips verification (approve URLs are logged to the server console when Resend is missing).
 
 ---
