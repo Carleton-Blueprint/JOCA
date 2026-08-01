@@ -42,34 +42,24 @@ export async function getEvents(): Promise<Event[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("events");
-  try {
-    const { events } = await strapiRequest<{ events: Event[] }>(
-      GET_EVENTS,
-      undefined,
-      { cached: true },
-    );
-    return events ?? [];
-  } catch (error) {
-    console.error("Failed to get events", error);
-    return [];
-  }
+  const { events } = await strapiRequest<{ events: Event[] }>(
+    GET_EVENTS,
+    undefined,
+    { cached: true },
+  );
+  return events ?? [];
 }
 
 export async function getElections(): Promise<Election[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("elections");
-  try {
-    const { elections } = await strapiRequest<{ elections: Election[] }>(
-      GET_ELECTIONS,
-      undefined,
-      { cached: true },
-    );
-    return elections ?? [];
-  } catch (error) {
-    console.error("Failed to get elections", error);
-    return [];
-  }
+  const { elections } = await strapiRequest<{ elections: Election[] }>(
+    GET_ELECTIONS,
+    undefined,
+    { cached: true },
+  );
+  return elections ?? [];
 }
 
 export async function getElection(

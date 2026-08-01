@@ -8,9 +8,9 @@ import { isJocaAdminEmail } from "@/lib/joca-admin";
 import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
 import { getEtransferInstructions } from "@/lib/membership-etransfer";
 import { ApplicationCard } from "./ApplicationCard";
-import Loading from "@/app/loading";
+import { ApplicationsListFallback } from "./ApplicationsListFallback";
 
-async function ApplicationsDashboard() {
+async function ApplicationsList() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) redirect("/login");
   if (!isJocaAdminEmail(session.user.email)) redirect("/");
@@ -79,29 +79,16 @@ async function ApplicationsDashboard() {
     <div
       className={
         applicants.length === 1
-          ? "container mx-auto max-w-lg space-y-8 p-8"
-          : "container mx-auto max-w-5xl space-y-8 p-8"
+          ? "container mx-auto max-w-lg space-y-8 px-8 pb-8"
+          : "container mx-auto max-w-5xl space-y-8 px-8 pb-8"
       }
     >
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold">Membership applications</h1>
-        <p className="text-muted-foreground">
-          Review pending signups and confirm Interac e-Transfer payments.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {pendingCount} awaiting review
-          {awaitingPaymentCount > 0
-            ? ` · ${awaitingPaymentCount} awaiting payment`
-            : ""}
-          {" · "}
-          <Link
-            href="/admin/members"
-            className="underline underline-offset-2"
-          >
-            Manage members
-          </Link>
-        </p>
-      </header>
+      <p className="text-sm text-muted-foreground">
+        {pendingCount} awaiting review
+        {awaitingPaymentCount > 0
+          ? ` · ${awaitingPaymentCount} awaiting payment`
+          : ""}
+      </p>
 
       {applicants.length === 0 ? (
         <p className="text-muted-foreground">
@@ -128,8 +115,24 @@ async function ApplicationsDashboard() {
 
 export default function AdminApplicationsPage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <ApplicationsDashboard />
-    </Suspense>
+    <main className="w-full flex flex-col gap-6">
+      <header className="container mx-auto max-w-5xl space-y-2 px-8 pt-8">
+        <h1 className="text-3xl font-bold">Membership applications</h1>
+        <p className="text-muted-foreground">
+          Review pending signups and confirm Interac e-Transfer payments.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <Link
+            href="/admin/members"
+            className="underline underline-offset-2"
+          >
+            Manage members
+          </Link>
+        </p>
+      </header>
+      <Suspense fallback={<ApplicationsListFallback />}>
+        <ApplicationsList />
+      </Suspense>
+    </main>
   );
 }

@@ -7,7 +7,7 @@ import { NotLoggedIn } from "@/components/NotLoggedIn";
 import prisma from "@/lib/prisma";
 import { isEmailUnverified } from "@/lib/email-verification";
 import { MEMBERSHIP_STATUS, getPlanLabel } from "@/lib/membership-plans";
-import Loading from "../loading";
+import { PendingFallback } from "./PendingFallback";
 import {
   Card,
   CardContent,
@@ -48,7 +48,7 @@ async function PendingContent() {
   const isRejected = user?.membershipStatus === MEMBERSHIP_STATUS.REJECTED;
 
   return (
-    <div className="container mx-auto p-8 max-w-2xl">
+    <div className="container mx-auto max-w-2xl p-8">
       <Card>
         <CardHeader>
           <CardTitle>
@@ -92,8 +92,21 @@ async function PendingContent() {
 
 export default function PendingPage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <PendingContent />
-    </Suspense>
+    <main className="w-full flex flex-col gap-6">
+      <section className="container mx-auto max-w-2xl space-y-2 px-8 pt-8 text-center">
+        <h1
+          className="text-3xl font-bold sm:text-4xl"
+          data-testid="pending-shell-heading"
+        >
+          Membership application
+        </h1>
+        <p className="text-muted-foreground">
+          Track your JOCA membership application and next steps.
+        </p>
+      </section>
+      <Suspense fallback={<PendingFallback />}>
+        <PendingContent />
+      </Suspense>
+    </main>
   );
 }

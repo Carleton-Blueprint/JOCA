@@ -8,9 +8,9 @@ import { isJocaAdminEmail } from "@/lib/joca-admin";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MembersList } from "./MembersList";
-import Loading from "@/app/loading";
+import { MembersListFallback } from "./MembersListFallback";
 
-async function MembersDashboard({
+async function MembersListContent({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
@@ -64,23 +64,7 @@ async function MembersDashboard({
   }));
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-8 p-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold">Members</h1>
-        <p className="text-muted-foreground">
-          Find members and permanently delete accounts (Stripe and app data).
-          Prefer this over deleting rows in Supabase.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          <Link
-            href="/admin/applications"
-            className="underline underline-offset-2"
-          >
-            Back to applications
-          </Link>
-        </p>
-      </header>
-
+    <div className="container mx-auto max-w-5xl space-y-8 px-8 pb-8">
       <form className="flex flex-col gap-3 sm:flex-row sm:items-end" method="get">
         <div className="flex-1 space-y-2">
           <label htmlFor="q" className="text-sm font-medium">
@@ -100,9 +84,7 @@ async function MembersDashboard({
 
       {members.length === 0 ? (
         <p className="text-muted-foreground">
-          {query
-            ? "No members matched that search."
-            : "No members found."}
+          {query ? "No members matched that search." : "No members found."}
         </p>
       ) : (
         <MembersList
@@ -122,8 +104,25 @@ export default function AdminMembersPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   return (
-    <Suspense fallback={<Loading />}>
-      <MembersDashboard searchParams={searchParams} />
-    </Suspense>
+    <main className="w-full flex flex-col gap-6">
+      <header className="container mx-auto max-w-5xl space-y-2 px-8 pt-8">
+        <h1 className="text-3xl font-bold">Members</h1>
+        <p className="text-muted-foreground">
+          Find members and permanently delete accounts (Stripe and app data).
+          Prefer this over deleting rows in Supabase.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <Link
+            href="/admin/applications"
+            className="underline underline-offset-2"
+          >
+            Back to applications
+          </Link>
+        </p>
+      </header>
+      <Suspense fallback={<MembersListFallback />}>
+        <MembersListContent searchParams={searchParams} />
+      </Suspense>
+    </main>
   );
 }
