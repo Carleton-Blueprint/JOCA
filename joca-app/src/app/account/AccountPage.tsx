@@ -17,6 +17,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -73,6 +81,10 @@ export const AccountPageComponent = () => {
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [freshSessionDialogOpen, setFreshSessionDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [pendingDeletePassword, setPendingDeletePassword] = useState<
+    string | null
+  >(null);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -153,19 +165,33 @@ export const AccountPageComponent = () => {
     }
   };
 
-  const onSubmitDelete = async (values: DeleteValues) => {
+  const onSubmitDelete = (values: DeleteValues) => {
     if (!requireFreshSession()) return;
+    setPendingDeletePassword(values.password);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!pendingDeletePassword) return;
+    if (!requireFreshSession()) {
+      setDeleteConfirmOpen(false);
+      return;
+    }
     setIsDeleting(true);
     try {
-      const result = await deleteUser({ password: values.password });
+      const result = await deleteUser({ password: pendingDeletePassword });
       if (result?.error) {
         if (isFreshSessionError(result.error)) {
+          setDeleteConfirmOpen(false);
+          setPendingDeletePassword(null);
           setFreshSessionDialogOpen(true);
           return;
         }
         toast.error(result.error.message || "Failed to delete account");
         return;
       }
+      setDeleteConfirmOpen(false);
+      setPendingDeletePassword(null);
       toast.success("Your account has been deleted");
       router.replace("/goodbye");
     } catch {
@@ -193,6 +219,39 @@ export const AccountPageComponent = () => {
         open={freshSessionDialogOpen}
         onOpenChange={setFreshSessionDialogOpen}
       />
+      <Dialog
+        open={deleteConfirmOpen}
+        onOpenChange={(open) => {
+          setDeleteConfirmOpen(open);
+          if (!open) setPendingDeletePassword(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete your account?</DialogTitle>
+            <DialogDescription>
+              This cannot be undone. Your account and all associated data will
+              be permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteAccount}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Yes, delete my account"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <header className="space-y-1">
         <h1 className="text-3xl font-bold">Account</h1>
         <p className="text-muted-foreground">
