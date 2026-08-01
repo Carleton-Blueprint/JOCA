@@ -1,6 +1,8 @@
 export type EtransferInstructions = {
   email: string;
   notes: string | null;
+  securityQuestion: string | null;
+  securityAnswer: string | null;
 };
 
 /**
@@ -12,5 +14,10 @@ export function getEtransferInstructions(): EtransferInstructions | null {
   if (!email) return null;
 
   const notes = process.env.JOCA_ETRANSFER_INSTRUCTIONS?.trim() || null;
-  return { email, notes };
+  const securityQuestion =
+    process.env.JOCA_ETRANSFER_SECURITY_QUESTION?.trim() || null;
+  const securityAnswer =
+    process.env.JOCA_ETRANSFER_SECURITY_ANSWER?.trim() || null;
+
+  return { email, notes, securityQuestion, securityAnswer };
 }

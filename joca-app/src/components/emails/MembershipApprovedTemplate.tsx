@@ -10,6 +10,7 @@ import {
   Tailwind,
   Text,
 } from "@react-email/components";
+import { formatEtransferSecurityLine } from "@/lib/etransfer-copy";
 
 interface MembershipApprovedTemplateProps {
   username: string;
@@ -17,6 +18,8 @@ interface MembershipApprovedTemplateProps {
   checkoutUrl: string;
   etransferEmail?: string | null;
   etransferNotes?: string | null;
+  etransferSecurityQuestion?: string | null;
+  etransferSecurityAnswer?: string | null;
 }
 
 export const MembershipApprovedTemplate = ({
@@ -25,8 +28,16 @@ export const MembershipApprovedTemplate = ({
   checkoutUrl,
   etransferEmail,
   etransferNotes,
+  etransferSecurityQuestion,
+  etransferSecurityAnswer,
 }: MembershipApprovedTemplateProps) => {
   const previewText = `Your JOCA membership application was approved`;
+  const etransferSecurityLine = formatEtransferSecurityLine({
+    securityQuestion: etransferSecurityQuestion,
+    securityAnswer: etransferSecurityAnswer,
+    notes: etransferNotes,
+    strong: (children) => <strong>{children}</strong>,
+  });
 
   return (
     <Html>
@@ -76,9 +87,9 @@ export const MembershipApprovedTemplate = ({
                   <br />
                   <strong>{etransferEmail}</strong>
                 </Text>
-                {etransferNotes && (
+                {etransferSecurityLine && (
                   <Text className="text-sm text-black leading-relaxed">
-                    {etransferNotes}
+                    {etransferSecurityLine}
                   </Text>
                 )}
                 <Text className="text-sm text-black leading-relaxed">

@@ -50,6 +50,9 @@ Also rotate any shared student credentials after transfer.
   - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
   - `RESEND_API_KEY`, `JOCA_APPROVALS_EMAIL`
   - `JOCA_ETRANSFER_EMAIL` (optional; enables Interac e-Transfer instructions)
+  - `JOCA_ETRANSFER_SECURITY_QUESTION` / `JOCA_ETRANSFER_SECURITY_ANSWER` (optional; bolded in copy)
+  - `JOCA_ETRANSFER_INSTRUCTIONS` (optional freeform notes)
+  - `JOCA_ADMIN_EMAILS` (optional; staff dashboard allowlist, else `JOCA_APPROVALS_EMAIL`)
   - `STRAPI_GRAPHQL_URL`
 - **Do not set** `NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION=true` in production.
 - After attaching a custom domain, update `BETTER_AUTH_URL` and `NEXT_PUBLIC_BETTER_AUTH_URL` to that origin (no trailing slash), then redeploy.
@@ -132,7 +135,14 @@ https://<YOUR_DOMAIN>/api/auth/stripe/webhook
 5. **Interac e-Transfer path (manual):** member sends e-Transfer to `JOCA_ETRANSFER_EMAIL` outside Stripe. Staff reopen the same review link and click **Mark Interac e-Transfer as received** → app activates a local `Subscription` (`billingInterval=etransfer`, no Stripe subscription) and syncs the Strapi Member. This will **not** appear in the Stripe Dashboard.
 6. Pending / approved-but-unpaid members can use Account / Sign Out; Elections nav is visible but the page stays payment-gated until an active subscription exists.
 
-Set `JOCA_APPROVALS_EMAIL` on Vercel when the inbox address is known. Set `JOCA_ETRANSFER_EMAIL` (and optional `JOCA_ETRANSFER_INSTRUCTIONS`) to enable e-Transfer copy in emails and on `/payment`.
+Set `JOCA_APPROVALS_EMAIL` on Vercel when the inbox address is known. Set `JOCA_ETRANSFER_EMAIL` (and optional `JOCA_ETRANSFER_SECURITY_QUESTION` / `JOCA_ETRANSFER_SECURITY_ANSWER` / `JOCA_ETRANSFER_INSTRUCTIONS`) to enable e-Transfer copy in emails and on `/payment`.
+
+**Staff applications dashboard**
+
+- URL: `/admin/applications`
+- Access: signed-in Better Auth users whose email is in `JOCA_ADMIN_EMAILS` (comma-separated), or `JOCA_APPROVALS_EMAIL` if the allowlist is unset.
+- Shows pending reviews and approved-but-unpaid members as cards (approve / reject / mark Interac received).
+- Header bell shows a badge with the count of applications needing attention (awaiting review + awaiting payment) for those admins.
 
 **Webhook events to subscribe:**
 

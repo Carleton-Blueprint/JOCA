@@ -45,6 +45,8 @@ async function PaymentGate() {
       approvedPlan={user.approvedPlan}
       etransferEmail={etransfer?.email ?? null}
       etransferNotes={etransfer?.notes ?? null}
+      etransferSecurityQuestion={etransfer?.securityQuestion ?? null}
+      etransferSecurityAnswer={etransfer?.securityAnswer ?? null}
     />
   );
 }

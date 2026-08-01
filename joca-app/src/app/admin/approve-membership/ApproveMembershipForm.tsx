@@ -18,6 +18,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   MEMBERSHIP_PLANS,
   MEMBERSHIP_STATUS,
   getPlanLabel,
@@ -28,6 +38,8 @@ import {
   confirmEtransferAction,
   rejectMembershipAction,
 } from "./actions";
+
+type ConfirmAction = "approve" | "reject";
 
 type Applicant = {
   firstName: string;
@@ -79,7 +91,15 @@ export function ApproveMembershipForm({
     return null;
   });
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction>("approve");
   const [isPending, startTransition] = useTransition();
+  const applicantName = `${applicant.firstName} ${applicant.lastName}`;
+
+  const openConfirm = (action: ConfirmAction) => {
+    setConfirmAction(action);
+    setConfirmOpen(true);
+  };
 
   const decided = isDecidedStatus(status);
   const awaitingEtransfer =
@@ -180,22 +200,7 @@ export function ApproveMembershipForm({
                 type="button"
                 className="flex-1"
                 disabled={controlsDisabled}
-                onClick={() => {
-                  setError(null);
-                  setMessage(null);
-                  const fd = new FormData();
-                  fd.set("token", token);
-                  fd.set("planId", planId);
-                  startTransition(async () => {
-                    const result = await approveMembershipAction(fd);
-                    if (result.ok) {
-                      setStatus(MEMBERSHIP_STATUS.APPROVED);
-                      setMessage(result.message);
-                    } else {
-                      setError(result.message);
-                    }
-                  });
-                }}
+                onClick={() => openConfirm("approve")}
               >
                 {isPending ? "Working..." : "Approve & email payment options"}
               </Button>
@@ -204,21 +209,7 @@ export function ApproveMembershipForm({
                 variant="outline"
                 className="flex-1"
                 disabled={controlsDisabled}
-                onClick={() => {
-                  setError(null);
-                  setMessage(null);
-                  const fd = new FormData();
-                  fd.set("token", token);
-                  startTransition(async () => {
-                    const result = await rejectMembershipAction(fd);
-                    if (result.ok) {
-                      setStatus(MEMBERSHIP_STATUS.REJECTED);
-                      setMessage(result.message);
-                    } else {
-                      setError(result.message);
-                    }
-                  });
-                }}
+                onClick={() => openConfirm("reject")}
               >
                 Reject
               </Button>
@@ -267,6 +258,72 @@ export function ApproveMembershipForm({
           <p className="text-sm text-green-700 dark:text-green-400">{message}</p>
         )}
       </CardContent>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction === "approve"
+                ? "Approve this application?"
+                : "Reject this application?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmAction === "approve" ? (
+                <>
+                  Approve {applicantName} for{" "}
+                  <strong>{getPlanLabel(planId)}</strong>? They will be emailed
+                  payment options.
+                </>
+              ) : (
+                <>
+                  Reject {applicantName}&apos;s application? They will be
+                  notified by email. This cannot be undone from this screen.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant={confirmAction === "reject" ? "destructive" : "default"}
+              disabled={isPending}
+              onClick={() => {
+                setError(null);
+                setMessage(null);
+                if (confirmAction === "approve") {
+                  const fd = new FormData();
+                  fd.set("token", token);
+                  fd.set("planId", planId);
+                  startTransition(async () => {
+                    const result = await approveMembershipAction(fd);
+                    if (result.ok) {
+                      setStatus(MEMBERSHIP_STATUS.APPROVED);
+                      setMessage(result.message);
+                    } else {
+                      setError(result.message);
+                    }
+                  });
+                } else {
+                  const fd = new FormData();
+                  fd.set("token", token);
+                  startTransition(async () => {
+                    const result = await rejectMembershipAction(fd);
+                    if (result.ok) {
+                      setStatus(MEMBERSHIP_STATUS.REJECTED);
+                      setMessage(result.message);
+                    } else {
+                      setError(result.message);
+                    }
+                  });
+                }
+                setConfirmOpen(false);
+              }}
+            >
+              {confirmAction === "approve" ? "Approve" : "Reject"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

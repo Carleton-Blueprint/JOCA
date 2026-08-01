@@ -218,6 +218,8 @@ export async function approveMembershipApplication(params: {
         checkoutUrl,
         etransferEmail: etransfer?.email,
         etransferNotes: etransfer?.notes,
+        etransferSecurityQuestion: etransfer?.securityQuestion,
+        etransferSecurityAnswer: etransfer?.securityAnswer,
       }),
     });
   } else {

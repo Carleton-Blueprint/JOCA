@@ -14,15 +14,20 @@ import { toast } from "sonner";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { getPlanLabel } from "@/lib/membership-plans";
+import { formatEtransferSecurityLine } from "@/lib/etransfer-copy";
 
 export const StartPaymentPage = ({
   approvedPlan,
   etransferEmail,
   etransferNotes,
+  etransferSecurityQuestion,
+  etransferSecurityAnswer,
 }: {
   approvedPlan: string;
   etransferEmail: string | null;
   etransferNotes: string | null;
+  etransferSecurityQuestion: string | null;
+  etransferSecurityAnswer: string | null;
 }) => {
   const { data: session, isPending } = useSessionReady();
   const [isLoading, setIsLoading] = useState(false);
@@ -55,6 +60,15 @@ export const StartPaymentPage = ({
   if (!isMounted || isPending) return <Loading />;
 
   if (!session?.user) return <NotLoggedIn />;
+
+  const etransferSecurityLine = formatEtransferSecurityLine({
+    securityQuestion: etransferSecurityQuestion,
+    securityAnswer: etransferSecurityAnswer,
+    notes: etransferNotes,
+    strong: (children) => (
+      <strong className="text-foreground">{children}</strong>
+    ),
+  });
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
@@ -95,8 +109,10 @@ export const StartPaymentPage = ({
                 <strong>{getPlanLabel(approvedPlan)}</strong> to:
               </p>
               <p className="text-sm font-medium">{etransferEmail}</p>
-              {etransferNotes && (
-                <p className="text-sm text-muted-foreground">{etransferNotes}</p>
+              {etransferSecurityLine && (
+                <p className="text-sm text-muted-foreground">
+                  {etransferSecurityLine}
+                </p>
               )}
               <p className="text-sm text-muted-foreground">
                 Include your full name and account email in the message so JOCA
