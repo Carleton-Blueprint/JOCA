@@ -29,10 +29,10 @@ export const EventCard = ({ event }: { event: Event }) => {
   };
 
   return (
-    <>
+    <div className="self-start">
       <Card
         className={cn(
-          "h-full flex flex-col relative overflow-hidden",
+          "flex flex-col relative overflow-hidden",
           event.image?.url && "pt-0",
         )}
       >
@@ -64,8 +64,8 @@ export const EventCard = ({ event }: { event: Event }) => {
           </CardDescription>
         </CardHeader>
 
-        {/* Footer stays at bottom */}
-        <CardFooter className="mt-auto">
+        {/* Footer */}
+        <CardFooter>
           <div className="flex flex-wrap gap-6 justify-between w-full">
             {event.category ? (
               <span className="text-sm px-2 py-1 rounded-md border bg-secondary">
@@ -146,6 +146,6 @@ export const EventCard = ({ event }: { event: Event }) => {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
