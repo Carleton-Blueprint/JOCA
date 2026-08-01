@@ -21,6 +21,7 @@ import {
   ClipboardList,
   Wallet,
   LayoutDashboard,
+  Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Loader } from "@/components/ui/loader";
@@ -273,20 +274,31 @@ const Header = () => {
                   </DropdownMenuItem>
                 )}
                 {membership.isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin/applications"
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <LayoutDashboard className="h-4 w-4" />
-                      Applications
-                      {membership.pendingApplicationCount > 0 && (
-                        <span className="ml-auto rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                          {membership.pendingApplicationCount}
-                        </span>
-                      )}
-                    </Link>
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/applications"
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Applications
+                        {membership.pendingApplicationCount > 0 && (
+                          <span className="ml-auto rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                            {membership.pendingApplicationCount}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/members"
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <Users className="h-4 w-4" />
+                        Members
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
                 )}
                 {(memberTodoHref || membership.isAdmin) && (
                   <DropdownMenuSeparator />

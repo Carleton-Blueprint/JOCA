@@ -66,12 +66,6 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "member": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::member.member",
-      "inversedBy": "user"
-    },
     "phoneNumber": {
       "type": "string",
       "required": true

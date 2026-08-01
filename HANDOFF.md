@@ -12,12 +12,12 @@ Env templates: [joca-app/.env.example](joca-app/.env.example) · [joca-cms/.env.
 | Piece               | Path / product                     | Role                                       |
 | ------------------- | ---------------------------------- | ------------------------------------------ |
 | Website (Next.js)   | `joca-app/` → **Vercel**           | Public site, auth, payments, voting UI     |
-| CMS (Strapi 5)      | `joca-cms/` → **Strapi Cloud**     | Events, elections, candidates, members     |
+| CMS (Strapi 5)      | `joca-cms/` → **Strapi Cloud**     | Events, elections (candidate names)        |
 | Auth / app database | **Supabase** Postgres (via Prisma) | Users, sessions, subscriptions, votes      |
 | Payments            | **Stripe**                         | Membership subscriptions + Customer Portal |
 | Email               | **Resend**                         | Verification + membership approval emails  |
 
-Architecture note: login accounts live in Supabase/Prisma (Better Auth). New signups are staff-approved before Stripe payment. **Member** records in Strapi are created after successful payment and used for elections/candidates. Do not treat Strapi Users & Permissions as the primary member login system.
+Architecture note: login accounts live in Supabase/Prisma (Better Auth). New signups are staff-approved before Stripe payment. Election candidate names live on the Election entry in Strapi; votes are stored in Prisma. Do not treat Strapi Users & Permissions as the primary member login system.
 
 ---
 
@@ -54,7 +54,6 @@ Also rotate any shared student credentials after transfer.
   - `JOCA_ETRANSFER_INSTRUCTIONS` (optional freeform notes)
   - `JOCA_ADMIN_EMAILS` (optional; staff dashboard allowlist, else `JOCA_APPROVALS_EMAIL`)
   - `STRAPI_GRAPHQL_URL`
-  - `STRAPI_WEBHOOK_SECRET` (must match Strapi Cloud / `joca-cms` — see §3.3 webhooks)
 - **Do not set** `NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION=true` in production.
 - After attaching a custom domain, update `BETTER_AUTH_URL` and `NEXT_PUBLIC_BETTER_AUTH_URL` to that origin (no trailing slash), then redeploy.
 
@@ -86,46 +85,27 @@ Schema changes: run Prisma migrations from `joca-app` (see [DEPLOY.md](docs/DEPL
 
 **Content types**
 
-| Type          | Draft & publish? | Who manages it     | Purpose                                                              |
-| ------------- | ---------------- | ------------------ | -------------------------------------------------------------------- |
-| **Event**     | Yes              | Board / CMS admins | Public events page                                                   |
-| **Election**  | Yes              | Board / CMS admins | Voting windows + metadata                                            |
-| **Candidate** | Yes              | Board / CMS admins | Links a **Member** to an **Election**                                |
-| **Member**    | No               | App (auto)         | Created after successful Stripe payment; deleted on account deletion |
+| Type         | Draft & publish? | Who manages it     | Purpose                                                                 |
+| ------------ | ---------------- | ------------------ | ----------------------------------------------------------------------- |
+| **Event**    | Yes              | Board / CMS admins | Public events page                                                      |
+| **Election** | Yes              | Board / CMS admins | Voting windows, metadata, and a repeatable list of candidate **names** |
 
 **Typical CMS workflows**
 
 1. **Publish an event:** Content Manager → Events → fill title, date, time, location, category (`Culture` `Community` `Education`), description → Publish.
-2. **Run an election:** Create Election (title, category `Executive` `Committee` `Referendum`, voting start/end) → ensure paid members exist → create Candidate entries linking Member + Election → Publish election and candidates.
-3. **Do not manually invent Members** for paid users unless recovering from a sync failure; the site creates them on `/payment/success`.
+2. **Run an election:** Create Election (title, category `Executive` `Committee` `Referendum`, voting start/end) → add candidate name entries on the election → Publish. Votes are recorded in the app database (Supabase/Prisma), keyed by election id + candidate name.
 
 **Permissions (important)**
 
 Today the Next.js server calls Strapi GraphQL **without** an API token (`joca-app/src/lib/strapi.ts`). That means Public (or equivalent) GraphQL permissions must allow at least:
 
-- **Event / Election / Candidate:** find / findOne (read published content)
-- **Member:** find, create, delete (used after payment and on account delete)
+- **Event / Election:** find / findOne (read published content)
 
-**Hardening recommendation before public launch:** create a Strapi API token with only those permissions, send it as `Authorization: Bearer …` from the Next.js server, and remove create/delete from the Public role. Document the token in Vercel (e.g. future `STRAPI_API_TOKEN`) once the code is updated.
+Remove any leftover **Member** / **Candidate** Public permissions if they remain from older deploys (those content types no longer exist).
+
+**Hardening recommendation before public launch:** create a Strapi API token with only those permissions, send it as `Authorization: Bearer …` from the Next.js server, and lock down the Public role. Document the token in Vercel (e.g. future `STRAPI_API_TOKEN`) once the code is updated.
 
 **CORS:** default `strapi::cors`. After the custom domain is live, restrict allowed origins to the production (and preview) site URLs in Strapi Cloud / middleware config.
-
-**Cache revalidation (Strapi → Next.js)**
-
-Editorial list pages (`/events`, `/elections`) cache Strapi data with `"use cache"` and hourly TTL. To refresh immediately after publish/unpublish/delete, configure Strapi webhooks:
-
-1. Generate a shared secret (`openssl rand -base64 32`) and set **`STRAPI_WEBHOOK_SECRET`** on Vercel and in Strapi Cloud env (same value as `joca-cms` — `config/server.ts` sends it as `Authorization: Bearer …` on outbound webhooks when set).
-2. In Strapi Admin → **Settings → Webhooks**, create a webhook:
-   - **URL:** `https://<YOUR_DOMAIN>/api/webhooks/strapi`
-   - **Events:** `entry.publish`, `entry.unpublish`, `entry.delete` for **Event**, **Election**, and **Candidate**
-   - **Headers:** only needed if `STRAPI_WEBHOOK_SECRET` is not set on Strapi — otherwise `defaultHeaders` in `joca-cms/config/server.ts` applies
-3. Use **one webhook pointing at production**. Preview deploys rely on TTL until a separate webhook is added.
-
-| Strapi content type | Cache tag invalidated |
-| ------------------- | --------------------- |
-| Event               | `events`              |
-| Election, Candidate | `elections`           |
-| Member              | *(none — not cached)* |
 
 ### 3.4 Stripe (memberships)
 
@@ -150,7 +130,7 @@ https://<YOUR_DOMAIN>/api/auth/stripe/webhook
 2. App emails `JOCA_APPROVALS_EMAIL` with applicant details + a signed review link (`/admin/approve-membership?token=…`, ~30 day expiry).
 3. Staff pick/override the plan and **Approve** → app creates a Stripe Checkout Session and Resend-emails the member with card payment + (optional) Interac e-Transfer instructions. **Reject** notifies the member and blocks payment.
 4. **Card path:** member pays via Stripe → Better Auth Stripe webhooks activate `Subscription` → Elections unlock; **Manage membership** (Customer Portal) appears when a Stripe subscription id exists.
-5. **Interac e-Transfer path (manual):** member sends e-Transfer to `JOCA_ETRANSFER_EMAIL` outside Stripe. Staff reopen the same review link and click **Mark Interac e-Transfer as received** → app activates a local `Subscription` (`billingInterval=etransfer`, no Stripe subscription) and syncs the Strapi Member. This will **not** appear in the Stripe Dashboard.
+5. **Interac e-Transfer path (manual):** member sends e-Transfer to `JOCA_ETRANSFER_EMAIL` outside Stripe. Staff reopen the same review link and click **Mark Interac e-Transfer as received** → app activates a local `Subscription` (`billingInterval=etransfer`, no Stripe subscription). This will **not** appear in the Stripe Dashboard.
 6. Pending / approved-but-unpaid members can use Account / Sign Out; Elections nav is visible but the page stays payment-gated until an active subscription exists.
 
 Set `JOCA_APPROVALS_EMAIL` on Vercel when the inbox address is known. Set `JOCA_ETRANSFER_EMAIL` (and optional `JOCA_ETRANSFER_SECURITY_QUESTION` / `JOCA_ETRANSFER_SECURITY_ANSWER` / `JOCA_ETRANSFER_INSTRUCTIONS`) to enable e-Transfer copy in emails and on `/payment`.

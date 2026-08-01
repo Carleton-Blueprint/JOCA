@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { isJocaAdminEmail } from "@/lib/joca-admin";
@@ -92,6 +93,13 @@ async function ApplicationsDashboard() {
           {awaitingPaymentCount > 0
             ? ` · ${awaitingPaymentCount} awaiting payment`
             : ""}
+          {" · "}
+          <Link
+            href="/admin/members"
+            className="underline underline-offset-2"
+          >
+            Manage members
+          </Link>
         </p>
       </header>
 

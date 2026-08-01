@@ -443,35 +443,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiCandidateCandidate extends Struct.CollectionTypeSchema {
-  collectionName: 'candidates';
-  info: {
-    displayName: 'Candidate';
-    pluralName: 'candidates';
-    singularName: 'candidate';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    election: Schema.Attribute.Relation<'manyToOne', 'api::election.election'>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::candidate.candidate'
-    > &
-      Schema.Attribute.Private;
-    member: Schema.Attribute.Relation<'oneToOne', 'api::member.member'>;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiElectionElection extends Struct.CollectionTypeSchema {
   collectionName: 'elections';
   info: {
@@ -483,10 +454,7 @@ export interface ApiElectionElection extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    candidates: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::candidate.candidate'
-    >;
+    candidates: Schema.Attribute.Component<'election.candidate', true>;
     category: Schema.Attribute.Enumeration<
       ['Executive', 'Committee', 'Referendum']
     > &
@@ -543,60 +511,6 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-  };
-}
-
-export interface ApiMemberMember extends Struct.CollectionTypeSchema {
-  collectionName: 'members';
-  info: {
-    displayName: 'Member';
-    pluralName: 'members';
-    singularName: 'member';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    candidate: Schema.Attribute.Relation<
-      'oneToOne',
-      'api::candidate.candidate'
-    >;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    email: Schema.Attribute.Email &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
-    firstName: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 50;
-      }>;
-    lastName: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 50;
-      }>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::member.member'
-    > &
-      Schema.Attribute.Private;
-    phoneNumber: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 15;
-        minLength: 10;
-      }>;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    user: Schema.Attribute.Relation<
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
   };
 }
 
@@ -1075,7 +989,6 @@ export interface PluginUsersPermissionsUser
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
-    member: Schema.Attribute.Relation<'oneToOne', 'api::member.member'>;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
@@ -1112,10 +1025,8 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::candidate.candidate': ApiCandidateCandidate;
       'api::election.election': ApiElectionElection;
       'api::event.event': ApiEventEvent;
-      'api::member.member': ApiMemberMember;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

@@ -5,9 +5,9 @@ Monorepo: `joca-app` (Next.js + Better Auth + Prisma) and `joca-cms` (Strapi 5).
 ## Auth & data boundaries
 
 - **Login / sessions / subscriptions / votes** → Better Auth + Prisma on Supabase Postgres (`joca-app`).
-- **Editorial content (events, elections, candidates) + Member CMS records** → Strapi (`joca-cms`).
+- **Editorial content (events, elections with candidate name lists)** → Strapi (`joca-cms`).
 - Do **not** use Supabase Auth, Supabase Data API, or Strapi users-permissions for frontend login.
-- Votes are Prisma `Vote` rows, not Strapi fields. Strapi GraphQL from the app is **server-only** (`STRAPI_GRAPHQL_URL`, not `NEXT_PUBLIC_`).
+- Votes are Prisma `Vote` rows (`electionId` = Strapi election `documentId`, `candidateId` = candidate name string). Strapi GraphQL from the app is **server-only** (`STRAPI_GRAPHQL_URL`, not `NEXT_PUBLIC_`).
 
 ## Supabase
 

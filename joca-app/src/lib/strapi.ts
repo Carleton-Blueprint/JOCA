@@ -1,34 +1,17 @@
 import { cacheLife, cacheTag } from "next/cache";
 import prisma from "@/lib/prisma";
-import type { Election, Event, Member } from "@/lib/types";
-import {
-  CREATE_MEMBER,
-  DELETE_MEMBER,
-  GET_ELECTION,
-  GET_ELECTIONS,
-  GET_EVENTS,
-  GET_MEMBER_BY_EMAIL,
-  GET_MEMBER_BY_EMAIL_NO_STATUS,
-} from "./queries";
+import type { Election, Event } from "@/lib/types";
+import { GET_ELECTION, GET_ELECTIONS, GET_EVENTS } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
   process.env.NODE_ENV !== "development"
     ? process.env.STRAPI_GRAPHQL_URL!
     : "http://localhost:1337/graphql";
 
-const STRAPI_BASE_URL = STRAPI_GRAPHQL_URL.replace(/\/graphql\/?$/, "");
-
-/** Resolve a Strapi media URL (often relative, e.g. `/uploads/...`) to an absolute URL. */
-export function getStrapiMediaUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  return `${STRAPI_BASE_URL}${url.startsWith("/") ? url : `/${url}`}`;
-}
-
 // Generic helper for Strapi GraphQL requests.
 // T represents the shape of json.data - NOT the entity itself.
 // Strapi wraps every response under a key matching the operation name, e.g.:
-//   { "data": { "createMember": { ... } } }
+//   { "data": { "events": [ ... ] } }
 export async function strapiRequest<T>(
   query: string,
   variables?: Record<string, unknown>,
@@ -59,29 +42,34 @@ export async function getEvents(): Promise<Event[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("events");
-  const { events } = await strapiRequest<{ events: Event[] }>(
-    GET_EVENTS,
-    undefined,
-    { cached: true },
-  );
-  return (events ?? []).map((event) => ({
-    ...event,
-    image: event.image?.url
-      ? { ...event.image, url: getStrapiMediaUrl(event.image.url)! }
-      : null,
-  }));
+  try {
+    const { events } = await strapiRequest<{ events: Event[] }>(
+      GET_EVENTS,
+      undefined,
+      { cached: true },
+    );
+    return events ?? [];
+  } catch (error) {
+    console.error("Failed to get events", error);
+    return [];
+  }
 }
 
 export async function getElections(): Promise<Election[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("elections");
-  const { elections } = await strapiRequest<{ elections: Election[] }>(
-    GET_ELECTIONS,
-    undefined,
-    { cached: true },
-  );
-  return elections ?? [];
+  try {
+    const { elections } = await strapiRequest<{ elections: Election[] }>(
+      GET_ELECTIONS,
+      undefined,
+      { cached: true },
+    );
+    return elections ?? [];
+  } catch (error) {
+    console.error("Failed to get elections", error);
+    return [];
+  }
 }
 
 export async function getElection(
@@ -113,69 +101,4 @@ export async function getVotedElectionIds(
   });
 
   return votes.map((vote) => vote.electionId);
-}
-
-async function findMemberByEmail(
-  email: string,
-  status?: "PUBLISHED" | "DRAFT",
-): Promise<Member | null> {
-  if (status) {
-    const { members } = await strapiRequest<{ members: Member[] }>(
-      GET_MEMBER_BY_EMAIL,
-      { email, status },
-    );
-    return members[0] ?? null;
-  }
-
-  const { members } = await strapiRequest<{ members: Member[] }>(
-    GET_MEMBER_BY_EMAIL_NO_STATUS,
-    { email },
-  );
-  return members[0] ?? null;
-}
-
-/**
- * Resolve a member by email.
- * Tries published, then draft (orphan drafts from before D&P was disabled),
- * then a no-status query (Member content type without Draft & Publish).
- */
-export async function getMemberByEmail(email: string): Promise<Member | null> {
-  try {
-    return (
-      (await findMemberByEmail(email, "PUBLISHED")) ??
-      (await findMemberByEmail(email, "DRAFT")) ??
-      (await findMemberByEmail(email))
-    );
-  } catch (error) {
-    // After D&P is disabled, status-arg queries may fail — fall back.
-    try {
-      return await findMemberByEmail(email);
-    } catch {
-      throw new Error("Failed to get member, " + error);
-    }
-  }
-}
-
-export async function deleteMemberByEmail(email: string): Promise<void> {
-  const member = await getMemberByEmail(email);
-  if (member?.documentId) {
-    await strapiRequest(DELETE_MEMBER, { documentId: member.documentId });
-  }
-}
-
-export async function createMember(
-  firstName: string,
-  lastName: string,
-  email: string,
-  phoneNumber: string,
-): Promise<Member> {
-  try {
-    const { createMember } = await strapiRequest<{ createMember: Member }>(
-      CREATE_MEMBER,
-      { data: { firstName, lastName, email, phoneNumber } },
-    );
-    return createMember;
-  } catch (error) {
-    throw new Error("Failed to create member, " + error);
-  }
 }

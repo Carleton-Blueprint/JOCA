@@ -1,5 +1,6 @@
 /**
- * Staff who can access /admin/applications and see the actionable-application counter.
+ * Staff who can access /admin/applications, /admin/members, and see the
+ * actionable-application counter.
  * Prefer JOCA_ADMIN_EMAILS (comma-separated). Falls back to JOCA_APPROVALS_EMAIL.
  */
 export function getJocaAdminEmails(): string[] {

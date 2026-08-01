@@ -4,13 +4,13 @@ import Stripe from "stripe";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
-import { deleteMemberByEmail } from "@/lib/strapi";
 import { createAuthMiddleware } from "better-auth/api";
 import { SESSION_FRESH_AGE_SECONDS } from "@/lib/auth-constants";
 import { EMAIL_FROM, resend } from "@/lib/resend";
 import { notifyJocaOfMembershipApplication } from "@/lib/membership-notify";
 import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
 import { isEmailVerificationSkipped } from "@/lib/email-verification";
+import { cleanupUserExternalData } from "@/lib/delete-user-account";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -58,55 +58,11 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       beforeDelete: async (user: { id: string; email: string }) => {
-        // Find the subscription record
-        const sub = await prisma.subscription.findUnique({
-          where: { referenceId: user.id },
-          select: { stripeSubscriptionId: true, status: true },
-        });
-        if (sub) {
-          // Cancel Stripe first whenever a live subscription id exists.
-          // Abort account deletion if cancel fails so billing cannot outlive the user.
-          const shouldCancelStripe =
-            Boolean(sub.stripeSubscriptionId) &&
-            sub.status !== "canceled" &&
-            sub.status !== "ended";
-
-          if (shouldCancelStripe && sub.stripeSubscriptionId) {
-            try {
-              await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
-            } catch (error) {
-              console.error(
-                `[BILLING ALERT] Stripe cancellation failed for user ${user.id}. ` +
-                  `Aborting account deletion. Stripe subscription ${sub.stripeSubscriptionId}.`,
-                error,
-              );
-              throw new Error(
-                "Unable to cancel your Stripe subscription. Please try again or contact support.",
-              );
-            }
-          }
-
-          try {
-            await prisma.subscription.delete({
-              where: { referenceId: user.id },
-            });
-          } catch (error) {
-            console.error(
-              `Failed to delete subscription record for user ${user.id}:`,
-              error,
-            );
-            throw error;
-          }
-        }
-        // Delete corresponding Strapi member record.
-        try {
-          await deleteMemberByEmail(user.email);
-        } catch (error) {
-          console.error("Failed to delete Strapi member:", error);
-        }
+        await cleanupUserExternalData(user);
       },
     },
   },
+
   databaseHooks: {
     user: {
       create: {

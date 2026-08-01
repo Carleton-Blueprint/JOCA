@@ -12,7 +12,6 @@ import { MembershipApprovedTemplate } from "@/components/emails/MembershipApprov
 import { MembershipRejectedTemplate } from "@/components/emails/MembershipRejectedTemplate";
 import { MembershipActivatedTemplate } from "@/components/emails/MembershipActivatedTemplate";
 import { getEtransferInstructions } from "@/lib/membership-etransfer";
-import { createMember, getMemberByEmail } from "@/lib/strapi";
 
 /** Marker on Subscription.billingInterval for manual Interac e-Transfer memberships. */
 export const ETRANSFER_BILLING_INTERVAL = "etransfer";
@@ -63,29 +62,6 @@ async function resolvePriceId(planId: MembershipPlanId): Promise<string> {
     throw new Error(`No active Stripe price found for lookup key: ${planId}`);
   }
   return price.id;
-}
-
-async function syncStrapiMember(user: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-}): Promise<void> {
-  try {
-    const existing = await getMemberByEmail(user.email);
-    if (existing) return;
-    await createMember(
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.phoneNumber,
-    );
-  } catch (error) {
-    console.error(
-      `[membership] Failed to sync Strapi Member for ${user.email}:`,
-      error,
-    );
-  }
 }
 
 /**
@@ -331,8 +307,6 @@ export async function confirmEtransferPayment(params: {
       },
     });
   }
-
-  await syncStrapiMember(user);
 
   if (resend) {
     await resend.emails.send({

@@ -39,8 +39,9 @@ import {
   adminConfirmEtransferAction,
   adminRejectApplicationAction,
 } from "./actions";
+import { adminDeleteUserAction } from "@/app/admin/members/actions";
 
-type ConfirmAction = "approve" | "reject";
+type ConfirmAction = "approve" | "reject" | "delete";
 
 export type ApplicationCardData = {
   id: string;
@@ -69,6 +70,7 @@ export function ApplicationCard({
   );
   const [status, setStatus] = useState(applicant.membershipStatus);
   const [paid, setPaid] = useState(applicant.hasActiveSubscription);
+  const [deleted, setDeleted] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -101,6 +103,26 @@ export function ApplicationCard({
       }
     });
   };
+
+  if (deleted) {
+    return (
+      <Card className="opacity-70">
+        <CardHeader>
+          <CardTitle className="text-lg">
+            {applicant.firstName} {applicant.lastName}
+          </CardTitle>
+          <CardDescription>Account deleted</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {message && (
+            <p className="text-sm text-green-700 dark:text-green-400">
+              {message}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -218,6 +240,14 @@ export function ApplicationCard({
         {status === MEMBERSHIP_STATUS.REJECTED && !message && (
           <p className="text-sm text-muted-foreground">Application rejected.</p>
         )}
+        <Button
+          variant="destructive"
+          className="w-full"
+          disabled={isPending}
+          onClick={() => openConfirm("delete")}
+        >
+          {isPending ? "Working..." : "Delete account"}
+        </Button>
       </CardFooter>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -226,7 +256,9 @@ export function ApplicationCard({
             <AlertDialogTitle>
               {confirmAction === "approve"
                 ? "Approve this application?"
-                : "Reject this application?"}
+                : confirmAction === "reject"
+                  ? "Reject this application?"
+                  : "Delete this account?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmAction === "approve" ? (
@@ -235,10 +267,16 @@ export function ApplicationCard({
                   <strong>{getPlanLabel(planId)}</strong>? They will be emailed
                   payment options.
                 </>
-              ) : (
+              ) : confirmAction === "reject" ? (
                 <>
                   Reject {applicantName}&apos;s application? They will be
                   notified by email. This cannot be undone from this screen.
+                </>
+              ) : (
+                <>
+                  Permanently delete {applicantName} ({applicant.email})? This
+                  cancels Stripe billing, removes the Stripe customer, and
+                  removes all app data. This cannot be undone.
                 </>
               )}
             </AlertDialogDescription>
@@ -246,7 +284,9 @@ export function ApplicationCard({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              variant={confirmAction === "reject" ? "destructive" : "default"}
+              variant={
+                confirmAction === "approve" ? "default" : "destructive"
+              }
               disabled={isPending}
               onClick={() => {
                 if (confirmAction === "approve") {
@@ -257,18 +297,29 @@ export function ApplicationCard({
                     () => adminApproveApplicationAction(fd),
                     () => setStatus(MEMBERSHIP_STATUS.APPROVED),
                   );
-                } else {
+                } else if (confirmAction === "reject") {
                   const fd = new FormData();
                   fd.set("userId", applicant.id);
                   runAction(
                     () => adminRejectApplicationAction(fd),
                     () => setStatus(MEMBERSHIP_STATUS.REJECTED),
                   );
+                } else {
+                  const fd = new FormData();
+                  fd.set("userId", applicant.id);
+                  runAction(
+                    () => adminDeleteUserAction(fd),
+                    () => setDeleted(true),
+                  );
                 }
                 setConfirmOpen(false);
               }}
             >
-              {confirmAction === "approve" ? "Approve" : "Reject"}
+              {confirmAction === "approve"
+                ? "Approve"
+                : confirmAction === "reject"
+                  ? "Reject"
+                  : "Yes, delete permanently"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

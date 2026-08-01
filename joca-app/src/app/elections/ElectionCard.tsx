@@ -67,10 +67,7 @@ export const ElectionCard = ({
     if (!selectedCandidate) return;
     setVoting(true);
     try {
-      await voteForCandidate(
-        selectedCandidate.documentId,
-        election.documentId,
-      );
+      await voteForCandidate(selectedCandidate.name, election.documentId);
       setConfirming(false);
       setOpen(false);
       setHasVoted(true);
@@ -148,9 +145,8 @@ export const ElectionCard = ({
               </DialogHeader>
               <DialogDescription>
                 Are you sure you want to submit your vote for{" "}
-                {selectedCandidate?.member?.firstName ?? "N/A"}{" "}
-                {selectedCandidate?.member?.lastName ?? "N/A"}? This action
-                cannot be undone.
+                {selectedCandidate?.name ?? "N/A"}? This action cannot be
+                undone.
               </DialogDescription>
               <DialogFooter>
                 <Button
@@ -201,32 +197,28 @@ export const ElectionCard = ({
                       <span className="text-xl">Candidates</span>
                     </div>
                     <RadioGroup
-                      defaultValue={election.candidates[0]?.documentId ?? null}
+                      defaultValue={election.candidates[0]?.name ?? undefined}
                       onValueChange={(value: string) => {
                         setSelectedCandidate(
                           election.candidates?.find(
-                            (candidate: Candidate) =>
-                              candidate.documentId === value,
+                            (candidate: Candidate) => candidate.name === value,
                           ) ?? null,
                         );
                       }}
                     >
                       {election.candidates?.map((candidate: Candidate) => (
                         <div
-                          key={candidate.documentId}
+                          key={candidate.name}
                           className="flex items-center gap-2"
                         >
-                          <FieldLabel htmlFor={candidate.documentId}>
+                          <FieldLabel htmlFor={candidate.name}>
                             <Field orientation="horizontal">
                               <FieldContent>
-                                <FieldTitle>
-                                  {candidate.member?.firstName ?? "N/A"}{" "}
-                                  {candidate.member?.lastName ?? "N/A"}
-                                </FieldTitle>
+                                <FieldTitle>{candidate.name}</FieldTitle>
 
                                 <RadioGroupItem
-                                  value={candidate.documentId}
-                                  id={candidate.documentId}
+                                  value={candidate.name}
+                                  id={candidate.name}
                                   className="text-black dark:text-white p-2"
                                 />
                               </FieldContent>

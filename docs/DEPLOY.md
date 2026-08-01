@@ -52,7 +52,7 @@ There is no root monorepo workspace — install and run each app separately.
    pnpm run develop
    ```
 
-4. Open `http://localhost:1337/admin`, create the first admin user, and configure **Settings → Users & Permissions → Roles → Public** (and GraphQL) so the Next app can read Events/Elections/Candidates and create/find/delete Members (see [HANDOFF.md](../HANDOFF.md#33-strapi-cloud-cms)).
+4. Open `http://localhost:1337/admin`, create the first admin user, and configure **Settings → Users & Permissions → Roles → Public** (and GraphQL) so the Next app can read Events and Elections (see [HANDOFF.md](../HANDOFF.md#33-strapi-cloud-cms)).
 
 5. GraphQL playground (when enabled): `http://localhost:1337/graphql`.
 
@@ -73,30 +73,6 @@ After deploy:
 2. Create CMS admin accounts for the board.
 3. Re-apply Public / API token permissions (Cloud does not inherit local SQLite permission state unless transferred).
 4. Restrict CORS to the site origin when the custom domain is ready.
-5. Set `STRAPI_WEBHOOK_SECRET` (same value on Strapi Cloud and Vercel) and configure a webhook (see [Strapi cache revalidation](#strapi-cache-revalidation) below).
-
-### Strapi cache revalidation
-
-The Next app caches Event and Election list data (`cacheTag("events")`, `cacheTag("elections")`). Strapi webhooks bust that cache on publish/unpublish/delete.
-
-1. Generate a secret: `openssl rand -base64 32`
-2. Set **`STRAPI_WEBHOOK_SECRET`** in both `joca-app/.env` (Vercel in prod) and `joca-cms/.env` (Strapi Cloud in prod). When set, `joca-cms/config/server.ts` attaches `Authorization: Bearer <secret>` to all outbound webhooks.
-3. In Strapi Admin → **Settings → Webhooks**:
-   - **URL (local):** `http://localhost:3000/api/webhooks/strapi` (Next app must be running)
-   - **URL (prod):** `https://<your-domain>/api/webhooks/strapi`
-   - **Events:** `entry.publish`, `entry.unpublish`, `entry.delete` for Event, Election, Candidate
-4. Test locally:
-
-   ```bash
-   curl -X POST http://localhost:3000/api/webhooks/strapi \
-     -H "Authorization: Bearer $STRAPI_WEBHOOK_SECRET" \
-     -H "Content-Type: application/json" \
-     -d '{"event":"entry.publish","model":"event"}'
-   ```
-
-   Expect `{"revalidated":["events"],"event":"entry.publish"}`.
-
-Member changes do not invalidate cache (member reads are uncached).
 
 ---
 
@@ -161,7 +137,6 @@ Ensure Prices in **test mode** use lookup keys:
    BETTER_AUTH_URL=https://<your-domain>
    NEXT_PUBLIC_BETTER_AUTH_URL=https://<your-domain>
    STRAPI_GRAPHQL_URL=https://<strapi-host>/graphql
-   STRAPI_WEBHOOK_SECRET=<same-as-strapi-cloud>
    ```
 
 5. Deploy (`main`). Confirm build runs `prisma generate` via `postinstall`.
@@ -199,11 +174,12 @@ Paste signing secret into Vercel as `STRIPE_WEBHOOK_SECRET`. Use **live** secret
 ## Smoke test after deploy
 
 1. Sign up with a real inbox → verification email arrives → link works.
-2. Complete checkout for one membership plan → land on success → Member row appears in Strapi.
+2. Complete checkout for one membership plan → land on success → active `subscription` row in Postgres.
 3. Confirm elections page respects active subscription.
 4. Open billing portal from the account UI.
-5. Delete test account → Stripe subscription canceled → Strapi Member removed.
-6. Publish a draft Event in Strapi → appears on `/events` (immediately if webhook is configured; otherwise within the cache TTL).
+5. Delete test account → Stripe subscription/customer canceled/removed.
+6. Publish a draft Event in Strapi → appears on `/events`.
+7. Create an Election with candidate **names** → vote from a paid account → `vote` row uses election documentId + candidate name.
 
 ---
 

@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -14,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { EmailNotVerified } from "@/components/EmailNotVerified";
-import { createMember, getMemberByEmail } from "@/lib/strapi";
 import { isEmailUnverified } from "@/lib/email-verification";
 import Loading from "../../loading";
 
@@ -29,27 +27,6 @@ async function PaymentSuccessContent() {
     where: { referenceId: user.id, status: "active" },
   });
   const paymentVerified = Boolean(activeSubscription);
-
-  // Member sync is not critical for showing payment confirmation — run after response.
-  if (paymentVerified) {
-    const { firstName, lastName, email, phoneNumber } = user;
-    after(async () => {
-      try {
-        const existing = await getMemberByEmail(email);
-        if (existing) return;
-
-        if (!phoneNumber) {
-          throw new Error(
-            "Phone number is required but not found in user session",
-          );
-        }
-
-        await createMember(firstName, lastName, email, phoneNumber);
-      } catch (error) {
-        console.error("Failed to fetch/create member in Strapi:", error);
-      }
-    });
-  }
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">

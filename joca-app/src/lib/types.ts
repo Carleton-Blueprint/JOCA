@@ -1,14 +1,5 @@
 export type Candidate = {
-  documentId: string;
-  member?: Member;
-  election?: Election;
-};
-
-export type StrapiMedia = {
-  url: string;
-  alternativeText?: string | null;
-  width?: number | null;
-  height?: number | null;
+  name: string;
 };
 
 export type Event = {
@@ -19,7 +10,6 @@ export type Event = {
   location: string;
   description?: string;
   category: "Culture" | "Community" | "Education";
-  image?: StrapiMedia | null;
 };
 
 export type Election = {
@@ -31,27 +21,4 @@ export type Election = {
   votingDateStart: string; // ISO date (YYYY-MM-DD)
   votingDateEnd: string; // ISO date (YYYY-MM-DD)
   candidates?: Candidate[];
-};
-
-export type Member = {
-  documentId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  user?: User;
-  candidate?: Candidate;
-};
-
-export type User = {
-  documentId: string;
-  email: string;
-  phoneNumber: string;
-  provider?: string;
-  password?: string;
-  resetPasswordToken?: string;
-  confirmationToken?: string;
-  confirmed?: boolean;
-  blocked?: boolean;
-  member?: Member;
 };

@@ -9,12 +9,6 @@ export const GET_EVENTS = `
       title
       category
       time
-      image {
-        url
-        alternativeText
-        width
-        height
-      }
     }
   }
 `;
@@ -30,11 +24,7 @@ export const GET_ELECTIONS = `
       votingDateStart
       votingDateEnd
       candidates {
-        documentId
-        member {
-          firstName
-          lastName
-        }
+        name
       }
     }
   }
@@ -47,52 +37,8 @@ export const GET_ELECTION = `
       votingDateStart
       votingDateEnd
       candidates {
-        documentId
+        name
       }
-    }
-  }
-`;
-
-export const CREATE_MEMBER = `
-  mutation CreateMember($data: MemberInput!) {
-    createMember(data: $data) {
-      documentId
-      firstName
-      lastName
-      email
-      phoneNumber
-    }
-  }
-`;
-
-export const GET_MEMBER_BY_EMAIL = `
-  query GetMemberByEmail($email: String!, $status: PublicationStatus) {
-    members(filters: { email: { eq: $email } }, status: $status) {
-      documentId
-      firstName
-      lastName
-      email
-      phoneNumber
-    }
-  }
-`;
-
-export const GET_MEMBER_BY_EMAIL_NO_STATUS = `
-  query GetMemberByEmail($email: String!) {
-    members(filters: { email: { eq: $email } }) {
-      documentId
-      firstName
-      lastName
-      email
-      phoneNumber
-    }
-  }
-`;
-
-export const DELETE_MEMBER = `
-  mutation DeleteMember($documentId: ID!) {
-    deleteMember(documentId: $documentId) {
-      documentId
     }
   }
 `;

@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_election_candidates",
+  "info": {
+    "displayName": "Candidate",
+    "description": "Named candidate for an election ballot"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 120
+    }
+  }
+}
