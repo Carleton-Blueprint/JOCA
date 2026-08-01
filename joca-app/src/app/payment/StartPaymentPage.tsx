@@ -17,8 +17,12 @@ import { getPlanLabel } from "@/lib/membership-plans";
 
 export const StartPaymentPage = ({
   approvedPlan,
+  etransferEmail,
+  etransferNotes,
 }: {
   approvedPlan: string;
+  etransferEmail: string | null;
+  etransferNotes: string | null;
 }) => {
   const { data: session, isPending } = useSessionReady();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,25 +67,44 @@ export const StartPaymentPage = ({
             activate your membership.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
+        <CardContent className="space-y-8">
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold">Pay by card</h2>
             <p className="text-sm text-muted-foreground">
               You will be redirected to Stripe Checkout to securely complete
-              your payment. You may also use the payment link emailed to you
-              after approval.
+              your payment. You may also use the card payment link emailed to
+              you after approval.
             </p>
-            <p className="text-sm text-muted-foreground">
-              Payment methods accepted: Credit/Debit cards.
-            </p>
+            <Button
+              onClick={handlePayment}
+              disabled={isLoading}
+              className="w-full"
+              size="lg"
+            >
+              {isLoading ? "Processing..." : "Pay with card"}
+            </Button>
           </div>
-          <Button
-            onClick={handlePayment}
-            disabled={isLoading}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? "Processing..." : "Make Payment"}
-          </Button>
+
+          {etransferEmail && (
+            <div className="space-y-3 border-t pt-6">
+              <h2 className="text-sm font-semibold">
+                Pay by Interac e-Transfer
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Send an Interac e-Transfer for your{" "}
+                <strong>{getPlanLabel(approvedPlan)}</strong> to:
+              </p>
+              <p className="text-sm font-medium">{etransferEmail}</p>
+              {etransferNotes && (
+                <p className="text-sm text-muted-foreground">{etransferNotes}</p>
+              )}
+              <p className="text-sm text-muted-foreground">
+                Include your full name and account email in the message so JOCA
+                can match your payment. Access is activated after staff confirm
+                receipt — this is not automatic.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

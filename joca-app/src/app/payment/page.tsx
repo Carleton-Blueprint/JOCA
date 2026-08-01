@@ -7,6 +7,7 @@ import { EmailNotVerified } from "@/components/EmailNotVerified";
 import prisma from "@/lib/prisma";
 import { isEmailUnverified } from "@/lib/email-verification";
 import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
+import { getEtransferInstructions } from "@/lib/membership-etransfer";
 import Loading from "../loading";
 
 async function PaymentGate() {
@@ -37,7 +38,15 @@ async function PaymentGate() {
     redirect("/pending");
   }
 
-  return <StartPaymentPage approvedPlan={user.approvedPlan} />;
+  const etransfer = getEtransferInstructions();
+
+  return (
+    <StartPaymentPage
+      approvedPlan={user.approvedPlan}
+      etransferEmail={etransfer?.email ?? null}
+      etransferNotes={etransfer?.notes ?? null}
+    />
+  );
 }
 
 export default function PaymentPage() {

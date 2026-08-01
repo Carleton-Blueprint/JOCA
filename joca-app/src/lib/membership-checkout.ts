@@ -5,11 +5,17 @@ import {
   getPlanLabel,
   isMembershipPlanId,
   type MembershipPlanId,
+  MEMBERSHIP_STATUS,
 } from "@/lib/membership-plans";
 import { EMAIL_FROM, resend } from "@/lib/resend";
 import { MembershipApprovedTemplate } from "@/components/emails/MembershipApprovedTemplate";
 import { MembershipRejectedTemplate } from "@/components/emails/MembershipRejectedTemplate";
-import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
+import { MembershipActivatedTemplate } from "@/components/emails/MembershipActivatedTemplate";
+import { getEtransferInstructions } from "@/lib/membership-etransfer";
+import { createMember, getMemberByEmail } from "@/lib/strapi";
+
+/** Marker on Subscription.billingInterval for manual Interac e-Transfer memberships. */
+export const ETRANSFER_BILLING_INTERVAL = "etransfer";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -59,6 +65,29 @@ async function resolvePriceId(planId: MembershipPlanId): Promise<string> {
   return price.id;
 }
 
+async function syncStrapiMember(user: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+}): Promise<void> {
+  try {
+    const existing = await getMemberByEmail(user.email);
+    if (existing) return;
+    await createMember(
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.phoneNumber,
+    );
+  } catch (error) {
+    console.error(
+      `[membership] Failed to sync Strapi Member for ${user.email}:`,
+      error,
+    );
+  }
+}
+
 /**
  * Creates (or reuses) an incomplete Subscription row and a Stripe Checkout
  * Session using the same metadata contract as @better-auth/stripe so webhooks
@@ -93,6 +122,7 @@ export async function createMembershipCheckoutUrl(params: {
         stripeCustomerId: customerId,
         status: "incomplete",
         stripeSubscriptionId: null,
+        billingInterval: null,
         updatedAt: new Date(),
       },
     });
@@ -175,6 +205,8 @@ export async function approveMembershipApplication(params: {
     planId: params.planId,
   });
 
+  const etransfer = getEtransferInstructions();
+
   if (resend) {
     await resend.emails.send({
       from: EMAIL_FROM,
@@ -184,6 +216,8 @@ export async function approveMembershipApplication(params: {
         username: user.firstName || user.name,
         planLabel: getPlanLabel(params.planId),
         checkoutUrl,
+        etransferEmail: etransfer?.email,
+        etransferNotes: etransfer?.notes,
       }),
     });
   } else {
@@ -232,6 +266,80 @@ export async function rejectMembershipApplication(params: {
       subject: "Update on your JOCA membership application",
       react: MembershipRejectedTemplate({
         username: user.firstName || user.name,
+      }),
+    });
+  }
+}
+
+/**
+ * Staff confirms an Interac e-Transfer was received and activates membership
+ * without a Stripe subscription (not visible in Stripe Dashboard).
+ */
+export async function confirmEtransferPayment(params: {
+  userId: string;
+}): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: params.userId } });
+  if (!user) throw new Error("User not found");
+
+  if (user.membershipStatus !== MEMBERSHIP_STATUS.APPROVED) {
+    throw new Error(
+      "Application must be approved before confirming an e-Transfer payment.",
+    );
+  }
+
+  if (!user.approvedPlan || !isMembershipPlanId(user.approvedPlan)) {
+    throw new Error("Approved plan is missing; cannot activate membership.");
+  }
+
+  const existing = await prisma.subscription.findUnique({
+    where: { referenceId: user.id },
+  });
+
+  if (existing?.status === "active") {
+    throw new Error("User already has an active membership");
+  }
+
+  const now = new Date();
+  if (existing) {
+    await prisma.subscription.update({
+      where: { id: existing.id },
+      data: {
+        plan: user.approvedPlan,
+        status: "active",
+        stripeSubscriptionId: null,
+        billingInterval: ETRANSFER_BILLING_INTERVAL,
+        periodStart: now,
+        periodEnd: null,
+        cancelAtPeriodEnd: false,
+        cancelAt: null,
+        canceledAt: null,
+        endedAt: null,
+        updatedAt: now,
+      },
+    });
+  } else {
+    await prisma.subscription.create({
+      data: {
+        id: randomUUID(),
+        plan: user.approvedPlan,
+        referenceId: user.id,
+        status: "active",
+        billingInterval: ETRANSFER_BILLING_INTERVAL,
+        periodStart: now,
+      },
+    });
+  }
+
+  await syncStrapiMember(user);
+
+  if (resend) {
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: user.email,
+      subject: "Your JOCA membership is now active",
+      react: MembershipActivatedTemplate({
+        username: user.firstName || user.name,
+        planLabel: getPlanLabel(user.approvedPlan),
       }),
     });
   }

@@ -49,6 +49,7 @@ Also rotate any shared student credentials after transfer.
   - `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BETTER_AUTH_URL`
   - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
   - `RESEND_API_KEY`, `JOCA_APPROVALS_EMAIL`
+  - `JOCA_ETRANSFER_EMAIL` (optional; enables Interac e-Transfer instructions)
   - `STRAPI_GRAPHQL_URL`
 - **Do not set** `NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION=true` in production.
 - After attaching a custom domain, update `BETTER_AUTH_URL` and `NEXT_PUBLIC_BETTER_AUTH_URL` to that origin (no trailing slash), then redeploy.
@@ -125,12 +126,13 @@ https://<YOUR_DOMAIN>/api/auth/stripe/webhook
 **Membership approval flow**
 
 1. Member signs up (suggests a plan) and verifies email.
-2. App emails `JOCA_APPROVALS_EMAIL` with applicant details + a signed review link (`/admin/approve-membership?token=…`, ~7 day expiry).
-3. Staff pick/override the plan and **Approve** → app creates a Stripe Checkout Session and Resend-emails the payment link to the member. **Reject** notifies the member and blocks payment.
-4. After payment, Better Auth Stripe webhooks activate `Subscription`; Elections + Manage membership unlock.
-5. Pending members can use Account / Sign Out only (no Elections nav, no Manage membership).
+2. App emails `JOCA_APPROVALS_EMAIL` with applicant details + a signed review link (`/admin/approve-membership?token=…`, ~30 day expiry).
+3. Staff pick/override the plan and **Approve** → app creates a Stripe Checkout Session and Resend-emails the member with card payment + (optional) Interac e-Transfer instructions. **Reject** notifies the member and blocks payment.
+4. **Card path:** member pays via Stripe → Better Auth Stripe webhooks activate `Subscription` → Elections unlock; **Manage membership** (Customer Portal) appears when a Stripe subscription id exists.
+5. **Interac e-Transfer path (manual):** member sends e-Transfer to `JOCA_ETRANSFER_EMAIL` outside Stripe. Staff reopen the same review link and click **Mark Interac e-Transfer as received** → app activates a local `Subscription` (`billingInterval=etransfer`, no Stripe subscription) and syncs the Strapi Member. This will **not** appear in the Stripe Dashboard.
+6. Pending / approved-but-unpaid members can use Account / Sign Out; Elections nav is visible but the page stays payment-gated until an active subscription exists.
 
-Set `JOCA_APPROVALS_EMAIL` on Vercel when the inbox address is known.
+Set `JOCA_APPROVALS_EMAIL` on Vercel when the inbox address is known. Set `JOCA_ETRANSFER_EMAIL` (and optional `JOCA_ETRANSFER_INSTRUCTIONS`) to enable e-Transfer copy in emails and on `/payment`.
 
 **Webhook events to subscribe:**
 

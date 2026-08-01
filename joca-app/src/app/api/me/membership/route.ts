@@ -9,13 +9,16 @@ export async function GET() {
   });
 
   if (!session?.user) {
-    return NextResponse.json({ active: false });
+    return NextResponse.json({ active: false, stripeBilling: false });
   }
 
   const activeSubscription = await prisma.subscription.findFirst({
     where: { referenceId: session.user.id, status: "active" },
-    select: { id: true },
+    select: { id: true, stripeSubscriptionId: true },
   });
 
-  return NextResponse.json({ active: Boolean(activeSubscription) });
+  const active = Boolean(activeSubscription);
+  const stripeBilling = Boolean(activeSubscription?.stripeSubscriptionId);
+
+  return NextResponse.json({ active, stripeBilling });
 }

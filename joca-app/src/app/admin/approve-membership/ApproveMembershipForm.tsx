@@ -25,6 +25,7 @@ import {
 } from "@/lib/membership-plans";
 import {
   approveMembershipAction,
+  confirmEtransferAction,
   rejectMembershipAction,
 } from "./actions";
 
@@ -49,10 +50,12 @@ export function ApproveMembershipForm({
   token,
   applicant,
   hasActiveSubscription,
+  etransferEnabled,
 }: {
   token: string;
   applicant: Applicant;
   hasActiveSubscription: boolean;
+  etransferEnabled: boolean;
 }) {
   const [planId, setPlanId] = useState(
     applicant.approvedPlan ||
@@ -60,27 +63,46 @@ export function ApproveMembershipForm({
       MEMBERSHIP_PLANS[0].id,
   );
   const [status, setStatus] = useState(applicant.membershipStatus);
-  const [message, setMessage] = useState<string | null>(
-    isDecidedStatus(applicant.membershipStatus)
-      ? "This application has already been decided. No further action is needed."
-      : null,
-  );
+  const [paid, setPaid] = useState(hasActiveSubscription);
+  const [message, setMessage] = useState<string | null>(() => {
+    if (hasActiveSubscription) {
+      return "This member already has an active membership.";
+    }
+    if (applicant.membershipStatus === MEMBERSHIP_STATUS.REJECTED) {
+      return "This application was rejected. No further action is needed.";
+    }
+    if (applicant.membershipStatus === MEMBERSHIP_STATUS.APPROVED) {
+      return etransferEnabled
+        ? "Application already approved. Confirm Interac e-Transfer below once payment is received, or the member can pay by card."
+        : "Application already approved. The member can complete card payment via the emailed Stripe link.";
+    }
+    return null;
+  });
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const decided = isDecidedStatus(status);
+  const awaitingEtransfer =
+    !paid && status === MEMBERSHIP_STATUS.APPROVED && etransferEnabled;
   const controlsDisabled = isPending || decided;
 
-  if (hasActiveSubscription) {
+  if (paid) {
     return (
       <Card className="w-full max-w-xl mx-auto my-12">
         <CardHeader>
-          <CardTitle>Already a member</CardTitle>
+          <CardTitle>Membership active</CardTitle>
           <CardDescription>
             {applicant.firstName} {applicant.lastName} already has an active
             membership. No further action is needed.
           </CardDescription>
         </CardHeader>
+        {message && (
+          <CardContent>
+            <p className="text-sm text-green-700 dark:text-green-400">
+              {message}
+            </p>
+          </CardContent>
+        )}
       </Card>
     );
   }
@@ -90,9 +112,11 @@ export function ApproveMembershipForm({
       <CardHeader>
         <CardTitle>Review membership application</CardTitle>
         <CardDescription>
-          {decided
-            ? "This application has already been reviewed."
-            : "Confirm or change the membership type, then approve to email a Stripe payment link to the member."}
+          {!decided
+            ? "Confirm or change the membership type, then approve to email payment options to the member."
+            : status === MEMBERSHIP_STATUS.APPROVED
+              ? "Waiting for payment. Confirm Interac e-Transfer when funds arrive, or wait for Stripe Checkout."
+              : "This application has already been reviewed."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -151,10 +175,6 @@ export function ApproveMembershipForm({
               </Select>
             </div>
 
-            {error && (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
-
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 type="button"
@@ -177,7 +197,7 @@ export function ApproveMembershipForm({
                   });
                 }}
               >
-                {isPending ? "Working..." : "Approve & email payment link"}
+                {isPending ? "Working..." : "Approve & email payment options"}
               </Button>
               <Button
                 type="button"
@@ -206,6 +226,43 @@ export function ApproveMembershipForm({
           </div>
         )}
 
+        {awaitingEtransfer && (
+          <div className="space-y-3 rounded-md border p-4">
+            <p className="text-sm text-muted-foreground">
+              After you receive the member&apos;s Interac e-Transfer in the
+              bank inbox, confirm it here to activate their membership. This
+              does not appear in Stripe.
+            </p>
+            <Button
+              type="button"
+              className="w-full"
+              disabled={isPending}
+              onClick={() => {
+                setError(null);
+                setMessage(null);
+                const fd = new FormData();
+                fd.set("token", token);
+                startTransition(async () => {
+                  const result = await confirmEtransferAction(fd);
+                  if (result.ok) {
+                    setPaid(true);
+                    setMessage(result.message);
+                  } else {
+                    setError(result.message);
+                  }
+                });
+              }}
+            >
+              {isPending
+                ? "Working..."
+                : "Mark Interac e-Transfer as received"}
+            </Button>
+          </div>
+        )}
+
+        {error && (
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        )}
         {message && (
           <p className="text-sm text-green-700 dark:text-green-400">{message}</p>
         )}

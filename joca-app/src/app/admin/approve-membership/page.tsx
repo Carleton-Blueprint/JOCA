@@ -3,6 +3,7 @@ import { verifyMembershipApprovalToken } from "@/lib/membership-approval-token";
 import prisma from "@/lib/prisma";
 import { ApproveMembershipForm } from "./ApproveMembershipForm";
 import Loading from "@/app/loading";
+import { getEtransferInstructions } from "@/lib/membership-etransfer";
 
 interface Props {
   searchParams: Promise<{ token?: string }>;
@@ -73,6 +74,7 @@ async function ApproveMembershipContent({
       token={token}
       applicant={user}
       hasActiveSubscription={Boolean(activeSubscription)}
+      etransferEnabled={Boolean(getEtransferInstructions())}
     />
   );
 }

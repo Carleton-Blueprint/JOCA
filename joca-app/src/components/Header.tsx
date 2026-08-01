@@ -20,7 +20,7 @@ import { Loader } from "@/components/ui/loader";
 const Header = () => {
   const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
-  const [hasActiveMembership, setHasActiveMembership] = useState(false);
+  const [hasStripeBilling, setHasStripeBilling] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,20 +32,25 @@ const Header = () => {
 
     async function loadMembership() {
       if (!session?.user) {
-        if (!cancelled) setHasActiveMembership(false);
+        if (!cancelled) setHasStripeBilling(false);
         return;
       }
 
       try {
         const res = await fetch("/api/me/membership", { credentials: "include" });
         if (!res.ok) {
-          if (!cancelled) setHasActiveMembership(false);
+          if (!cancelled) setHasStripeBilling(false);
           return;
         }
-        const data = (await res.json()) as { active?: boolean };
-        if (!cancelled) setHasActiveMembership(Boolean(data.active));
+        const data = (await res.json()) as {
+          active?: boolean;
+          stripeBilling?: boolean;
+        };
+        if (!cancelled) {
+          setHasStripeBilling(Boolean(data.stripeBilling));
+        }
       } catch {
-        if (!cancelled) setHasActiveMembership(false);
+        if (!cancelled) setHasStripeBilling(false);
       }
     }
 
@@ -177,7 +182,7 @@ const Header = () => {
                   Account
                 </Link>
               </DropdownMenuItem>
-              {hasActiveMembership && (
+              {hasStripeBilling && (
                 <DropdownMenuItem
                   onSelect={openBillingPortal}
                   className="flex items-center gap-2 cursor-pointer"
