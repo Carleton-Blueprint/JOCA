@@ -146,6 +146,15 @@ export async function approveMembershipApplication(params: {
   const user = await prisma.user.findUnique({ where: { id: params.userId } });
   if (!user) throw new Error("User not found");
 
+  if (
+    user.membershipStatus === MEMBERSHIP_STATUS.APPROVED ||
+    user.membershipStatus === MEMBERSHIP_STATUS.REJECTED
+  ) {
+    throw new Error(
+      "This application has already been decided and cannot be changed.",
+    );
+  }
+
   const active = await prisma.subscription.findFirst({
     where: { referenceId: user.id, status: "active" },
   });
@@ -191,6 +200,15 @@ export async function rejectMembershipApplication(params: {
 }): Promise<void> {
   const user = await prisma.user.findUnique({ where: { id: params.userId } });
   if (!user) throw new Error("User not found");
+
+  if (
+    user.membershipStatus === MEMBERSHIP_STATUS.APPROVED ||
+    user.membershipStatus === MEMBERSHIP_STATUS.REJECTED
+  ) {
+    throw new Error(
+      "This application has already been decided and cannot be changed.",
+    );
+  }
 
   const active = await prisma.subscription.findFirst({
     where: { referenceId: user.id, status: "active" },

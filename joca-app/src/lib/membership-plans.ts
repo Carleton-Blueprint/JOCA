@@ -29,3 +29,18 @@ export function getPlanLabel(planId: string | null | undefined): string {
   if (!planId) return "Unknown plan";
   return MEMBERSHIP_PLANS.find((p) => p.id === planId)?.label ?? planId;
 }
+
+const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
+  [MEMBERSHIP_STATUS.PENDING_APPROVAL]: "Pending Approval",
+  [MEMBERSHIP_STATUS.APPROVED]: "Approved",
+  [MEMBERSHIP_STATUS.REJECTED]: "Rejected",
+};
+
+export function getMembershipStatusLabel(
+  status: string | null | undefined,
+): string {
+  if (!status) return "Unknown";
+  return (
+    MEMBERSHIP_STATUS_LABELS[status as MembershipStatus] ?? status
+  );
+}

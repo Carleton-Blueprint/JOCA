@@ -120,17 +120,14 @@ const Header = () => {
             >
               Events
             </Link>
-            {isMounted &&
-              !isPending &&
-              session?.user &&
-              hasActiveMembership && (
-                <Link
-                  href="/elections"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Elections
-                </Link>
-              )}
+            {isMounted && !isPending && session?.user && (
+              <Link
+                href="/elections"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Elections
+              </Link>
+            )}
 
             <Link
               href="/about"
