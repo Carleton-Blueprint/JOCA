@@ -8,47 +8,45 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSessionReady, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
+import { getPlanLabel } from "@/lib/membership-plans";
+import { formatEtransferSecurityLine } from "@/lib/etransfer-copy";
 
-const PLANS = [
-  { id: "senior-membership", label: "Senior Membership" },
-  { id: "general-membership", label: "General Membership" },
-  { id: "family-membership", label: "Family Membership" },
-  {
-    id: "student-associate-membership",
-    label: "Student / Associate Membership",
-  },
-];
-
-export const StartPaymentPage = () => {
+export const StartPaymentPage = ({
+  approvedPlan,
+  etransferEmail,
+  etransferNotes,
+  etransferSecurityQuestion,
+  etransferSecurityAnswer,
+}: {
+  approvedPlan: string;
+  etransferEmail: string | null;
+  etransferNotes: string | null;
+  etransferSecurityQuestion: string | null;
+  etransferSecurityAnswer: string | null;
+}) => {
   const { data: session, isPending } = useSessionReady();
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string>("");
 
   useEffect(() => setIsMounted(true), []);
 
   const handlePayment = async () => {
-    if (!selectedPlan) {
-      toast.error("Please select a membership plan.");
-      return;
-    }
     setIsLoading(true);
     try {
       const result = await subscription.upgrade({
-        plan: selectedPlan,
+        plan: approvedPlan,
         successUrl: "/payment/success",
         cancelUrl: "/payment/cancel",
       });
       if (result?.error) {
         toast.error(
-          result.error.message || "Failed to initiate payment. Please try again.",
+          result.error.message ||
+            "Failed to initiate payment. Please try again.",
         );
         return;
       }
@@ -63,49 +61,66 @@ export const StartPaymentPage = () => {
 
   if (!session?.user) return <NotLoggedIn />;
 
+  const etransferSecurityLine = formatEtransferSecurityLine({
+    securityQuestion: etransferSecurityQuestion,
+    securityAnswer: etransferSecurityAnswer,
+    notes: etransferNotes,
+    strong: (children) => (
+      <strong className="text-foreground">{children}</strong>
+    ),
+  });
+
   return (
     <div className="container mx-auto p-8 max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle>JOCA Membership Payment</CardTitle>
+          <CardTitle>Complete JOCA membership payment</CardTitle>
           <CardDescription>
-            Select a membership plan and complete your payment
+            Your application was approved for{" "}
+            <strong>{getPlanLabel(approvedPlan)}</strong>. Complete payment to
+            activate your membership.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <RadioGroup value={selectedPlan} onValueChange={setSelectedPlan}>
-            {PLANS.map((plan) => (
-              <div
-                key={plan.id}
-                className="flex items-center space-x-3 rounded-md border p-4"
-              >
-                <RadioGroupItem value={plan.id} id={plan.id} />
-                <Label
-                  htmlFor={plan.id}
-                  className="cursor-pointer flex-1 leading-5"
-                >
-                  {plan.label}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-          <div className="space-y-2">
+        <CardContent className="space-y-8">
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold">Pay by card</h2>
             <p className="text-sm text-muted-foreground">
               You will be redirected to Stripe Checkout to securely complete
-              your payment.
+              your payment. You may also use the card payment link emailed to
+              you after approval.
             </p>
-            <p className="text-sm text-muted-foreground">
-              Payment methods accepted: Credit/Debit cards.
-            </p>
+            <Button
+              onClick={handlePayment}
+              disabled={isLoading}
+              className="w-full"
+              size="lg"
+            >
+              {isLoading ? "Processing..." : "Pay with card"}
+            </Button>
           </div>
-          <Button
-            onClick={handlePayment}
-            disabled={isLoading || !selectedPlan}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? "Processing..." : "Make Payment"}
-          </Button>
+
+          {etransferEmail && (
+            <div className="space-y-3 border-t pt-6">
+              <h2 className="text-sm font-semibold">
+                Pay by Interac e-Transfer
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Send an Interac e-Transfer for your{" "}
+                <strong>{getPlanLabel(approvedPlan)}</strong> to:
+              </p>
+              <p className="text-sm font-medium">{etransferEmail}</p>
+              {etransferSecurityLine && (
+                <p className="text-sm text-muted-foreground">
+                  {etransferSecurityLine}
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground">
+                Include your full name and account email in the message so JOCA
+                can match your payment. Access is activated after staff confirm
+                receipt — this is not automatic.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

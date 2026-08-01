@@ -22,8 +22,16 @@ model User {
   sessions      Session[]
   accounts      Account[]
   votes         Vote[]
+  subscription  Subscription?
 
   stripeCustomerId String?
+
+  /// Member-suggested plan at signup (Stripe lookup key / plan id)
+  requestedPlan String?
+  /// Staff-chosen plan when approving (Stripe lookup key / plan id)
+  approvedPlan String?
+  /// pending_approval | approved | rejected
+  membershipStatus String @default("pending_approval")
 
   @@unique([email])
   @@map("user")
@@ -96,6 +104,7 @@ model Subscription {
   id                   String    @id
   plan                 String
   referenceId          String
+  user                 User      @relation(fields: [referenceId], references: [id], onDelete: Cascade)
   stripeCustomerId     String?
   stripeSubscriptionId String?
   status               String
