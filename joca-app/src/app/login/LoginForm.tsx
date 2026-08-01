@@ -39,7 +39,7 @@ const loginSchema = z.object({
 // Infers types based on schema so no external type declaration necessary
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export const LoginForm = () => {
+export const LoginForm = ({ redirectTo = "/" }: { redirectTo?: string }) => {
   const router = useRouter();
   const { data: session, isPending } = useSessionReady();
   const [isMounted, setIsMounted] = useState(false);
@@ -73,7 +73,7 @@ export const LoginForm = () => {
         onSuccess: () => {
           setIsLoading(false);
           toast.success("Signed in successfully");
-          router.push("/");
+          router.push(redirectTo);
         },
         onError: (ctx: any) => {
           setIsLoading(false);

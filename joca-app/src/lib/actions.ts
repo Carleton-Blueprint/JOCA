@@ -8,7 +8,7 @@ import { getElection } from "@/lib/strapi";
 import { isWithinVotingWindow } from "@/lib/utils";
 
 export async function voteForCandidate(
-  candidateName: string,
+  candidateStableId: string,
   electionId: string,
 ): Promise<{ voteCount: number }> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -31,22 +31,22 @@ export async function voteForCandidate(
     throw new Error("Voting is closed for this election.");
   }
 
-  const candidateNames =
-    election.candidates?.map((c) => c.name).filter(Boolean) ?? [];
-  if (!candidateNames.includes(candidateName)) {
+  const candidates = election.candidates ?? [];
+  const candidate = candidates.find((c) => c.stableId === candidateStableId);
+  if (!candidate?.stableId) {
     throw new Error("Selected candidate is not part of this election.");
   }
 
   const userId = session.user.id;
 
   // Single atomic DB write. Unique(userId, electionId) prevents double-votes
-  // and races — candidateId stores the ballot name string from Strapi.
+  // and races — candidateId stores the immutable Strapi stableId.
   try {
     await prisma.vote.create({
       data: {
         userId,
         electionId,
-        candidateId: candidateName,
+        candidateId: candidate.stableId,
       },
     });
   } catch (error) {
@@ -65,7 +65,7 @@ export async function voteForCandidate(
   }
 
   const voteCount = await prisma.vote.count({
-    where: { electionId, candidateId: candidateName },
+    where: { electionId, candidateId: candidate.stableId },
   });
 
   return { voteCount };

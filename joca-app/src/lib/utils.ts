@@ -25,14 +25,33 @@ export function parseLocalDate(date: string): Date {
   return new Date(year, month - 1, day);
 }
 
-/** Inclusive local calendar-day voting window. */
+/** Inclusive calendar-day voting window in America/Toronto (not server/browser TZ). */
+export const VOTING_TIMEZONE = "America/Toronto";
+
+/** YYYY-MM-DD for `date` in `timeZone` (lexicographically comparable). */
+export function calendarDateInTimeZone(
+  date: Date,
+  timeZone: string,
+): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+/**
+ * Inclusive voting window on America/Toronto calendar days.
+ * UI and server must agree regardless of Vercel UTC or browser TZ.
+ */
 export function isWithinVotingWindow(
   votingDateStart: string,
   votingDateEnd: string,
   now: Date = new Date(),
 ): boolean {
-  const start = parseLocalDate(votingDateStart);
-  const end = parseLocalDate(votingDateEnd);
-  end.setHours(23, 59, 59, 999);
-  return start <= now && end >= now;
+  const today = calendarDateInTimeZone(now, VOTING_TIMEZONE);
+  const start = votingDateStart.split("T")[0];
+  const end = votingDateEnd.split("T")[0];
+  return today >= start && today <= end;
 }

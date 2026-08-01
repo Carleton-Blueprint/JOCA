@@ -4,6 +4,8 @@ const REVALIDATION_EVENTS = new Set([
   "entry.publish",
   "entry.unpublish",
   "entry.delete",
+  "entry.update",
+  "entry.create",
 ]);
 
 const MODEL_TAGS: Record<string, string> = {

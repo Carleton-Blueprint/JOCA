@@ -30,6 +30,7 @@ export const GET_ELECTIONS = `
       votingDateStart
       votingDateEnd
       candidates {
+        stableId
         name
       }
     }
@@ -43,6 +44,7 @@ export const GET_ELECTION = `
       votingDateStart
       votingDateEnd
       candidates {
+        stableId
         name
       }
     }

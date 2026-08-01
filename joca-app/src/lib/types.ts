@@ -1,4 +1,6 @@
 export type Candidate = {
+  /** Immutable ballot id from Strapi (survives name edits). Filled by CMS lifecycle. */
+  stableId?: string | null;
   name: string;
 };
 

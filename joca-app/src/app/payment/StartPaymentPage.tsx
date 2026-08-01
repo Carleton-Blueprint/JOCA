@@ -8,13 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useSessionReady, subscription } from "@/lib/auth-client";
+import { useSessionReady } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Loading from "../loading";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
 import { getPlanLabel } from "@/lib/membership-plans";
 import { formatEtransferSecurityLine } from "@/lib/etransfer-copy";
+import { startMembershipCheckoutAction } from "./actions";
 
 export const StartPaymentPage = ({
   approvedPlan,
@@ -38,18 +39,12 @@ export const StartPaymentPage = ({
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      const result = await subscription.upgrade({
-        plan: approvedPlan,
-        successUrl: "/payment/success",
-        cancelUrl: "/payment/cancel",
-      });
-      if (result?.error) {
-        toast.error(
-          result.error.message ||
-            "Failed to initiate payment. Please try again.",
-        );
+      const result = await startMembershipCheckoutAction();
+      if (!result.ok) {
+        toast.error(result.message);
         return;
       }
+      window.location.assign(result.checkoutUrl);
     } catch {
       toast.error("Failed to initiate payment. Please try again.");
     } finally {

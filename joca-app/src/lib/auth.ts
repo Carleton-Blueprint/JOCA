@@ -4,13 +4,14 @@ import Stripe from "stripe";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
-import { createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { SESSION_FRESH_AGE_SECONDS } from "@/lib/auth-constants";
 import { EMAIL_FROM, resend } from "@/lib/resend";
 import { notifyJocaOfMembershipApplication } from "@/lib/membership-notify";
 import { MEMBERSHIP_STATUS } from "@/lib/membership-plans";
 import { isEmailVerificationSkipped } from "@/lib/email-verification";
 import { cleanupUserExternalData } from "@/lib/delete-user-account";
+import { recoverEtransferAfterStripeCheckout } from "@/lib/membership-checkout";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -77,6 +78,16 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      // JOCA membership checkout is staff-gated via createMembershipCheckoutUrl.
+      // Block Better Auth's open /subscription/upgrade so pending/rejected users
+      // cannot self-serve Stripe Checkout for any configured plan.
+      if (ctx.path === "/subscription/upgrade") {
+        throw new APIError("FORBIDDEN", {
+          message:
+            "Membership checkout requires staff approval. Use the payment page after your application is approved.",
+        });
+      }
+
       if (ctx.path === "/sign-up/email") {
         const body = ctx.body as { email?: string } | undefined;
         const email = body?.email;
@@ -173,6 +184,8 @@ export const auth = betterAuth({
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
       subscription: {
         enabled: true,
+        // Defense in depth; JOCA also blocks /subscription/upgrade in hooks.before.
+        requireEmailVerification: !isEmailVerificationSkipped(),
         plans: [
           {
             name: "senior-membership",
@@ -191,6 +204,21 @@ export const auth = betterAuth({
             lookupKey: "student-associate-membership",
           },
         ],
+        onSubscriptionComplete: async ({
+          subscription,
+          stripeSubscription,
+        }) => {
+          if (!subscription?.referenceId || !stripeSubscription?.id) return;
+          await recoverEtransferAfterStripeCheckout({
+            referenceId: subscription.referenceId,
+            stripeSubscriptionId: stripeSubscription.id,
+            stripeCustomerId:
+              subscription.stripeCustomerId ??
+              (typeof stripeSubscription.customer === "string"
+                ? stripeSubscription.customer
+                : stripeSubscription.customer?.id),
+          });
+        },
       },
     }),
   ],

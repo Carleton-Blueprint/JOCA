@@ -1,7 +1,8 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 const PURPOSE = "membership-approve";
-const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days (covers delayed e-Transfer confirmation)
+/** Approve/reject links only — e-Transfer confirm is session-admin on /admin/applications. */
+const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 function getSecret(): string {
   const secret = process.env.BETTER_AUTH_SECRET;

@@ -37,7 +37,7 @@ export async function notifyJocaOfMembershipApplication(
 
   if (!resend) {
     console.warn(
-      `[membership] Resend not configured; approve URL for ${user.email}: ${approveUrl}`,
+      `[membership] Resend not configured; skipped staff notification for user ${user.id} (${user.email}).`,
     );
     return;
   }

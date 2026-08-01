@@ -43,7 +43,9 @@ export const ElectionCard = ({
 }) => {
   const router = useRouter();
   const [selectedCandidate, setSelectedCandidate] =
-    React.useState<Candidate | null>(election.candidates?.[0] ?? null);
+    React.useState<Candidate | null>(
+      election.candidates?.find((c) => Boolean(c.stableId)) ?? null,
+    );
   const [open, setOpen] = React.useState(false);
   const [confirming, setConfirming] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
@@ -64,10 +66,10 @@ export const ElectionCard = ({
   };
 
   const handleVote = async () => {
-    if (!selectedCandidate) return;
+    if (!selectedCandidate?.stableId) return;
     setVoting(true);
     try {
-      await voteForCandidate(selectedCandidate.name, election.documentId);
+      await voteForCandidate(selectedCandidate.stableId, election.documentId);
       setConfirming(false);
       setOpen(false);
       setHasVoted(true);
@@ -190,35 +192,39 @@ export const ElectionCard = ({
                   </span>
                 </div>
 
-                {election.candidates && election.candidates.length > 1 && (
+                {(() => {
+                  const ballot = (election.candidates ?? []).filter(
+                    (c): c is Candidate & { stableId: string } =>
+                      Boolean(c.stableId),
+                  );
+                  if (ballot.length <= 1) return null;
+                  return (
                   <section className="space-y-2">
                     <div className="flex items-center gap-2 text-sm font-semibold pt-8 pb-2 border-b border-gray-200 dark:border-gray-800">
                       <Users className="size-6" />
                       <span className="text-xl">Candidates</span>
                     </div>
                     <RadioGroup
-                      defaultValue={election.candidates[0]?.name ?? undefined}
+                      defaultValue={ballot[0]?.stableId}
                       onValueChange={(value: string) => {
                         setSelectedCandidate(
-                          election.candidates?.find(
-                            (candidate: Candidate) => candidate.name === value,
-                          ) ?? null,
+                          ballot.find((c) => c.stableId === value) ?? null,
                         );
                       }}
                     >
-                      {election.candidates?.map((candidate: Candidate) => (
+                      {ballot.map((candidate) => (
                         <div
-                          key={candidate.name}
+                          key={candidate.stableId}
                           className="flex items-center gap-2"
                         >
-                          <FieldLabel htmlFor={candidate.name}>
+                          <FieldLabel htmlFor={candidate.stableId}>
                             <Field orientation="horizontal">
                               <FieldContent>
                                 <FieldTitle>{candidate.name}</FieldTitle>
 
                                 <RadioGroupItem
-                                  value={candidate.name}
-                                  id={candidate.name}
+                                  value={candidate.stableId}
+                                  id={candidate.stableId}
                                   className="text-black dark:text-white p-2"
                                 />
                               </FieldContent>
@@ -228,7 +234,8 @@ export const ElectionCard = ({
                       ))}
                     </RadioGroup>
                   </section>
-                )}
+                  );
+                })()}
                 <footer className="flex justify-end gap-2">
                   <DialogClose asChild>
                     <Button variant="outline" className="cursor-pointer">

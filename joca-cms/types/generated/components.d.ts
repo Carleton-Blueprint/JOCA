@@ -12,6 +12,11 @@ export interface ElectionCandidate extends Struct.ComponentSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 120;
       }>;
+    stableId: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 36;
+      }>;
   };
 }
 

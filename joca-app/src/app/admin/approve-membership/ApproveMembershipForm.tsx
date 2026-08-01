@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -35,7 +36,6 @@ import {
 } from "@/lib/membership-plans";
 import {
   approveMembershipAction,
-  confirmEtransferAction,
   rejectMembershipAction,
 } from "./actions";
 
@@ -75,7 +75,6 @@ export function ApproveMembershipForm({
       MEMBERSHIP_PLANS[0].id,
   );
   const [status, setStatus] = useState(applicant.membershipStatus);
-  const [paid, setPaid] = useState(hasActiveSubscription);
   const [message, setMessage] = useState<string | null>(() => {
     if (hasActiveSubscription) {
       return "This member already has an active membership.";
@@ -85,7 +84,7 @@ export function ApproveMembershipForm({
     }
     if (applicant.membershipStatus === MEMBERSHIP_STATUS.APPROVED) {
       return etransferEnabled
-        ? "Application already approved. Confirm Interac e-Transfer below once payment is received, or the member can pay by card."
+        ? "Application already approved. Confirm Interac e-Transfer from Applications after funds arrive, or wait for card payment."
         : "Application already approved. The member can complete card payment via the emailed Stripe link.";
     }
     return null;
@@ -102,11 +101,11 @@ export function ApproveMembershipForm({
   };
 
   const decided = isDecidedStatus(status);
-  const awaitingEtransfer =
-    !paid && status === MEMBERSHIP_STATUS.APPROVED && etransferEnabled;
   const controlsDisabled = isPending || decided;
+  const awaitingPayment =
+    !hasActiveSubscription && status === MEMBERSHIP_STATUS.APPROVED;
 
-  if (paid) {
+  if (hasActiveSubscription) {
     return (
       <Card className="w-full max-w-xl mx-auto my-12">
         <CardHeader>
@@ -135,7 +134,7 @@ export function ApproveMembershipForm({
           {!decided
             ? "Confirm or change the membership type, then approve to email payment options to the member."
             : status === MEMBERSHIP_STATUS.APPROVED
-              ? "Waiting for payment. Confirm Interac e-Transfer when funds arrive, or wait for Stripe Checkout."
+              ? "Waiting for payment. Confirm Interac e-Transfer from Applications when funds arrive."
               : "This application has already been reviewed."}
         </CardDescription>
       </CardHeader>
@@ -217,36 +216,15 @@ export function ApproveMembershipForm({
           </div>
         )}
 
-        {awaitingEtransfer && (
+        {awaitingPayment && etransferEnabled && (
           <div className="space-y-3 rounded-md border p-4">
             <p className="text-sm text-muted-foreground">
-              After you receive the member&apos;s Interac e-Transfer in the
-              bank inbox, confirm it here to activate their membership. This
-              does not appear in Stripe.
+              Interac e-Transfer confirmation requires the staff Applications
+              dashboard (not this email link) so a stolen link cannot activate
+              membership without payment.
             </p>
-            <Button
-              type="button"
-              className="w-full"
-              disabled={isPending}
-              onClick={() => {
-                setError(null);
-                setMessage(null);
-                const fd = new FormData();
-                fd.set("token", token);
-                startTransition(async () => {
-                  const result = await confirmEtransferAction(fd);
-                  if (result.ok) {
-                    setPaid(true);
-                    setMessage(result.message);
-                  } else {
-                    setError(result.message);
-                  }
-                });
-              }}
-            >
-              {isPending
-                ? "Working..."
-                : "Mark Interac e-Transfer as received"}
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/admin/applications">Open Applications</Link>
             </Button>
           </div>
         )}

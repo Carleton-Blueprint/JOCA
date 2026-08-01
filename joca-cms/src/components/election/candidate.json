@@ -6,6 +6,11 @@
   },
   "options": {},
   "attributes": {
+    "stableId": {
+      "type": "string",
+      "required": true,
+      "maxLength": 36
+    },
     "name": {
       "type": "string",
       "required": true,
