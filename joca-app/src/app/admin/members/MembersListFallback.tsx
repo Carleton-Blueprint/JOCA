@@ -2,7 +2,11 @@ import { Loader } from "@/components/ui/loader";
 
 export function MembersListFallback() {
   return (
-    <div aria-busy="true" aria-label="Loading members" className="space-y-6">
+    <div
+      aria-busy="true"
+      aria-label="Loading members"
+      className="container mx-auto max-w-5xl space-y-6 px-8 pb-8"
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="h-10 flex-1 rounded-md bg-muted animate-pulse" />
         <div className="h-10 w-24 rounded-md bg-muted animate-pulse" />
